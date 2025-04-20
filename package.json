@@ -1,9 +1,9 @@
 {
   "name": "safesoundarena-server",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "web/server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node web/server.js",
     "test": "mocha"
   },
   "dependencies": {
@@ -15,6 +15,7 @@
     "express": "^4.18.2",
     "express-rate-limit": "^6.7.0",
     "helmet": "^6.0.1",
+    "jsonwebtoken": "^9.0.2",
     "langchain": "^0.3.22",
     "openai": "^4.95.0",
     "socket.io": "^4.8.1"

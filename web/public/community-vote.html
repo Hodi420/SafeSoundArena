@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Community Vote - SafeSoundArena</title>
+  <style>
+    body { background: #181c22; color: #ffd700; font-family: Arial,sans-serif; margin: 0; }
+    .vote-card { background: #232323; border-radius: 18px; max-width: 480px; margin: 40px auto; padding: 32px 18px; box-shadow: 0 4px 24px #0008; }
+    h1 { color: #fffbe6; }
+    .option-btn { background: #ffd700; color: #232323; border: none; border-radius: 8px; padding: 12px 24px; margin: 10px 0; font-size: 1.1em; cursor: pointer; transition: 0.2s; }
+    .option-btn.selected { background: #232323; color: #ffd700; border: 2px solid #ffd700; }
+    .results { margin-top: 32px; }
+    .bar { height: 22px; background: #ffd70044; border-radius: 7px; margin: 4px 0; position: relative; }
+    .bar-inner { height: 100%; background: #ffd700; border-radius: 7px; }
+    .bar-label { position: absolute; left: 10px; top: 0; color: #232323; font-weight: bold; }
+    .voters { font-size: 0.95em; color: #ffd700aa; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="vote-card">
+    <h1>Community Vote</h1>
+    <div id="vote-options"></div>
+    <button id="submit-btn" class="option-btn" style="width:100%" onclick="submitVote()">Submit Vote</button>
+    <div id="vote-msg"></div>
+    <div class="results" id="vote-results"></div>
+  </div>
+  <script>
+    const voteEvent = 'community2025';
+    const options = ["Option A", "Option B", "Option C"];
+    let selected = null;
+    let username = localStorage.getItem('voteUser') || '';
+
+    function renderOptions() {
+      const el = document.getElementById('vote-options');
+      el.innerHTML = options.map((opt,i) =>
+        `<button class='option-btn' onclick='selectOption(${i})' id='opt${i}'>${opt}</button>`
+      ).join('');
+    }
+    function selectOption(i) {
+      selected = options[i];
+      options.forEach((_,j) => {
+        document.getElementById('opt'+j).classList.toggle('selected', i===j);
+      });
+    }
+    function submitVote() {
+      if (!selected) return document.getElementById('vote-msg').innerText = 'Choose an option first!';
+      if (!username) {
+        username = prompt('Enter your username for voting:');
+        if (!username) return;
+        localStorage.setItem('voteUser', username);
+      }
+      fetch('/api/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, voteOption: selected, voteEvent })
+      }).then(r=>r.json()).then(data => {
+        document.getElementById('vote-msg').innerText = data.ok ? 'Vote submitted!' : (data.error||'Error');
+        loadResults();
+      });
+    }
+    function loadResults() {
+      fetch(`/api/votes?event=${voteEvent}`).then(r=>r.json()).then(data => {
+        let total = data.reduce((s,o)=>s+o.count,0);
+        document.getElementById('vote-results').innerHTML = data.map(opt =>
+          `<div class='bar' style='width:100%'>
+            <div class='bar-inner' style='width:${total?((opt.count/total)*100):0}%'></div>
+            <span class='bar-label'>${opt.option}: ${opt.count}</span>
+          </div>`
+        ).join('');
+      });
+    }
+    renderOptions();
+    loadResults();
+  </script>
+</body>
+</html>

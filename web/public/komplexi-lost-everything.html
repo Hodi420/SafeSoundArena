@@ -51,6 +51,165 @@
             font-size: 1.1em;
             color: #8fffa0;
         }
+        #leaderboard {
+            background: #232323;
+            border-radius: 18px;
+            margin: 28px auto 0 auto;
+            padding: 18px 0 10px 0;
+            width: 96%;
+            max-width: 420px;
+            color: #ffd700;
+            box-shadow: 0 4px 24px #0008;
+        }
+        #leaderboard h3 {
+            margin: 0 0 14px 0;
+            font-size: 1.2em;
+            letter-spacing: 1px;
+        }
+        #leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            padding: 0 10px;
+            margin: 0;
+        }
+        .lb-row {
+            display: flex;
+            align-items: center;
+            background: #292929;
+            border-radius: 10px;
+            padding: 7px 10px;
+            font-size: 1.08em;
+            color: #ffd700;
+            box-shadow: 0 1px 6px #0004;
+            border: 2px solid transparent;
+            transition: border 0.2s;
+        }
+        .lb-row.gold {
+            background: linear-gradient(90deg,#ffe066 60%,#fffbe6 100%);
+            color: #232323;
+            border-color: #ffd700;
+            font-weight: bold;
+        }
+        .lb-row.silver {
+            background: linear-gradient(90deg,#e0e0e0 60%,#f8f8f8 100%);
+            color: #232323;
+            border-color: #b0b0b0;
+            font-weight: bold;
+        }
+        .lb-row.bronze {
+            background: linear-gradient(90deg,#e0a066 60%,#ffe6c7 100%);
+            color: #232323;
+            border-color: #e0a066;
+            font-weight: bold;
+        }
+        .lb-rank {
+            width: 2.2em;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        .lb-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 12px 0 0;
+            border: 2px solid #ffd70044;
+            background: #111;
+        }
+        .lb-name {
+            flex: 1 1 0;
+            font-weight: 500;
+            margin-right: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .lb-score {
+            min-width: 60px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.08em;
+            margin-right: 12px;
+        }
+        .lb-date {
+            min-width: 86px;
+            font-size: 0.92em;
+            color: #a0a0a0;
+            text-align: right;
+        }
+        #lb-newrecord {
+            margin: 12px 0 0 0;
+            padding: 10px 10px 6px 10px;
+            background: #232323;
+            border-radius: 12px;
+            box-shadow: 0 1px 8px #0005;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        #lb-newrecord input {
+            background: #181818;
+            color: #ffd700;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 7px 12px;
+            font-size: 1em;
+            margin: 0 0 4px 0;
+        }
+        #lb-newrecord label {
+            color: #ffd700;
+            font-size: 1em;
+            margin-bottom: 2px;
+        }
+        #lb-newrecord button {
+            background: #ffd700;
+            color: #232323;
+            border: none;
+            border-radius: 8px;
+            padding: 7px 18px;
+            font-size: 1.04em;
+            cursor: pointer;
+            margin-top: 4px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        #lb-newrecord button:hover {
+            background: #fffbe6;
+        }
+        #achievements {
+            background: #1a1a1a;
+            border-radius: 12px;
+            margin: 18px auto 0 auto;
+            padding: 10px 0 8px 0;
+            width: 90%;
+            max-width: 340px;
+            color: #ffd700;
+            box-shadow: 0 2px 12px #0003;
+            min-height: 42px;
+        }
+        #achievements h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.1em;
+            letter-spacing: 1px;
+        }
+        .ach-badge {
+            display: inline-block;
+            background: #333;
+            border-radius: 15px;
+            padding: 4px 10px;
+            margin: 0 5px 5px 0;
+            font-size: 0.97em;
+            color: #ffd700;
+            border: 1px solid #444;
+        }
+        .ach-badge.achieved {
+            background: #4caf50;
+            color: #fff;
+            border-color: #8fffa0;
+        }
         #coin-anim {
             transition: all 0.8s cubic-bezier(.17,.67,.83,.67);
         }
@@ -65,6 +224,15 @@
         <button id="lose-btn">Lose something!</button>
         <button id="reset-btn">Try again</button>
         <div id="coin-anim" style="display:none;position:absolute;left:50%;top:70px;font-size:2em;pointer-events:none;">💸</div>
+    </div>
+    <div id="leaderboard">
+        <h3>🌍 Global Leaderboard</h3>
+        <div id="lb-newrecord" style="display:none;"></div>
+        <div id="leaderboard-list"></div>
+    </div>
+    <div id="achievements">
+        <h3>⭐ Achievements</h3>
+        <div id="achievements-list"></div>
     </div>
     <script>
         const funnyTexts = [
@@ -98,6 +266,114 @@
         const funnyTextDiv = document.getElementById('funny-text');
         const resetBtn = document.getElementById('reset-btn');
         const recordDiv = document.getElementById('record');
+        const leaderboardList = document.getElementById('leaderboard-list');
+        const lbNewRecordDiv = document.getElementById('lb-newrecord');
+        const achievementsDiv = document.getElementById('achievements-list');
+
+        // --- Leaderboard helpers ---
+        function getRankClass(idx) {
+            if (idx === 0) return 'gold';
+            if (idx === 1) return 'silver';
+            if (idx === 2) return 'bronze';
+            return '';
+        }
+        function getRankIcon(idx) {
+            if (idx === 0) return '👑';
+            if (idx === 1) return '🥈';
+            if (idx === 2) return '🥉';
+            return (idx+1)+'.';
+        }
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: '2-digit' });
+        }
+        function defaultAvatar(name) {
+            // Simple initials avatar
+            const initials = name.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2);
+            return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=ffd700&color=232323&rounded=true&size=64`;
+        }
+
+        // --- Achievements definitions ---
+        const achievementDefs = [
+            { id: 'first-loss', name: 'First Loss!', desc: 'Lose all coins once' },
+            { id: 'triple-loss', name: 'Three-time Loser', desc: 'Lose all coins 3 times' },
+            { id: 'lucky-bonus', name: 'Lucky Bonus', desc: 'Get a bonus at 1 coin left' },
+            { id: 'big-loss', name: 'Big Drop', desc: 'Lose 50+ coins in one action' },
+            { id: 'record-breaker', name: 'Record Breaker', desc: 'Break your own loss record' }
+        ];
+        let achievements = JSON.parse(localStorage.getItem('kla_achievements')||'{}');
+        function saveAchievements() {
+            localStorage.setItem('kla_achievements', JSON.stringify(achievements));
+        }
+        function updateAchievementsUI() {
+            achievementsDiv.innerHTML = '';
+            achievementDefs.forEach(ach => {
+                const badge = document.createElement('span');
+                badge.className = 'ach-badge' + (achievements[ach.id] ? ' achieved' : '');
+                badge.title = ach.desc;
+                badge.innerText = ach.name;
+                achievementsDiv.appendChild(badge);
+            });
+        }
+        function unlockAchievement(id) {
+            if (!achievements[id]) {
+                achievements[id] = true;
+                saveAchievements();
+                updateAchievementsUI();
+            }
+        }
+
+        // --- GLOBAL Leaderboard logic ---
+        let globalLeaderboard = [];
+        function fetchGlobalLeaderboard() {
+            fetch('/api/leaderboard').then(r=>r.json()).then(data=>{
+                globalLeaderboard = data;
+                renderGlobalLeaderboard();
+            });
+        }
+        function renderGlobalLeaderboard() {
+            leaderboardList.innerHTML = '';
+            globalLeaderboard.forEach((rec, idx) => {
+                const row = document.createElement('div');
+                row.className = 'lb-row ' + getRankClass(idx);
+                row.innerHTML = `
+                    <span class="lb-rank">${getRankIcon(idx)}</span>
+                    <img class="lb-avatar" src="${rec.avatar||defaultAvatar(rec.name)}" alt="avatar">
+                    <span class="lb-name">${rec.name}</span>
+                    <span class="lb-score">${rec.score} losses</span>
+                    <span class="lb-date">${formatDate(rec.date)}</span>
+                `;
+                leaderboardList.appendChild(row);
+            });
+        }
+        function showNewRecordForm(score) {
+            lbNewRecordDiv.innerHTML = `
+                <label>שיא חדש! הכנס שם ותמונה (אופציונלי):</label>
+                <input id="lb-name-input" placeholder="השם שלך" maxlength="24" autocomplete="nickname" />
+                <input id="lb-avatar-input" placeholder="קישור לתמונה (אופציונלי)" />
+                <button id="lb-save-btn">שמור שיא (${score})</button>
+            `;
+            lbNewRecordDiv.style.display = 'flex';
+            document.getElementById('lb-save-btn').onclick = function() {
+                const name = document.getElementById('lb-name-input').value.trim() || 'Player';
+                const avatar = document.getElementById('lb-avatar-input').value.trim();
+                saveNewGlobalRecord(name, avatar, score);
+            };
+        }
+        function hideNewRecordForm() {
+            lbNewRecordDiv.style.display = 'none';
+            lbNewRecordDiv.innerHTML = '';
+        }
+        function saveNewGlobalRecord(name, avatar, score) {
+            fetch('/api/leaderboard', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, avatar, score })
+            }).then(r=>r.json()).then(data=>{
+                hideNewRecordForm();
+                fetchGlobalLeaderboard();
+            });
+        }
         const coinAnim = document.getElementById('coin-anim');
 
         function randomLoss() {
@@ -141,22 +417,34 @@
         function updateRecord() {
             recordDiv.innerText = 'Losses Record: ' + lostAllCounter;
         }
+        function updateAllUI() {
+            updateRecord();
+            fetchGlobalLeaderboard();
+            updateAchievementsUI();
+        }
         loseBtn.onclick = () => {
             if (coins <= 0) return;
+            let bigLoss = false;
+            let gotBonusAt1 = false;
             // 1 ל-7 סיכוי לבונוס
             if (Math.random() < 0.14) {
                 const bonus = randomBonus();
                 coins += bonus;
                 showBonusText();
                 animateCoin(bonus, true);
+                if (coins === 1) gotBonusAt1 = true;
             } else {
                 showFunnyText();
                 const loss = randomLoss();
+                if (loss >= 50) bigLoss = true;
                 coins -= loss;
                 if (coins < 0) coins = 0;
                 animateCoin(loss, false);
             }
             updateCoinsDisplay();
+            // הישגים
+            if (gotBonusAt1) unlockAchievement('lucky-bonus');
+            if (bigLoss) unlockAchievement('big-loss');
             // הודעות מיוחדות
             if (coins === 1) {
                 funnyTextDiv.innerText = 'Surviving with just one coin!';
@@ -168,6 +456,18 @@
                 funnyTextDiv.innerText = 'You won! (Or lost? Depends how you see it)';
                 loseBtn.style.display = 'none';
                 resetBtn.style.display = 'inline-block';
+                // --- GLOBAL Leaderboard new record ---
+                // Check if qualifies for top 10
+                fetch('/api/leaderboard').then(r=>r.json()).then(lb=>{
+                    const minScore = lb.length < 10 ? 0 : Math.min(...lb.map(x=>x.score));
+                    if (lostAllCounter > minScore) {
+                        showNewRecordForm(lostAllCounter);
+                    }
+                });
+                // Achievements
+                if (lostAllCounter === 1) unlockAchievement('first-loss');
+                if (lostAllCounter === 3) unlockAchievement('triple-loss');
+                // אין צורך ב-check לשיא אישי כי זה גלובלי
             }
         };
         resetBtn.onclick = () => {
@@ -178,7 +478,7 @@
             resetBtn.style.display = 'none';
         };
         // Initial update
-        updateRecord();
+        updateAllUI();
     </script>
 </body>
 </html>

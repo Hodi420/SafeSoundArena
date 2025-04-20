@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Leaderboard - SafeSoundArena</title>
+  <style>
+    body { background: #232323; color: #ffd700; font-family: Arial,sans-serif; text-align: center; margin: 0; }
+    .card { margin: 40px auto; padding: 34px 22px; background: #333; border-radius: 18px; max-width: 600px; box-shadow: 0 4px 24px #0008; }
+    h1 { color: #fffbe6; }
+    table { width: 100%; border-collapse: collapse; margin: 0 auto; }
+    th, td { padding: 6px 10px; border-bottom: 1px solid #444; text-align: left; }
+    th { color: #fffbe6; background: #232323; }
+    td { color: #ffd700; }
+    .gold { color: gold; font-weight: bold; }
+    .silver { color: #c0c0c0; font-weight: bold; }
+    .bronze { color: #cd7f32; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Global Leaderboard</h1>
+    <table id="leaderboard"><thead><tr><th>#</th><th>Username</th><th>Score</th><th>Date</th></tr></thead><tbody></tbody></table>
+    <h3>Submit Your Score</h3>
+    <form id="score-form" onsubmit="return submitScore(event)">
+      <input id="username" placeholder="Username" required>
+      <input id="score" type="number" placeholder="Score" required>
+      <button type="submit">Submit</button>
+    </form>
+    <div id="msg"></div>
+  </div>
+  <script>
+    function loadLeaderboard() {
+      fetch('/api/leaderboard').then(r=>r.json()).then(data => {
+        const tbody = document.querySelector('#leaderboard tbody');
+        tbody.innerHTML = '';
+        data.forEach((row,i) => {
+          let cls = i==0?'gold':i==1?'silver':i==2?'bronze':'';
+          tbody.innerHTML += `<tr><td class='${cls}'>${i+1}</td><td>${row.username}</td><td>${row.score}</td><td>${row.createdAt?row.createdAt.split('T')[0]:''}</td></tr>`;
+        });
+      });
+    }
+    function submitScore(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const score = document.getElementById('score').value;
+      fetch('/api/score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, score })
+      }).then(r=>r.json()).then(data => {
+        document.getElementById('msg').innerText = data.ok ? 'Score submitted!' : (data.error||'Error');
+        loadLeaderboard();
+      });
+    }
+    loadLeaderboard();
+  </script>
+</body>
+</html>

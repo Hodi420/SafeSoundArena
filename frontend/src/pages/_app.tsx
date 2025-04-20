@@ -3,6 +3,9 @@ import type { AppProps } from 'next/app';
 import { AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from '../theme';
 import { PageTransition } from '../components/PageTransition';
 import { RouteChangeLoader } from '../components/RouteChangeLoader';
 import { RouteChangeProgress } from '../components/RouteChangeProgress';
@@ -41,7 +44,12 @@ function MyApp({ Component, pageProps }: AppProps) {
       </AnimatePresence>
     </>
   );
-  return isJailTime ? content : <ToastProvider>{content}</ToastProvider>;
+  return isJailTime ? content : (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <ToastProvider>{content}</ToastProvider>
+    </ThemeProvider>
+  );
 }
 
 
