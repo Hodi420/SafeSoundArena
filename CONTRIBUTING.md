@@ -18,6 +18,8 @@ Thank you for your interest in contributing! We welcome Pull Requests, bug repor
 - Join Discussions and the Discord server.
 - Ask questions, suggest, and share knowledge!
 
+**See advanced usage examples in [`examples/usageExamples.md`](examples/usageExamples.md)!**
+
 ---
 
 # מדריך תרומה ל-SafeSoundArena
