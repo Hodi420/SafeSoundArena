@@ -1,20 +1,20 @@
 ---
-name: דיווח באג
-about: דווח על תקלה או שגיאה במערכת
+name: Bug Report | דיווח באג
+about: Report a bug or error in the system | דווח על תקלה או שגיאה במערכת
 labels: bug
 ---
 
-**תיאור התקלה**
+**Bug Description | תיאור התקלה**
 
-**שלבים לשחזור**
+**Steps to Reproduce | שלבים לשחזור**
 1. ...
 2. ...
 
-**התנהגות צפויה**
+**Expected Behavior | התנהגות צפויה**
 
-**סביבת עבודה**
-- מערכת הפעלה:
-- דפדפן:
-- גרסה:
+**Environment | סביבת עבודה**
+- Operating System | מערכת הפעלה:
+- Browser | דפדפן:
+- Version | גרסה:
 
-**מידע נוסף**
+**Additional Information | מידע נוסף**

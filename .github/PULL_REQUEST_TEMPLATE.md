@@ -1,14 +1,14 @@
-# תבנית Pull Request
+# Pull Request Template | תבנית Pull Request
 
-**מה השתנה?**
+**What has changed? | מה השתנה?**
 
-- [ ] תיקון באג
-- [ ] פיצ'ר חדש
-- [ ] תיעוד
-- [ ] בדיקות
+- [ ] Bug fix | תיקון באג
+- [ ] New feature | פיצ'ר חדש
+- [ ] Documentation | תיעוד
+- [ ] Tests | בדיקות
 
-**תיאור**
+**Description | תיאור**
 
-**בדיקות שבוצעו**
+**Tests Performed | בדיקות שבוצעו**
 
-**הערות**
+**Notes | הערות**

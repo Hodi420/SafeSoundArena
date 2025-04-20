@@ -1,13 +1,13 @@
 ---
-name: בקשת פיצ'ר
-about: הצע פיצ'ר חדש או שיפור
+name: Feature Request | בקשת פיצ'ר
+about: Suggest a new feature or improvement | הצע פיצ'ר חדש או שיפור
 labels: enhancement
 ---
 
-**תיאור הפיצ'ר**
+**Feature Description | תיאור הפיצ'ר**
 
-**הצעת מימוש**
+**Implementation Suggestion | הצעת מימוש**
 
-**ערך מוסף למשתמשים**
+**Added Value for Users | ערך מוסף למשתמשים**
 
-**מידע נוסף**
+**Additional Information | מידע נוסף**
