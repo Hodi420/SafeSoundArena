@@ -5,22 +5,20 @@ name: Frontend CI
 
 on:
   push:
-    branches: [main, master]
+    branches: 
+      - main
+      - master
   pull_request:
-    branches: [main, master]
-  workflow_dispatch: # מאפשר הרצה ידנית
+    branches: 
+      - main
+      - master
+  workflow_dispatch: # Enable manual triggering of workflow
+    inputs:
+      reason:
+        description: 'Reason for triggering the workflow'
+        required: false
 
 jobs:
-  debug:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Show event & branch info
-        run: |
-          echo "Event: ${{ github.event_name }}"
-          echo "Branch: ${{ github.ref }}"
-          echo "Actor: ${{ github.actor }}"
-          echo "Repository: ${{ github.repository }}"
-
   test:
     runs-on: ubuntu-latest
     steps:
@@ -50,3 +48,12 @@ jobs:
           name: codecov-frontend
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display Debug Info
+        run: |
+          echo "Branch: ${{ github.ref }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Workflow triggered manually: ${{ github.event.inputs.reason }}"
