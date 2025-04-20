@@ -8,8 +8,19 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  workflow_dispatch: # מאפשר הרצה ידנית
 
 jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show event & branch info
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Repository: ${{ github.repository }}"
+
   test:
     runs-on: ubuntu-latest
     steps:
