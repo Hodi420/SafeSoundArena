@@ -1,0 +1,93 @@
+<!-- web/deciderUI.html -->
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <title>DeciderBot UI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9fc; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 24px; }
+    h1 { text-align: center; color: #2a3a5a; }
+    label { display: block; margin-top: 16px; }
+    textarea, input[type=text] { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+    button { margin-top: 16px; padding: 10px 30px; border: none; background: #2a3a5a; color: #fff; border-radius: 4px; font-size: 1.1em; cursor: pointer; }
+    button:disabled { background: #ccc; }
+    .log, .pending { margin-top: 32px; }
+    .log-entry, .pending-entry { background: #f4f6fa; border-radius: 5px; padding: 12px; margin-bottom: 12px; }
+    .questions { color: #b85c00; margin-top: 8px; }
+    .success { color: #1b8e2d; }
+    .error { color: #b80000; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ממשק הבוט הקובע</h1>
+    <form id="commandForm">
+      <label for="prompt">פקודה או שאלה לבוט:</label>
+      <textarea id="prompt" required rows="2"></textarea>
+      <label><input type="checkbox" id="approve" /> אישור מנהל (לביצוע בפועל)</label>
+      <button type="submit">שלח לבוט</button>
+    </form>
+    <div class="pending">
+      <h2>המתנות לאישור</h2>
+      <div id="pendingList"></div>
+    </div>
+    <div class="log">
+      <h2>יומן החלטות</h2>
+      <div id="logList"></div>
+    </div>
+  </div>
+  <script>
+    async function fetchLog() {
+      const res = await fetch('/api/log');
+      const log = await res.json();
+      const logList = document.getElementById('logList');
+      logList.innerHTML = log.slice(-10).reverse().map(entry => `
+        <div class="log-entry">
+          <b>פקודה:</b> ${entry.prompt}<br />
+          <b>החלטה:</b> ${entry.consensus}<br />
+          <b>סטטוס:</b> <span class="${entry.status === 'success' ? 'success' : (entry.status === 'error' ? 'error' : '')}">${entry.status}</span><br />
+          <b>מורכבות:</b> ${entry.consensusComplexity}<br />
+          <b>זמן:</b> ${new Date(entry.timestamp).toLocaleString('he-IL')}
+          ${entry.validationQuestions ? `<div class="questions"><b>שאלות אימות:</b><ul>` + entry.validationQuestions.map(q => `<li>${q}</li>`).join('') + '</ul></div>' : ''}
+        </div>
+      `).join('');
+    }
+    async function fetchPending() {
+      const res = await fetch('/api/pending');
+      const pending = await res.json();
+      const pendingList = document.getElementById('pendingList');
+      if (!pending.length) { pendingList.innerHTML = '<i>אין פעולות שממתינות לאישור.</i>'; return; }
+      pendingList.innerHTML = pending.reverse().map(entry => `
+        <div class="pending-entry">
+          <b>פקודה:</b> ${entry.prompt}<br />
+          <b>החלטה:</b> ${entry.consensus}<br />
+          <b>סטטוס:</b> <span>${entry.status}</span><br />
+          <b>שאלות לאימות:</b><ul>
+          ${entry.validationQuestions.map(q => `<li>${q}</li>`).join('')}
+          </ul>
+        </div>
+      `).join('');
+    }
+    document.getElementById('commandForm').onsubmit = async e => {
+      e.preventDefault();
+      const prompt = document.getElementById('prompt').value;
+      const approve = document.getElementById('approve').checked;
+      const res = await fetch('/api/command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, approve })
+      });
+      document.getElementById('prompt').value = '';
+      document.getElementById('approve').checked = false;
+      await fetchLog();
+      await fetchPending();
+    };
+    fetchLog();
+    fetchPending();
+    setInterval(fetchLog, 5000);
+    setInterval(fetchPending, 5000);
+  </script>
+</body>
+</html>

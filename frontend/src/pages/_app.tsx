@@ -2,9 +2,11 @@ import '../index.css';
 import type { AppProps } from 'next/app';
 import { AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import { PageTransition } from '../components/PageTransition';
 import { RouteChangeLoader } from '../components/RouteChangeLoader';
 import { RouteChangeProgress } from '../components/RouteChangeProgress';
+import { initGA, trackPageView } from '../lib/analytics';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -12,6 +14,18 @@ function MyApp({ Component, pageProps }: AppProps) {
   const pageTransitionProps = (Component as any).pageTransitionProps || {};
   const { ToastProvider } = require('../components/ToastContext');
   const isJailTime = router.pathname === '/jail-time';
+
+  // Google Analytics: Initialize once and track page views
+  useEffect(() => {
+    initGA();
+    trackPageView(window.location.pathname);
+    const handleRouteChange = (url: string) => trackPageView(url);
+    router.events.on('routeChangeComplete', handleRouteChange);
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router.events]);
+
   const content = (
     <>
       <RouteChangeProgress />
@@ -28,7 +42,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     </>
   );
   return isJailTime ? content : <ToastProvider>{content}</ToastProvider>;
-
 }
+
 
 export default MyApp;

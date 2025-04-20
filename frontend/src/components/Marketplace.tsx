@@ -1,10 +1,31 @@
 import { useMarketplace, useBuyItem, useSellItem } from '../hooks/useMarketplace';
 import { EMOJIS } from '../parameters/emojis';
 
+import Toast from './Toast';
+import { useState } from 'react';
+
 export default function Marketplace() {
   const { data: items, isLoading, error } = useMarketplace();
   const buyItem = useBuyItem();
   // For demo, sellItem is not wired to UI
+
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [toastError, setToastError] = useState<string | null>(null);
+
+  // Show toast on buy success/error
+  const handleBuy = async (itemId: string, itemName: string) => {
+    setToastError(null);
+    setToastMsg(null);
+    buyItem.mutate(itemId, {
+      onSuccess: () => {
+        setToastMsg(`Successfully purchased ${itemName}!`);
+      },
+      onError: (error: any) => {
+        setToastError(error?.message || 'Failed to purchase item.');
+      },
+    });
+  };
+
   if (isLoading) return (
     <div className="bg-gray-900 rounded-lg p-4 border border-yellow-500 animate-pulse">
       <div className="h-6 bg-gray-700 rounded w-32 mb-4"></div>
@@ -33,6 +54,33 @@ export default function Marketplace() {
     );
   }
 
+  const sellItem = useSellItem();
+  const [sellState, setSellState] = useState<{ [itemId: string]: { quantity: number; price: number; open: boolean } }>({});
+
+  const handleSellClick = (itemId: string) => {
+    setSellState((prev) => ({ ...prev, [itemId]: { quantity: 1, price: 1, open: true } }));
+  };
+  const handleSellChange = (itemId: string, field: 'quantity' | 'price', value: number) => {
+    setSellState((prev) => ({
+      ...prev,
+      [itemId]: { ...prev[itemId], [field]: value }
+    }));
+  };
+  const handleSellSubmit = (item: any) => {
+    const { quantity, price } = sellState[item.id];
+    setToastError(null);
+    setToastMsg(null);
+    sellItem.mutate({ itemId: item.id, quantity, price }, {
+      onSuccess: () => {
+        setToastMsg(`Successfully listed ${quantity}x ${item.name} for ${price} Pi!`);
+        setSellState((prev) => ({ ...prev, [item.id]: { ...prev[item.id], open: false } }));
+      },
+      onError: (error: any) => {
+        setToastError(error?.message || 'Failed to list item.');
+      },
+    });
+  };
+
   return (
     <div className={styles.container}>
       <div className="font-bold mb-2">{EMOJIS.BLOCKCHAIN.TRADE} Marketplace</div>
@@ -50,7 +98,7 @@ export default function Marketplace() {
               title={`Buy ${item.name} for ${item.price} Pi`}
               primary={!buyItem.isPending}
               disabled={buyItem.isPending}
-              onClick={() => buyItem.mutate(item.id)}
+              onClick={() => handleBuy(item.id, item.name)}
             >
               {buyItem.isPending ? (
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true" style={{animation: 'spin 1s linear infinite'}}>
@@ -67,9 +115,74 @@ export default function Marketplace() {
                 </svg>
               )}
             </IconButton>
+            {/* SELL BUTTON for items owned by 'me' (demo logic) */}
+            {item.seller === 'me' && !sellState[item.id]?.open && (
+              <IconButton
+                ariaLabel={`Sell ${item.name}`}
+                title={`Sell ${item.name}`}
+                onClick={() => handleSellClick(item.id)}
+                primary={false}
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 10h12" stroke="#b45309" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M10 4v12" stroke="#b45309" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                <span className="ml-1">Sell</span>
+              </IconButton>
+            )}
+            {/* SELL FORM */}
+            {item.seller === 'me' && sellState[item.id]?.open && (
+              <form
+                onSubmit={e => { e.preventDefault(); handleSellSubmit(item); }}
+                className="flex flex-col gap-2 bg-gray-800 p-2 rounded mt-2"
+                style={{ minWidth: 180 }}
+              >
+                <label className="text-xs text-gray-300">Quantity:
+                  <input
+                    type="number"
+                    min={1}
+                    max={item.quantity}
+                    value={sellState[item.id]?.quantity || 1}
+                    onChange={e => handleSellChange(item.id, 'quantity', Number(e.target.value))}
+                    className="ml-2 w-12 text-black px-1 rounded"
+                  />
+                </label>
+                <label className="text-xs text-gray-300">Price:
+                  <input
+                    type="number"
+                    min={1}
+                    value={sellState[item.id]?.price || 1}
+                    onChange={e => handleSellChange(item.id, 'price', Number(e.target.value))}
+                    className="ml-2 w-12 text-black px-1 rounded"
+                  /> Pi
+                </label>
+                <div className="flex gap-2 mt-1">
+                  <button
+                    type="submit"
+                    className="bg-green-700 text-white px-3 py-1 rounded hover:bg-green-800 text-xs"
+                    disabled={sellItem.isPending}
+                  >
+                    {sellItem.isPending ? 'Listing...' : 'Confirm Sell'}
+                  </button>
+                  <button
+                    type="button"
+                    className="bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600 text-xs"
+                    onClick={() => setSellState(prev => ({ ...prev, [item.id]: { ...prev[item.id], open: false } }))}
+                  >Cancel</button>
+                </div>
+              </form>
+            )}
           </div>
         ))}
       </div>
     </div>
+    {/* Toast for success */}
+    {toastMsg && (
+      <Toast message={toastMsg} onClose={() => setToastMsg(null)} color="blue" />
+    )}
+    {/* Toast for error */}
+    {toastError && (
+      <Toast message={toastError} onClose={() => setToastError(null)} color="red" />
+    )}
   );
 }

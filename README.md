@@ -21,7 +21,34 @@ To run this project, you need to create environment files for each environment (
 
 # SafeSoundArena
 
-SafeSoundArena is a blockchain-integrated AI-driven game that uses GPT-4.1 and Pi Network technologies.
+[![CI](https://github.com/Hodi420/SafeSoundArena/actions/workflows/ci.yml/badge.svg)](https://github.com/Hodi420/SafeSoundArena/actions)
+
+**English below | עברית בהמשך**
+
+---
+
+## תקציר בעברית
+SafeSoundArena הוא פרויקט קוד פתוח המשלב בינה מלאכותית, בוטים, ניתוח נתונים, קהילה וגיימיפיקציה. המערכת בנויה בצורה מודולרית, תומכת בבוטים חכמים, ניהול קהילה, אינטגרציה עם טלגרם ו-LLM (GPT/Gemini), ומיועדת להרחבה ע"י הקהילה.
+
+- תיעוד, דוגמאות והרצה: ראו [`examples/usageExamples.md`](examples/usageExamples.md)
+- תרומות, דיווחי באגים, פיצ'רים: ראו [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- משתני סביבה: ראו `.env.example`
+- קהילה: הצטרפו לדיונים ולשרת הדיסקורד!
+
+---
+
+## Project Overview (English)
+SafeSoundArena is an open-source, modular, AI-powered game and bot framework. It features:
+- Advanced bots (data analysis, strategy, community, hardware)
+- Community integrations (Telegram, Discord)
+- LLM support (OpenAI, Gemini, local LLMs)
+- Automated tests & CI/CD
+
+- See advanced usage: [`examples/usageExamples.md`](examples/usageExamples.md)
+- Contribute: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- Environment variables: see `.env.example`
+
+---
 
 ## Modules
 

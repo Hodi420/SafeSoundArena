@@ -1,11 +1,20 @@
 // aiClients/openai.js
 // Wrapper for OpenAI GPT models
 require('dotenv').config();
-const { OpenAI } = require('openai');
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let openai;
+if (process.env.DECIDER_DEMO === '1') {
+  // DEMO mode: no OpenAI
+  openai = null;
+} else {
+  const { OpenAI } = require('openai');
+  openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 async function ask(prompt, options = {}) {
+  if (process.env.DECIDER_DEMO === '1') {
+    // DEMO mode: return fake answer
+    return `DEMO: ${prompt.slice(0, 30)}...`;
+  }
   try {
     const response = await openai.chat.completions.create({
       model: options.model || 'gpt-3.5-turbo',

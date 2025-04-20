@@ -54,6 +54,21 @@ function getPioneerKeyFromEnvOrRequest() {
 }
 
 async function getConsensus(prompt, userId = 'anonymous', pioneerKey = null) {
+  if (process.env.DECIDER_DEMO === '1') {
+    // DEMO mode: return fake consensus
+    const fakeAnswers = [
+      'game_move north',
+      'game_move south',
+      'edit: README.md append DEMO',
+      'db: SELECT * FROM demo',
+      'webhook: https://demo.url {"event":"demo"}'
+    ];
+    const consensus = fakeAnswers[Math.floor(Math.random() * fakeAnswers.length)];
+    const tally = {};
+    tally[consensus] = Math.floor(Math.random() * 3) + 2;
+    tally[fakeAnswers[(fakeAnswers.indexOf(consensus)+1)%fakeAnswers.length]] = Math.floor(Math.random()*2)+1;
+    return { consensus, all: {}, tally };
+  }
   const results = {};
   await Promise.all(providers.map(async provider => {
     try {

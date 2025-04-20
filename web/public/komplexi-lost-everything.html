@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>משחק: לאבד הכל!</title>
+    <style>
+        body {
+            background: #232323;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            direction: ltr;
+        }
+        #game-container {
+            margin: 40px auto;
+            padding: 30px;
+            background: #333;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px #0008;
+            width: 370px;
+        }
+        #coins {
+            font-size: 2.2em;
+            margin: 16px 0;
+        }
+        #funny-text {
+            min-height: 40px;
+            margin-bottom: 24px;
+            color: #ffd700;
+        }
+        button {
+            background: #ff5252;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 16px 36px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #ff7979;
+        }
+        #reset-btn {
+            display: none;
+            background: #4caf50;
+        }
+        #record {
+            margin: 10px 0 18px 0;
+            font-size: 1.1em;
+            color: #8fffa0;
+        }
+        #coin-anim {
+            transition: all 0.8s cubic-bezier(.17,.67,.83,.67);
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Welcome to: Lose It All!</h1>
+        <div id="coins">100 coins</div>
+        <div id="funny-text"></div>
+        <div id="record">Losses Record: 0</div>
+        <button id="lose-btn">Lose something!</button>
+        <button id="reset-btn">Try again</button>
+        <div id="coin-anim" style="display:none;position:absolute;left:50%;top:70px;font-size:2em;pointer-events:none;">💸</div>
+    </div>
+    <script>
+        const funnyTexts = [
+            "Oops! A coin fell into the sewer.",
+            "You traded your coins for a log. Bad deal.",
+            "You took out your wallet... and it ran away!",
+            "Ordered pizza, the delivery guy took a 20-coin tip.",
+            "You did laundry with your wallet inside.",
+            "You went to sleep, woke up broke.",
+            "You gambled on luck... and lost.",
+            "Bought a cat NFT, now you have less.",
+            "Put a coin in a machine – got nothing!",
+            "Tried to donate... accidentally gave it all!",
+            "Your money went on a school trip.",
+            "Tried to buy luck – got a bill.",
+            "The bank called: 'You have nothing left.'",
+            "You lost it all, but at least you have a sense of humor!"
+        ];
+        const bonusTexts = [
+            "Found a coin on the street! Lucky you.",
+            "The bank made a mistake – bonus for you!",
+            "Someone paid back an old debt.",
+            "Lottery: You won 10 coins!",
+            "Your money came back from the school trip!"
+        ];
+        let coins = 100;
+        let record = 0;
+        let lostAllCounter = 0;
+        const loseBtn = document.getElementById('lose-btn');
+        const coinsDiv = document.getElementById('coins');
+        const funnyTextDiv = document.getElementById('funny-text');
+        const resetBtn = document.getElementById('reset-btn');
+        const recordDiv = document.getElementById('record');
+        const coinAnim = document.getElementById('coin-anim');
+
+        function randomLoss() {
+            // Lose random 7-23 coins
+            return Math.floor(Math.random() * 17) + 7;
+        }
+        function randomBonus() {
+            // Win random 7-18 coins
+            return Math.floor(Math.random() * 12) + 7;
+        }
+        function showFunnyText() {
+            const idx = Math.floor(Math.random() * funnyTexts.length);
+            funnyTextDiv.innerText = funnyTexts[idx];
+        }
+        function showBonusText() {
+            const idx = Math.floor(Math.random() * bonusTexts.length);
+            funnyTextDiv.innerText = bonusTexts[idx];
+        }
+        function animateCoin(loss, isBonus) {
+            coinAnim.innerText = isBonus ? '💰' : '💸';
+            coinAnim.style.display = 'block';
+            coinAnim.style.opacity = '1';
+            coinAnim.style.transform = isBonus ? 'translateY(-40px) scale(1.2)' : 'translateY(70px) scale(0.8)';
+            setTimeout(()=>{
+                coinAnim.style.opacity = '0';
+                coinAnim.style.transform = 'translateY(0) scale(1)';
+            }, 800);
+            setTimeout(()=>{
+                coinAnim.style.display = 'none';
+            }, 1200);
+        }
+        function updateCoinsDisplay() {
+            if (coins > 1) {
+                coinsDiv.innerText = coins + ' coins';
+            } else if (coins === 1) {
+                coinsDiv.innerText = 'Only one coin left!';
+            } else {
+                coinsDiv.innerText = 'You have nothing!';
+            }
+        }
+        function updateRecord() {
+            recordDiv.innerText = 'Losses Record: ' + lostAllCounter;
+        }
+        loseBtn.onclick = () => {
+            if (coins <= 0) return;
+            // 1 ל-7 סיכוי לבונוס
+            if (Math.random() < 0.14) {
+                const bonus = randomBonus();
+                coins += bonus;
+                showBonusText();
+                animateCoin(bonus, true);
+            } else {
+                showFunnyText();
+                const loss = randomLoss();
+                coins -= loss;
+                if (coins < 0) coins = 0;
+                animateCoin(loss, false);
+            }
+            updateCoinsDisplay();
+            // הודעות מיוחדות
+            if (coins === 1) {
+                funnyTextDiv.innerText = 'Surviving with just one coin!';
+            }
+            if (coins === 0) {
+                lostAllCounter++;
+                updateRecord();
+                coinsDiv.innerText = 'You have nothing!';
+                funnyTextDiv.innerText = 'You won! (Or lost? Depends how you see it)';
+                loseBtn.style.display = 'none';
+                resetBtn.style.display = 'inline-block';
+            }
+        };
+        resetBtn.onclick = () => {
+            coins = 100;
+            updateCoinsDisplay();
+            funnyTextDiv.innerText = '';
+            loseBtn.style.display = 'inline-block';
+            resetBtn.style.display = 'none';
+        };
+        // Initial update
+        updateRecord();
+    </script>
+</body>
+</html>
