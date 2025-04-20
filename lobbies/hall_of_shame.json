@@ -1,0 +1,19 @@
+[
+  {
+    "username": "PiUser_123",
+    "type": "scammer",
+    "reports": [
+      {
+        "reporter": "PiUser_456",
+        "type": "scam",
+        "description": "Fake escrow service",
+        "evidence": ["https://scam-proof.com/escrow123"],
+        "ai_score": 0.92,
+        "date": 1713312000
+      }
+    ],
+    "ai_summary": "Likely scammer based on 7 reports and AI pattern detection.",
+    "community_score": -12,
+    "badges": ["Reported Scammer", "Under Investigation"]
+  }
+]

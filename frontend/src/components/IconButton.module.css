@@ -1,0 +1,29 @@
+.iconButton {
+  padding: 10px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, border 0.18s, color 0.18s;
+}
+.iconButton:focus,
+.iconButton:hover {
+  background: #e7f3ff;
+}
+.iconButtonActive {
+  color: #0a4;
+  border: 2px solid #0a4;
+  background: #e0ffe0;
+}
+.iconButtonPrimary {
+  color: #0070f3;
+  border: 2px solid #0070f3;
+}
+.iconButtonDanger {
+  color: #a00;
+  border: 2px solid #a00;
+  background: #ffeaea;
+}

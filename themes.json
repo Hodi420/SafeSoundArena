@@ -1,0 +1,6 @@
+{
+  "themes": [
+    { "name": "Light", "file": "themes.css" },
+    { "name": "Dark", "file": "themes.css", "class": "dark-theme" }
+  ]
+}

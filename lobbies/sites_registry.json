@@ -1,0 +1,34 @@
+[
+  {
+    "site": "pi-marketplace.com",
+    "type": "marketplace",
+    "reports": [
+      {
+        "reporter": "PiUser_888",
+        "type": "scam warning",
+        "description": "Fake listings detected.",
+        "evidence": ["https://scamwarn.com/pi-marketplace"],
+        "ai_score": 0.81,
+        "date": 1713312000
+      }
+    ],
+    "ai_summary": "Potential scam marketplace, flagged by AI and users.",
+    "community_score": -5
+  },
+  {
+    "site": "pi-legit.com",
+    "type": "community",
+    "reports": [
+      {
+        "reporter": "PiUser_555",
+        "type": "commendation",
+        "description": "Active, helpful moderators.",
+        "evidence": ["https://pi-legit.com/mods"],
+        "ai_score": 0.98,
+        "date": 1713312000
+      }
+    ],
+    "ai_summary": "Trusted community site.",
+    "community_score": 14
+  }
+]

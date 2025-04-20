@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Consensus Analytics Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>AI Consensus Analytics Dashboard</h1>
+    <div id="personal-data">
+      <h2>Personal Data</h2>
+      <div id="pioneer-status">Detecting Pi Browser...</div>
+      <div id="user-actions" style="display:none">
+        <button id="export-my-data">Export My Data</button>
+        <button id="delete-my-data">Delete My Data</button>
+      </div>
+      <div><a href="/api/me" target="_blank">View /api/me</a></div>
+    </div>
+    <div class="flex justify-between items-center py-4 px-6 bg-white dark:bg-dark shadow-lg rounded-b-lg mb-4">
+      <div id="tabs" class="flex gap-2">
+        <button id="tab-dashboard" class="tab-btn active">Dashboard</button>
+        <button id="tab-my-analytics" class="tab-btn">My Analytics</button>
+        <button id="tab-profile" class="tab-btn">Profile</button>
+      </div>
+      <div class="flex gap-2 items-center">
+        <button id="theme-light" class="theme-btn">Light</button>
+        <button id="theme-dark" class="theme-btn">Dark</button>
+        <form id="theme-upload-form" class="inline-block" enctype="multipart/form-data" style="display:none;">
+          <input type="file" id="theme-file" accept=".css" class="ml-2" style="display:inline;" />
+          <button type="submit" class="theme-btn">Upload Theme</button>
+        </form>
+        <select id="theme-select" class="theme-btn ml-2" style="display:none;"></select>
+      </div>
+    </div>
+    <div id="tab-contents">
+      <div id="tab-dashboard-content" class="tab-content active">
+        <div id="filters">
+      <label>Filter by Provider:
+        <select id="provider-filter"><option value="">All</option></select>
+      </label>
+      <label>Filter by Consensus:
+        <input type="text" id="consensus-filter" placeholder="Type consensus text...">
+      </label>
+      <button id="reset-filters">Reset Filters</button>
+    </div>
+    <div id="charts">
+      <canvas id="providerUsageChart" height="80"></canvas>
+      <canvas id="consensusRateChart" height="80"></canvas>
+    </div>
+    <div id="user-breakdown"></div>
+    <div id="summary"></div>
+    <div id="provider-usage"></div>
+    <div id="last-queries"></div>
+    <div id="error-rates"></div>
+    <div id="consensus-rate"></div>
+      </div>
+      <div id="tab-my-analytics-content" class="tab-content">
+        <h2>My Analytics</h2>
+        <div id="my-analytics-summary"></div>
+        <div id="my-analytics-queries"></div>
+      </div>
+      <div id="tab-profile-content" class="tab-content">
+        <h2>Profile</h2>
+        <form id="profile-form">
+          <label>Display Name: <input type="text" id="profile-displayName" required></label>
+          <label>Email: <input type="email" id="profile-email"></label>
+          <button type="submit">Save Profile</button>
+        </form>
+        <div id="profile-success" style="display:none;">Profile saved!</div>
+        <div id="profile-error" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="themes.css">
+  <!-- Pi Network JS SDK: Only available in Pi Browser after onboarding -->
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    // Theme toggle logic
+    function setTheme(theme) {
+      document.body.classList.toggle('dark-theme', theme === 'dark');
+      localStorage.setItem('theme', theme);
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      const saved = localStorage.getItem('theme');
+      setTheme(saved || 'light');
+      document.getElementById('theme-light').onclick = () => setTheme('light');
+      document.getElementById('theme-dark').onclick = () => setTheme('dark');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+name: Check for Duplicate/Temp Files
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  dupe-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Find duplicate/temp files
+        run: |
+          find . \(
+            -name '*~' \
+            -o -name '*.tmp' \
+            -o -name '*.temp' \
+            -o -name '*.bak' \
+            -o -name '*.old' \
+            -o -name '*.orig' \
+            -o -name '*.backup' \
+            -o -name '* (1)*' \
+            -o -name '* (2)*' \
+            -o -name '* (copy)*' \
+            -o -name '*duplicate*' \
+            -o -name '*.swp' \
+            -o -name '*.swo' \
+            -o -name '*.log' \
+            -o -name 'Thumbs.db' \
+            -o -name '.DS_Store' \
+          \) -print > dupe_files.txt
+          if [ -s dupe_files.txt ]; then
+            echo 'Found duplicate/temp files:'
+            cat dupe_files.txt
+            exit 1
+          else
+            echo 'No duplicate/temp files found.'
+          fi

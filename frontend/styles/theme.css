@@ -1,0 +1,68 @@
+/* Cyberpunk Style */
+.theme-cyberpunk {
+  --card-clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  --button-clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  --neon-intensity: 1;
+}
+
+/* Minimal Style */
+.theme-minimal {
+  --card-clip-path: none;
+  --button-clip-path: none;
+  --neon-intensity: 0.5;
+}
+
+/* Retro Style */
+.theme-retro {
+  --card-clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px));
+  --button-clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+  --neon-intensity: 0.8;
+}
+
+/* Animation Speeds */
+.animation-fast * {
+  transition-duration: 150ms !important;
+}
+
+.animation-normal * {
+  transition-duration: 300ms !important;
+}
+
+.animation-slow * {
+  transition-duration: 500ms !important;
+}
+
+/* Font Families */
+.font-fira-code {
+  font-family: 'Fira Code', monospace;
+}
+
+.font-orbitron {
+  font-family: 'Orbitron', sans-serif;
+}
+
+.font-rajdhani {
+  font-family: 'Rajdhani', sans-serif;
+}
+
+/* Dynamic Theme Classes */
+.card {
+  clip-path: var(--card-clip-path);
+}
+
+.btn {
+  clip-path: var(--button-clip-path);
+}
+
+.neon-text {
+  text-shadow: 
+    0 0 calc(10px * var(--neon-intensity)) var(--primary-color-rgb),
+    0 0 calc(20px * var(--neon-intensity)) var(--primary-color-rgb),
+    0 0 calc(30px * var(--neon-intensity)) var(--primary-color-rgb);
+}
+
+.neon-border {
+  box-shadow:
+    0 0 calc(10px * var(--neon-intensity)) var(--primary-color-rgb),
+    inset 0 0 calc(10px * var(--neon-intensity)) var(--primary-color-rgb);
+}

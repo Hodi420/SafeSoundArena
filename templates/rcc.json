@@ -1,0 +1,190 @@
+{
+ "tested": [
+  {
+   "version": "v17.18.0",
+   "when": "23.2.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v17180-date-2322024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v17.18.0/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v17.18.0/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v17.18.0/macos64/rcc"
+  },
+  {
+   "version": "v17.12.0",
+   "when": "23.11.2023",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v17120-date-23112023",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v17.12.0/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v17.12.0/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v17.12.0/macos64/rcc"
+  },
+  {
+   "version": "v16.5.0",
+   "when": "21.9.2023",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v1650-date-2192023",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v16.5.0/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v16.5.0/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v16.5.0/macos64/rcc"
+  }
+ ],
+ "edge": [
+  {
+   "version": "v18.5.0",
+   "when": "25.10.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v1850-date-25102024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v18.5.0/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v18.5.0/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v18.5.0/macos64/rcc"
+  },
+  {
+   "version": "v18.4.0",
+   "when": "25.10.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v1840-date-25102024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v18.4.0/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v18.4.0/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v18.4.0/macos64/rcc"
+  },
+  {
+   "version": "v18.3.0",
+   "when": "22.10.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v1830-date-22102024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v18.3.0/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v18.3.0/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v18.3.0/macos64/rcc"
+  },
+  {
+   "version": "v18.2.0",
+   "when": "21.10.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v1820-date-21102024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v18.2.0/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v18.2.0/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v18.2.0/macos64/rcc"
+  },
+  {
+   "version": "v18.1.7",
+   "when": "17.10.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v1817-date-17102024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v18.1.7/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v18.1.7/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v18.1.7/macos64/rcc"
+  },
+  {
+   "version": "v18.1.6",
+   "when": "21.8.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v1816-date-2182024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v18.1.6/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v18.1.6/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v18.1.6/macos64/rcc"
+  },
+  {
+   "version": "v18.1.5",
+   "when": "7.8.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v1815-date-782024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v18.1.5/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v18.1.5/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v18.1.5/macos64/rcc"
+  },
+  {
+   "version": "v18.1.4",
+   "when": "5.8.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v1814-date-582024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v18.1.4/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v18.1.4/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v18.1.4/macos64/rcc"
+  },
+  {
+   "version": "v18.1.3",
+   "when": "2.8.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v1813-date-282024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v18.1.3/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v18.1.3/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v18.1.3/macos64/rcc"
+  },
+  {
+   "version": "v18.1.2",
+   "when": "28.6.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v1812-date-2862024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v18.1.2/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v18.1.2/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v18.1.2/macos64/rcc"
+  },
+  {
+   "version": "v17.29.1",
+   "when": "29.5.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v17291-date-2952024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v17.29.1/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v17.29.1/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v17.29.1/macos64/rcc"
+  },
+  {
+   "version": "v17.29.0",
+   "when": "27.5.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v17290-date-2752024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v17.29.0/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v17.29.0/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v17.29.0/macos64/rcc"
+  },
+  {
+   "version": "v17.28.4",
+   "when": "26.4.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v17284-date-2642024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v17.28.4/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v17.28.4/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v17.28.4/macos64/rcc"
+  },
+  {
+   "version": "v17.28.3",
+   "when": "26.4.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v17283-date-2642024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v17.28.3/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v17.28.3/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v17.28.3/macos64/rcc"
+  },
+  {
+   "version": "v17.28.2",
+   "when": "24.4.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v17282-date-2442024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v17.28.2/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v17.28.2/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v17.28.2/macos64/rcc"
+  },
+  {
+   "version": "v17.28.1",
+   "when": "24.4.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v17281-date-2442024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v17.28.1/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v17.28.1/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v17.28.1/macos64/rcc"
+  },
+  {
+   "version": "v17.28.0",
+   "when": "22.4.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v17280-date-2242024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v17.28.0/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v17.28.0/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v17.28.0/macos64/rcc"
+  },
+  {
+   "version": "v17.27.0",
+   "when": "17.4.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v17270-date-1742024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v17.27.0/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v17.27.0/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v17.27.0/macos64/rcc"
+  },
+  {
+   "version": "v17.26.0",
+   "when": "17.4.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v17260-date-1742024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v17.26.0/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v17.26.0/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v17.26.0/macos64/rcc"
+  },
+  {
+   "version": "v17.25.0",
+   "when": "17.4.2024",
+   "changelog": "https://github.com/robocorp/rcc/blob/master/docs/changelog.md#v17250-date-1742024",
+   "windows": "https://downloads.robocorp.com/rcc/releases/v17.25.0/windows64/rcc.exe",
+   "linux": "https://downloads.robocorp.com/rcc/releases/v17.25.0/linux64/rcc",
+   "macos": "https://downloads.robocorp.com/rcc/releases/v17.25.0/macos64/rcc"
+  }
+ ]
+}

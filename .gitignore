@@ -1,0 +1,46 @@
+# Node dependencies
+node_modules/
+
+# Build output
+.next/
+
+# Logs
+*.log
+
+# Env files
+.env*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Misc
+*.swp
+*.swo
+# Temp & backup files
+*.tmp
+*.temp
+*.bak
+*.old
+*.orig
+*.backup
+*~
+* (1)*
+* (2)*
+* (copy)*
+*duplicate*
+# Editor/IDE
+.vscode/
+.idea/
+.history/
+.eslintcache
+# Build/output
+build/
+dist/
+coverage/
+.cache/
+# System
+.DS_Store
+Thumbs.db
+# Logs
+*.log

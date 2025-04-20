@@ -1,0 +1,19 @@
+[
+  {
+    "username": "PiUser_007",
+    "type": "leader",
+    "reports": [
+      {
+        "reporter": "PiUser_999",
+        "type": "commendation",
+        "description": "Helped recover lost funds.",
+        "evidence": ["https://goodactions.com/recovery"],
+        "ai_score": 0.95,
+        "date": 1713312000
+      }
+    ],
+    "ai_summary": "Community leader, positive impact, recognized by AI and community.",
+    "community_score": 28,
+    "badges": ["Community Leader", "Trusted"]
+  }
+]
