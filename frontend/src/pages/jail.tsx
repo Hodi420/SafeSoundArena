@@ -6,7 +6,7 @@ import Head from 'next/head';
 let socket: ReturnType<typeof io> | null = null;
 
 // Logging utility for security and connectivity events
-const logEvent = (event: string, details?: any) => {
+const logEvent = (event: string, details?: Record<string, unknown>) => {
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line no-console
     console.log(`[JailRoom] ${event}`, details || '');
@@ -16,7 +16,7 @@ const logEvent = (event: string, details?: any) => {
 interface JailUser {
   username: string;
   avatar?: string;
-  profileData?: Record<string, any>;
+  profileData?: Record<string, unknown>;
 }
 
 interface JailMessage {
@@ -643,6 +643,12 @@ export default function JailRoom() {
                           <div className="font-semibold text-xs text-gray-300 mb-1">{msg.user}</div>
                         )}
                         <div>{msg.text}</div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+                <div ref={messagesEndRef} />
+              </div>
 
               {/* Input */}
               <div className="p-3 border-t border-gray-700 bg-gray-800/50">

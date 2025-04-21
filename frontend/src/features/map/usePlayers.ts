@@ -37,8 +37,12 @@ export function usePlayers(jsonUrl: string, wsUrl?: string) {
             if (isMounted) setPlayers(data);
           }
           if (isMounted) setError(null);
-        } catch (e: any) {
-          if (isMounted) setError('Invalid WebSocket data');
+        } catch (e: unknown) {
+          if (e instanceof Error) {
+            if (isMounted) setError(e.message);
+          } else {
+            if (isMounted) setError('Invalid WebSocket data');
+          }
         }
       };
       ws.onerror = (e) => {

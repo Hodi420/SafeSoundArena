@@ -35,15 +35,16 @@ export default function Achievements({ userId }: { userId: string }) {
         ) : (
           <Grid container spacing={2} justifyContent="center" sx={{ mt: 2 }}>
             {achievements.map(ach => (
-              <Grid item key={ach.id}>
+              <div key={ach.id} style={{ margin: 4, display: 'inline-block' }}>
                 <Chip
                   avatar={<Avatar src={ach.icon} />}
-                  label={<span>{ach.name}<br /><small>{ach.description}</small></span>}
+                  label={ach.name}
                   color={ach.achieved ? 'success' : 'default'}
                   variant={ach.achieved ? 'filled' : 'outlined'}
                   sx={{ minWidth: 140, minHeight: 56, fontSize: 16, p: 1 }}
+                  title={ach.description}
                 />
-              </Grid>
+              </div>
             ))}
           </Grid>
         )}

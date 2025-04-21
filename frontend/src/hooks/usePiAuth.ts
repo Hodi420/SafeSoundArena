@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 
 declare global {
-  interface Window { Pi: any; }
+  interface Window { Pi: unknown; }
 }
 
 export interface PiProfile {
@@ -19,11 +19,11 @@ export function usePiAuth() {
   useEffect(() => {
     if (window.Pi) {
       window.Pi.authenticate(['username', 'kyc_verified'],
-        function(authData: any) {
+        function(authData: PiAuthData) {
           setProfile(authData.user);
           setLoading(false);
         },
-        function(err: any) {
+        function(err: unknown) {
           setError(typeof err === 'string' ? err : JSON.stringify(err));
           setLoading(false);
         }

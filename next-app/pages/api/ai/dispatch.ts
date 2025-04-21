@@ -30,7 +30,7 @@ async function sendInApp(message: string, userId: string) {
 }
 
 // --- Dispatcher ---
-const channelAdapters: Record<string, Function> = {
+const channelAdapters: Record<string, (message: string, recipient: string) => Promise<void>> = {
   telegram: sendTelegram,
   whatsapp: sendWhatsApp,
   sms: sendSMS,

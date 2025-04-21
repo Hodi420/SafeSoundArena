@@ -4,7 +4,7 @@ import io from 'socket.io-client';
 
 let socket: ReturnType<typeof io> | null = null;
 
-export function useJailTime(profile: any) {
+export function useJailTime(profile: Record<string, unknown>) {
   const router = useRouter();
 
   useEffect(() => {

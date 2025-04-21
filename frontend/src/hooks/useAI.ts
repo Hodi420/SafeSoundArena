@@ -16,7 +16,7 @@ export interface ChatMessage {
 export interface AIContext {
   currentQuest?: string;
   recentAchievements: string[];
-  userPreferences: Record<string, any>;
+  userPreferences: Record<string, unknown>;
   emotionalState: string;
 }
 

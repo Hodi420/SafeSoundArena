@@ -2,7 +2,7 @@ import { useRoom } from '../context/RoomContext';
 
 export interface LogEvent {
   type: string;
-  payload: any;
+  payload: Record<string, unknown>;
   userId?: string;
   roomId: string;
   timestamp: string;

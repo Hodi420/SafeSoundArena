@@ -14,7 +14,7 @@ export function trackPageView(url: string) {
   }
 }
 
-export function trackEvent(action: string, params?: Record<string, any>) {
+export function trackEvent(action: string, params?: Record<string, unknown>) {
   if (GA_MEASUREMENT_ID && typeof window !== 'undefined') {
     ReactGA.event(action, params);
   }

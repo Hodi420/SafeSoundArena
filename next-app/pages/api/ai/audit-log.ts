@@ -1,10 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 // In-memory audit log for demo. Use a DB or log service for production!
-let auditLog: any[] = [];
+const auditLog: unknown[] = [];
 
-export function logAIAction(entry: any) {
-  auditLog.push({ ...entry, timestamp: Date.now() });
+export function logAIAction(entry: unknown) {
+  if (typeof entry === 'object' && entry !== null) {
+    auditLog.push({ ...(entry as object), timestamp: Date.now() });
+  } else {
+    auditLog.push({ error: entry, timestamp: Date.now() });
+  }
 }
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {

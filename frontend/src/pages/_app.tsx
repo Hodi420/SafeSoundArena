@@ -13,8 +13,9 @@ import { initGA, trackPageView } from '../lib/analytics';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const disableTransition = (Component as any).disableTransition;
-  const pageTransitionProps = (Component as any).pageTransitionProps || {};
+  const disableTransition = (Component as { disableTransition?: boolean }).disableTransition;
+  const pageTransitionProps = (Component as { pageTransitionProps?: object }).pageTransitionProps || {};
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { ToastProvider } = require('../components/ToastContext');
   const isJailTime = router.pathname === '/jail-time';
 

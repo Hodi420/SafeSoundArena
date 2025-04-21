@@ -1,10 +1,10 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 
 interface AIProfile {
   pi_uid: string;
   username: string;
   avatarUrl?: string;
-  preferences?: Record<string, any>;
+  preferences?: Record<string, unknown>;
   trainingData: string[];
   history: { timestamp: number; input: string; output: string }[];
 }
@@ -16,7 +16,6 @@ export default function AIDashboard() {
   const [uploadText, setUploadText] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch profile and history on mount
   useEffect(() => {

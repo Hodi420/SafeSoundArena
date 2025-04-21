@@ -9,6 +9,6 @@ const NoTransitionDemo = () => (
   </div>
 );
 
-(NoTransitionDemo as any).disableTransition = true;
+(NoTransitionDemo as { disableTransition?: boolean }).disableTransition = true;
 
 export default NoTransitionDemo;

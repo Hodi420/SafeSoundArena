@@ -19,7 +19,7 @@ export function BotApiKeyManager({ bots, onSave }: { bots: { id: string; name: s
   const [error, setError] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
-  const [savedKeys, setSavedKeys] = useState<Record<string, { apiKey: string; endpoint?: string }>>({});
+  const [savedKeys, setSavedKeys] = useState<Record<string, { apiKey: string; endpoint?: string } | undefined>>({});
 
   // Fetch saved keys for summary
   useEffect(() => {

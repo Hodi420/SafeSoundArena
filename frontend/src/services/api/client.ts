@@ -35,7 +35,7 @@ apiClient.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refresh_token');
         const response = await apiClient.post('/auth/refresh', { refreshToken });
-        const data = (response as any).data;
+        const data = response.data as { token: string };
         localStorage.setItem('auth_token', data.token);
         originalRequest.headers.Authorization = `Bearer ${data.token}`;
         return apiClient(originalRequest);

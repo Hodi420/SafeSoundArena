@@ -1,6 +1,14 @@
 import React from 'react';
 
-export default function UserBoardTable({ users, title }: { users: any[]; title: string }) {
+interface User {
+  username: string;
+  type: string;
+  community_score: number;
+  badges?: string[];
+  ai_summary: string;
+}
+
+export default function UserBoardTable({ users, title }: { users: User[]; title: string }) {
   return (
     <div className="bg-white p-4 rounded shadow mt-4">
       <h2 className="text-lg font-bold mb-2">{title}</h2>

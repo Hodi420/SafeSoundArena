@@ -379,127 +379,12 @@ app.get('/api/admin/reports/activity', adminOnly, checkPermission('reports','rea
   }
 // Admin dashboard (HTML)
 app.get('/admin', adminOnly, (req, res) => {
-  res.send(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Admin Dashboard</title>
-  <style>
-    body { background: #232323; color: #ffd700; font-family: Arial,sans-serif; text-align: center; margin: 0; }
-    .card { margin: 60px auto; padding: 34px 22px; background: #333; border-radius: 18px; max-width: 420px; box-shadow: 0 4px 24px #0008; }
-    h1 { color: #fffbe6; }
-    .info { background: #222; border-radius: 10px; color: #fff; padding: 14px; margin: 18px 0; }
-    a, button.logout { color: #ffd700; text-decoration: underline; font-size:1.04em; background:none; border:none; cursor:pointer; margin:0 8px; }
-    .section { margin: 24px 0; background: #252525; border-radius: 10px; padding: 18px; }
-    table { width: 100%; border-collapse: collapse; margin: 0 auto; }
-    th, td { padding: 6px 10px; border-bottom: 1px solid #444; text-align: left; }
-    th { color: #fffbe6; background: #232323; }
-    td { color: #ffd700; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>Admin Dashboard</h1>
-    <button class="logout" onclick="localStorage.removeItem('admin_jwt');location='/admin/login'">Logout</button>
-    <div class="info">
-      <b>Welcome, ${req.user.sub || 'Admin'}!</b><br>
-      <pre style="text-align:left;">${JSON.stringify(req.user, null, 2)}</pre>
-    </div>
-    <div class="section">
-      <h3>Users</h3>
-      <table id="users-table"><thead><tr><th>Username</th><th>Permission</th></tr></thead><tbody></tbody></table>
-    </div>
-    <div class="section">
-      <h3>Stats</h3>
-      <pre id="stats">Loading...</pre>
-    </div>
-    <a href="/api/admin/test">Test Admin API</a>
-  </div>
-  <script>
-    const jwt = localStorage.getItem('admin_jwt');
-    if (!jwt) location='/admin/login';
-    fetch('/api/admin/users', { headers: { Authorization: 'Bearer ' + jwt } })
-      .then(r=>r.json()).then(users => {
-        const tbody = document.querySelector('#users-table tbody');
-        tbody.innerHTML = '';
-        users.forEach(u => {
-          tbody.innerHTML += `<tr><td>${u.username}</td><td>${u.permission}</td></tr>`;
-        });
-      });
-    fetch('/api/admin/stats', { headers: { Authorization: 'Bearer ' + jwt } })
-      .then(r=>r.json()).then(stats => {
-        document.getElementById('stats').innerText = JSON.stringify(stats, null, 2);
-      });
-  </script>
-</body>
-</html>`);
+  res.sendFile(require('path').join(__dirname, 'public', 'admin.html'));
 });
 
 // Admin login page
 app.get('/admin/login', (req, res) => {
-  res.send(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Admin Login</title>
-  <style>
-    body { background: #232323; color: #ffd700; font-family: Arial,sans-serif; text-align: center; margin: 0; }
-    .card { margin: 80px auto; padding: 34px 22px; background: #333; border-radius: 18px; max-width: 340px; box-shadow: 0 4px 24px #0008; }
-    h1 { color: #fffbe6; }
-    input { background: #181818; color: #ffd700; border: 1px solid #444; border-radius: 8px; padding: 7px 12px; font-size: 1.1em; margin: 7px 0; width: 90%; }
-    button { background: #ffd700; color: #232323; border: none; border-radius: 8px; padding: 8px 22px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 12px; }
-    button:hover { background: #fffbe6; }
-    .err { color: #ff5252; margin: 10px 0; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>Admin Login</h1>
-    <form id="login-form">
-      <input id="username" placeholder="Username" autocomplete="username" required><br>
-      <input id="password" type="password" placeholder="Password" autocomplete="current-password" required><br>
-      <button type="submit">Login</button>
-    </form>
-    <div id="err" class="err"></div>
-  </div>
-  <script>
-    document.getElementById('login-form').onsubmit = async (e) => {
-      e.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      const data = await res.json();
-      if (data.ok) {
-        localStorage.setItem('admin_jwt', data.token);
-        window.location = '/admin';
-      } else {
-        document.getElementById('err').innerText = data.error || 'Login failed';
-      }
-    };
-  </script>
-</body>
-</html>`);
-        const password = document.getElementById('password').value;
-        const res = await fetch('/api/admin/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        if (data.ok) {
-          localStorage.setItem('admin_jwt', data.token);
-          window.location = '/admin';
-        } else {
-          document.getElementById('err').innerText = data.error || 'Login failed';
-        }
-      };
-    </script>
-  </body>
-  </html>`);
+  res.sendFile(require('path').join(__dirname, 'public', 'admin-login.html'));
 });
 
 // בוט קובע יחיד (אפשר להרחיב למספר בוטים)

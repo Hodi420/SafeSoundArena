@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+  <style>
+    body { background: #232323; color: #ffd700; font-family: Arial,sans-serif; text-align: center; margin: 0; }
+    .card { margin: 80px auto; padding: 34px 22px; background: #333; border-radius: 18px; max-width: 340px; box-shadow: 0 4px 24px #0008; }
+    h1 { color: #fffbe6; }
+    input { background: #181818; color: #ffd700; border: 1px solid #444; border-radius: 8px; padding: 7px 12px; font-size: 1.1em; margin: 7px 0; width: 90%; }
+    button { background: #ffd700; color: #232323; border: none; border-radius: 8px; padding: 8px 22px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 12px; }
+    button:hover { background: #fffbe6; }
+    .err { color: #ff5252; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Admin Login</h1>
+    <form id="login-form">
+      <input id="username" placeholder="Username" autocomplete="username" required><br>
+      <input id="password" type="password" placeholder="Password" autocomplete="current-password" required><br>
+      <button type="submit">Login</button>
+    </form>
+    <div id="err" class="err"></div>
+  </div>
+  <script>
+    document.getElementById('login-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        localStorage.setItem('admin_jwt', data.token);
+        window.location = '/admin';
+      } else {
+        document.getElementById('err').innerText = data.error || 'Login failed';
+      }
+    };
+  </script>
+</body>
+</html>

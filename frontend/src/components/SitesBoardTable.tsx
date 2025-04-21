@@ -1,6 +1,13 @@
 import React from 'react';
 
-export default function SitesBoardTable({ sites }: { sites: any[] }) {
+interface Site {
+  site: string;
+  type: string;
+  community_score: number;
+  ai_summary: string;
+}
+
+export default function SitesBoardTable({ sites }: { sites: Site[] }) {
   return (
     <div className="bg-white p-4 rounded shadow mt-4">
       <h2 className="text-lg font-bold mb-2">רשימת אתרים/קהילות</h2>

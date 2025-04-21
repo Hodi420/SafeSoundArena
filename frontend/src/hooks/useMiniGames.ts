@@ -35,7 +35,7 @@ export interface GameSession {
   actions: Array<{
     type: string;
     timestamp: string;
-    data: any;
+    data: Record<string, unknown>;
   }>;
   status: 'active' | 'completed' | 'abandoned';
 }
@@ -88,7 +88,7 @@ export const useGameAction = () => {
       sessionId: string;
       action: {
         type: string;
-        data: any;
+        data: Record<string, unknown>;
       };
     }) => {
       const { data } = await apiClient.post(`/mini-games/sessions/${sessionId}/action`, action);

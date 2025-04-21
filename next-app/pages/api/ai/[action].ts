@@ -1,14 +1,20 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Example AI action handlers
-type AIActionHandler = (payload: any) => Promise<any>;
+interface ChatPayload {
+  prompt: string;
+  model?: string;
+  max_tokens?: number;
+}
+
+type AIActionHandler = (payload: unknown) => Promise<unknown>;
 
 const handlers: Record<string, AIActionHandler> = {
   echo: async (payload) => ({ echo: payload }),
   chat: async (payload) => {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) throw new Error('Missing OpenAI API key');
-    const { prompt, model = 'gpt-3.5-turbo', max_tokens = 128 } = payload;
+    const { prompt, model = 'gpt-3.5-turbo', max_tokens = 128 } = payload as ChatPayload;
     if (!prompt) throw new Error('Missing prompt');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',

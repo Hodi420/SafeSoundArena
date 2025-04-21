@@ -26,7 +26,7 @@ async function classifyIntent(question: string): Promise<string[]> {
   const text = data.choices?.[0]?.message?.content || '[]';
   try {
     const arr = JSON.parse(text.replace(/```json|```/g, '').trim());
-    return Array.isArray(arr) ? arr.map((x: any) => String(x).toLowerCase()) : [];
+    return Array.isArray(arr) ? arr.map((x: unknown) => String(x).toLowerCase()) : [];
   } catch {
     return [];
   }
@@ -113,8 +113,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       usedKey = userKey?.apiKey ? 'user-provided' : 'default';
       usedEndpoint = userKey?.endpoint || null;
       result = await callBot(bot, question, userId);
-    } catch (botErr: any) {
-      result = `Bot error: ${botErr.message || botErr}`;
+    } catch (botErr: unknown) {
+      let msg = 'Unknown error';
+      if (typeof botErr === 'object' && botErr !== null && 'message' in botErr) {
+        msg = (botErr as { message?: string }).message || 'Unknown error';
+      } else if (typeof botErr === 'string') {
+        msg = botErr;
+      }
+      result = `Bot error: ${msg}`;
     }
     // Log the decision and context
     logAIAction({
@@ -127,8 +133,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       result,
     });
     res.status(200).json({ result, bot: bot.name });
-  } catch (err: any) {
-    logAIAction({ userId, question, error: err.message || 'Internal error' });
-    res.status(500).json({ error: err.message || 'Internal error' });
+  } catch (err: unknown) {
+    logAIAction({ userId, question, error: (typeof err === 'object' && err !== null && 'message' in err) ? (err as { message?: string }).message : 'Internal error' });
+    res.status(500).json({ error: (typeof err === 'object' && err !== null && 'message' in err) ? (err as { message?: string }).message : 'Internal error' });
   }
 }

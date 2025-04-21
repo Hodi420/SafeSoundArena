@@ -111,7 +111,7 @@ export default function ReputationBar({ userId }: { userId: string }) {
             
             {/* Faction Badges */}
             <div className="mt-3 flex flex-wrap gap-2">
-              {reputation?.factions?.map(faction => (
+              {reputation?.factions?.map((faction: any) => (
                 <motion.div
                   key={faction.id}
                   initial={{ scale: 0.8, opacity: 0 }}

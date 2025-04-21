@@ -7,7 +7,7 @@ export default function BotSettingsPage() {
   useEffect(() => {
     fetch('/api/ai/bots')
       .then(res => res.json())
-      .then(data => setBots(data.bots.map((b: any) => ({ id: b.id, name: b.name }))));
+      .then(data => setBots(data.bots.map((b: { id: string; name: string }) => ({ id: b.id, name: b.name }))));
   }, []);
 
   function handleSave(botId: string, apiKey: string, endpoint?: string) {

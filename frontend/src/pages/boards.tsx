@@ -8,9 +8,9 @@ import { usePiAuth } from '../hooks/usePiAuth';
 import UserPiKycGuard from '../components/UserPiKycGuard';
 
 export default function BoardsPage() {
-  const [shame, setShame] = useState<any[]>([]);
-  const [fame, setFame] = useState<any[]>([]);
-  const [sites, setSites] = useState<any[]>([]);
+  const [shame, setShame] = useState<Record<string, unknown>[]>([]);
+  const [fame, setFame] = useState<Record<string, unknown>[]>([]);
+  const [sites, setSites] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,8 +28,8 @@ export default function BoardsPage() {
         setFame(fameData);
         setSites(sitesData);
         setError(null);
-      } catch (e: any) {
-        setError(e.message || 'שגיאת טעינה');
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'שגיאת טעינה');
       } finally {
         setLoading(false);
       }
@@ -38,7 +38,7 @@ export default function BoardsPage() {
   }, []);
 
   // Submit report to API
-  async function handleReport(data: any) {
+  async function handleReport(data: Record<string, unknown>) {
     try {
       setLoading(true);
       await reportUser(data);
@@ -50,8 +50,8 @@ export default function BoardsPage() {
       setShame(shameData);
       setFame(fameData);
       setError(null);
-    } catch (e: any) {
-      setError(e.message || 'שגיאת דיווח');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'שגיאת דיווח');
     } finally {
       setLoading(false);
     }
