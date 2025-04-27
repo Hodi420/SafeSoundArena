@@ -26,15 +26,28 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
     const activeClass = active ? 'ring-2 ring-blue-400' : '';
     const classes = [base, variant, activeClass, className].filter(Boolean).join(' ');
     return (
+<<<<<<< HEAD
       <button
+=======
+      <motion.button
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
         ref={ref}
         aria-label={ariaLabel}
         title={title || ariaLabel}
         className={classes}
+<<<<<<< HEAD
         {...props}
       >
         {children}
       </button>
+=======
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.96 }}
+        {...props}
+      >
+        {children}
+      </motion.button>
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
     );
   }
 );

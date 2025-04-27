@@ -1,5 +1,6 @@
 import React from 'react';
 
+<<<<<<< HEAD
 interface Site {
   site: string;
   type: string;
@@ -8,6 +9,9 @@ interface Site {
 }
 
 export default function SitesBoardTable({ sites }: { sites: Site[] }) {
+=======
+export default function SitesBoardTable({ sites }: { sites: any[] }) {
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
   return (
     <div className="bg-white p-4 rounded shadow mt-4">
       <h2 className="text-lg font-bold mb-2">רשימת אתרים/קהילות</h2>

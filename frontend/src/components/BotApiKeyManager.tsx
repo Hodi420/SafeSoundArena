@@ -19,7 +19,11 @@ export function BotApiKeyManager({ bots, onSave }: { bots: { id: string; name: s
   const [error, setError] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
+<<<<<<< HEAD
   const [savedKeys, setSavedKeys] = useState<Record<string, { apiKey: string; endpoint?: string } | undefined>>({});
+=======
+  const [savedKeys, setSavedKeys] = useState<Record<string, { apiKey: string; endpoint?: string }>>({});
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
 
   // Fetch saved keys for summary
   useEffect(() => {

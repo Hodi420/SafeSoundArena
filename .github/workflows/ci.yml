@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # .github/workflows/ci.yml
 # GitHub Actions CI: Run tests on every push & PR
 name: Node.js CI
@@ -22,3 +23,27 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install --include=dev
       - run: npm test
+=======
+name: SafeSoundArena CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build --if-present
+      - name: Docker build
+        run: docker build -t safesoundarena .
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)

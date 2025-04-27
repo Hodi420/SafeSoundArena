@@ -1,0 +1,17 @@
+{
+  "demoUser": {
+    "logs": [
+      "User logged in.",
+      "Ran command: backup",
+      "Changed theme to dark."
+    ],
+    "context": {
+      "last_command": "backup",
+      "settings": {"theme": "dark", "language": "he"}
+    },
+    "preferences": {
+      "theme": "dark",
+      "language": "he"
+    }
+  }
+}

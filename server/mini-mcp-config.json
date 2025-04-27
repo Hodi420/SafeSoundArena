@@ -1,0 +1,6 @@
+{
+  "agents": [
+    {"name": "Agent-Image", "type": "image-processing", "url": "http://localhost:5001"},
+    {"name": "Agent-Video", "type": "video-processing", "url": "http://localhost:5002"}
+  ]
+}

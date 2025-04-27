@@ -21,6 +21,7 @@ To run this project, you need to create environment files for each environment (
 
 # SafeSoundArena
 
+<<<<<<< HEAD
 [![CI](https://github.com/Hodi420/SafeSoundArena/actions/workflows/ci.yml/badge.svg)](https://github.com/Hodi420/SafeSoundArena/actions)
 
 **English below | עברית בהמשך**
@@ -49,6 +50,61 @@ SafeSoundArena is an open-source, modular, AI-powered game and bot framework. It
 - Environment variables: see `.env.example`
 
 ---
+=======
+## Agent System – אוטומציה, Webhooks ו-Cron
+
+### תכונות עיקריות
+- Agent להרצת פקודות מערכת, משימות אוטומטיות, חיבור ל-API חיצוניים (GitHub, OpenAI, Ollama, אינטרנט).
+- מערכת הרשאות, לוג Audit מלא, ואישור כפול לפעולות רגישות.
+- תמיכה ב-webhooks (טריגרים חיצוניים) ו-cron (משימות מתוזמנות).
+- כל פעולה נרשמת ל-agent.log.
+
+### שימוש ב-API
+- שלח POST ל-`/api/agent` עם `{ command, args, apiKey, confirm }`
+- פקודות נתמכות:
+  - `open_game` – הפעלת משחק (exePath)
+  - `move_file` – העברת קובץ (`src`, `dest`)
+  - `delete_temp` – מחיקת קובץ (`file`)
+  - `run_update` – הפעלת סקריפט עדכון (`script`)
+  - `fetch_github` – שכפול ריפו מגיטהאב (`repo`)
+  - `query_openai` – פניה ל-OpenAI (דורש apiKey, `prompt`)
+  - `query_ollama` – פניה ל-Ollama מקומי (`model`, `prompt`)
+  - `fetch_url` – הבאת נתונים מכתובת אינטרנט (`url`)
+- דוגמה:
+```json
+{
+  "command": "query_openai",
+  "args": { "prompt": "Say hello!" },
+  "apiKey": "sk-...",
+  "confirm": true
+}
+```
+
+### Webhooks
+- שלח POST ל-`/webhooks/github` (או הוסף endpoints נוספים ב-webhooks.js)
+- כל טריגר חיצוני יכול להפעיל פקודות agent (למשל git pull אוטומטי)
+
+### Cron (משימות מתוזמנות)
+- ערוך את server/cron.js כדי להגדיר משימות (למשל, תחזוקה יומית, עדכונים)
+- דוגמה: הפעלת סקריפט כל יום ב-03:00
+
+### אבטחה
+- כל פעולה נבדקת מול whitelist, שעות, תיקיות חסומות, ואישור כפול לפעולות מסוכנות.
+- מפתחות API אינם נשמרים בדיסק.
+- כל פעולה נרשמת ל-agent.log
+
+### הרחבה
+- הוסף פקודות חדשות ב-agent.js
+- הוסף endpoints חדשים ב-webhooks.js
+- הוסף משימות מתוזמנות ב-cron.js
+- שלב עם AgentDialog.jsx ב-UI לשליטה אינטראקטיבית
+
+---
+
+לשאלות, הרחבות, או דוגמאות נוספות – פנה ל- Cascade!
+
+SafeSoundArena is a blockchain-integrated AI-driven game that uses GPT-4.1 and Pi Network technologies.
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
 
 ## Modules
 

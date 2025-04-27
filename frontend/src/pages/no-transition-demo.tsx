@@ -9,6 +9,10 @@ const NoTransitionDemo = () => (
   </div>
 );
 
+<<<<<<< HEAD
 (NoTransitionDemo as { disableTransition?: boolean }).disableTransition = true;
+=======
+(NoTransitionDemo as any).disableTransition = true;
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
 
 export default NoTransitionDemo;

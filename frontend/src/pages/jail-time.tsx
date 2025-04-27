@@ -5,6 +5,7 @@ import { usePiAuth } from '../hooks/usePiAuth';
 const JailTimePage = () => {
   const { profile, loading, error } = usePiAuth();
   const [voiceOk, setVoiceOk] = useState(false);
+<<<<<<< HEAD
   const [jailStatus, setJailStatus] = useState<{ active: boolean; startTime?: number; endTime?: number } | null>(null);
   const [joining, setJoining] = useState(false);
   const [joined, setJoined] = useState(false);
@@ -74,6 +75,8 @@ const JailTimePage = () => {
     ws.send(JSON.stringify({ type: 'jailMessage', username: profile?.username || 'אנונימי', text: message }));
     setMessage('');
   };
+=======
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
 
   if (loading) {
     return <div className="flex flex-col min-h-screen items-center justify-center bg-gray-900 text-white">בודק סטטוס KYC...</div>;
@@ -94,6 +97,10 @@ const JailTimePage = () => {
       </div>
     );
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
   if (!voiceOk) {
     return (
       <div className="flex flex-col min-h-screen items-center justify-center bg-gray-900 text-white">
@@ -106,6 +113,7 @@ const JailTimePage = () => {
     <div className="flex flex-col min-h-screen items-center justify-center bg-gray-900 text-white">
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full text-center">
         <h1 className="text-3xl font-bold mb-4">Jail Time</h1>
+<<<<<<< HEAD
         {jailStatus ? (
           <>
             <p className="mb-2">
@@ -175,12 +183,20 @@ const JailTimePage = () => {
             קיבלת תגמול של {reward} נקודות!
           </div>
         )}
+=======
+        <p className="mb-4">This page is visually and functionally separated from the rest of the app. No global UI enhancements or transitions are applied here.</p>
+        <p className="text-lg">Custom content for jail time goes here.</p>
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
       </div>
     </div>
   );
 };
 
 // Disable all global transitions and overlays for this page
+<<<<<<< HEAD
 (JailTimePage as { disableTransition?: boolean }).disableTransition = true;
+=======
+(JailTimePage as any).disableTransition = true;
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
 
 export default JailTimePage;

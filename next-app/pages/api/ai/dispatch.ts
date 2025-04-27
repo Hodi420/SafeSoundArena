@@ -30,7 +30,11 @@ async function sendInApp(message: string, userId: string) {
 }
 
 // --- Dispatcher ---
+<<<<<<< HEAD
 const channelAdapters: Record<string, (message: string, recipient: string) => Promise<void>> = {
+=======
+const channelAdapters: Record<string, Function> = {
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
   telegram: sendTelegram,
   whatsapp: sendWhatsApp,
   sms: sendSMS,

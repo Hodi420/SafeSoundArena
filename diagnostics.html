@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>System Diagnostics Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 1rem; }
+    .warning { color: orange; }
+    .error { color: red; }
+    pre { background: #f1f1f1; padding: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>System Diagnostics</h1>
+  <div id="report">Running diagnostics...</div>
+  <script>
+    async function runDiagnostics() {
+      const reportEl = document.getElementById('report');
+      // GPU renderer
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl');
+      const ext = gl?.getExtension('WEBGL_debug_renderer_info');
+      const renderer = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : 'unknown';
+      const usingIGPU = /intel|uhd/i.test(renderer);
+      
+      // battery
+      const battery = navigator.getBattery ? await navigator.getBattery() : { charging: true };
+      const onBattery = !battery.charging;
+
+      // FPS test
+      let fps = 0;
+      await new Promise(res => {
+        let count = 0;
+        const start = performance.now();
+        function loop() {
+          count++;
+          if (performance.now() - start < 1000) requestAnimationFrame(loop);
+          else { fps = count; res(); }
+        }
+        loop();
+      });
+
+      const memGB = navigator.deviceMemory || 'unknown';
+      const cores = navigator.hardwareConcurrency || 'unknown';
+
+      // Build report
+      let html = '';
+      html += `<p><strong>Renderer:</strong> ${renderer}</p>`;
+      if (usingIGPU) html += `<p class="warning">Warning: Using integrated GPU</p>`;
+      html += `<p><strong>Power:</strong> ${onBattery ? 'Battery' : 'AC connected'}</p>`;
+      if (onBattery) html += `<p class="warning">Warning: On battery power</p>`;
+      html += `<p><strong>FPS (1s):</strong> ${fps}</p>`;
+      if (fps < 30) html += `<p class="error">Low FPS detected</p>`;
+      html += `<p><strong>Memory (GB):</strong> ${memGB}</p>`;
+      html += `<p><strong>CPU Cores:</strong> ${cores}</p>`;
+
+      reportEl.innerHTML = html;
+      console.group('Diagnostics');
+      console.log({ renderer, usingIGPU, onBattery, fps, memGB, cores });
+      if (usingIGPU) console.warn('Using integrated GPU');
+      if (onBattery) console.warn('On battery power');
+      if (fps < 30) console.warn('Low FPS');
+      console.groupEnd();
+    }
+    runDiagnostics();
+  </script>
+</body>
+</html>

@@ -35,7 +35,11 @@ export default function ChallengeTracker() {
 
   return (
     <div className="bg-gray-900 rounded-lg p-4 border border-orange-500 max-w-lg mx-auto">
+<<<<<<< HEAD
       <div className="font-bold mb-2">⏰ Challenges</div>
+=======
+      <div className="font-bold mb-2">{EMOJIS.UI.TIME} Challenges</div>
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
       <div>
         <div className="font-bold text-blue-300">Daily</div>
         {((daily ?? []) as any[]).map((ch: any) => (

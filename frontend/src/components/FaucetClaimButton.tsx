@@ -37,11 +37,19 @@ export default function FaucetClaimButton() {
     if ((window as any).ethereum) {
       const ethProvider = new ethers.providers.Web3Provider((window as any).ethereum);
       setProvider(ethProvider);
+<<<<<<< HEAD
       (async () => {
         const accounts: string[] = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
         setAccount(accounts[0]);
         setSigner(ethProvider.getSigner());
       })();
+=======
+      const accounts: string[] = (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+      accounts.then(accounts => {
+        setAccount(accounts[0]);
+        setSigner(ethProvider.getSigner());
+      });
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
     }
   }, []);
 

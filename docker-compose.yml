@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  api-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '4000:4000'
+    environment:
+      - PI_API_KEY=${PI_API_KEY}
+    volumes:
+      - .:/app
+    networks:
+      - sa-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api-server:4000
+    depends_on:
+      - api-server
+    volumes:
+      - ./frontend:/app
+    networks:
+      - sa-network
+
+  ipfs:
+    image: ipfs/go-ipfs:latest
+    ports:
+      - '5001:5001'
+      - '8080:8080'
+    volumes:
+      - ipfs_data:/data/ipfs
+    networks:
+      - sa-network
+
+networks:
+  sa-network:
+    driver: bridge
+
+volumes:
+  ipfs_data: {}

@@ -1,0 +1,14 @@
+{
+  "allowedCommands": [
+    "open_game",
+    "move_file",
+    "delete_temp",
+    "run_update"
+  ],
+  "restrictedFolders": [
+    "C:/Windows",
+    "C:/Users/Admin"
+  ],
+  "activeHours": ["08:00", "23:00"],
+  "requireConfirmation": ["delete_temp", "run_update"]
+}

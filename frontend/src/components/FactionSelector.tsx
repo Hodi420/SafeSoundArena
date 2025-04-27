@@ -74,8 +74,12 @@ export default function FactionSelector() {
             disabled={loading === faction.id}
           >
             <div className="flex items-center w-full">
+<<<<<<< HEAD
               {/* @ts-ignore */}
 <span className="text-lg font-semibold">{EMOJIS.FACTIONS && EMOJIS.FACTIONS[String(faction.id)] ? EMOJIS.FACTIONS[String(faction.id)] + ' ' : ''}{faction.name}</span>
+=======
+              <span className="text-lg font-semibold">{EMOJIS[faction.id]} {faction.name}</span>
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">{reputationText}</div>
             {loading === faction.id && (

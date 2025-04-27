@@ -1,5 +1,6 @@
 import React from 'react';
 
+<<<<<<< HEAD
 interface User {
   username: string;
   type: string;
@@ -9,6 +10,9 @@ interface User {
 }
 
 export default function UserBoardTable({ users, title }: { users: User[]; title: string }) {
+=======
+export default function UserBoardTable({ users, title }: { users: any[]; title: string }) {
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
   return (
     <div className="bg-white p-4 rounded shadow mt-4">
       <h2 className="text-lg font-bold mb-2">{title}</h2>

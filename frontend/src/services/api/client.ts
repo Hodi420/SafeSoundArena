@@ -35,7 +35,11 @@ apiClient.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refresh_token');
         const response = await apiClient.post('/auth/refresh', { refreshToken });
+<<<<<<< HEAD
         const data = response.data as { token: string };
+=======
+        const data = (response as any).data;
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
         localStorage.setItem('auth_token', data.token);
         originalRequest.headers.Authorization = `Bearer ${data.token}`;
         return apiClient(originalRequest);

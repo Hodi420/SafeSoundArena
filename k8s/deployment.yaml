@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: safesoundarena
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: safesoundarena
+  template:
+    metadata:
+      labels:
+        app: safesoundarena
+    spec:
+      containers:
+      - name: safesoundarena
+        image: your-dockerhub/safesoundarena:latest
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - secretRef:
+            name: safesoundarena-secrets

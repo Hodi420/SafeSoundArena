@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 // In-memory audit log for demo. Use a DB or log service for production!
+<<<<<<< HEAD
 const auditLog: unknown[] = [];
 
 export function logAIAction(entry: unknown) {
@@ -9,6 +10,12 @@ export function logAIAction(entry: unknown) {
   } else {
     auditLog.push({ error: entry, timestamp: Date.now() });
   }
+=======
+let auditLog: any[] = [];
+
+export function logAIAction(entry: any) {
+  auditLog.push({ ...entry, timestamp: Date.now() });
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
 }
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {

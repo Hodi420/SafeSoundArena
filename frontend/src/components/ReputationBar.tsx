@@ -111,7 +111,11 @@ export default function ReputationBar({ userId }: { userId: string }) {
             
             {/* Faction Badges */}
             <div className="mt-3 flex flex-wrap gap-2">
+<<<<<<< HEAD
               {reputation?.factions?.map((faction: any) => (
+=======
+              {reputation?.factions?.map(faction => (
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
                 <motion.div
                   key={faction.id}
                   initial={{ scale: 0.8, opacity: 0 }}

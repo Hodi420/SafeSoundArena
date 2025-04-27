@@ -6,7 +6,11 @@ import Head from 'next/head';
 let socket: ReturnType<typeof io> | null = null;
 
 // Logging utility for security and connectivity events
+<<<<<<< HEAD
 const logEvent = (event: string, details?: Record<string, unknown>) => {
+=======
+const logEvent = (event: string, details?: any) => {
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line no-console
     console.log(`[JailRoom] ${event}`, details || '');
@@ -16,7 +20,11 @@ const logEvent = (event: string, details?: Record<string, unknown>) => {
 interface JailUser {
   username: string;
   avatar?: string;
+<<<<<<< HEAD
   profileData?: Record<string, unknown>;
+=======
+  profileData?: Record<string, any>;
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
 }
 
 interface JailMessage {
@@ -643,12 +651,15 @@ export default function JailRoom() {
                           <div className="font-semibold text-xs text-gray-300 mb-1">{msg.user}</div>
                         )}
                         <div>{msg.text}</div>
+<<<<<<< HEAD
                       </div>
                     </motion.div>
                   );
                 })}
                 <div ref={messagesEndRef} />
               </div>
+=======
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
 
               {/* Input */}
               <div className="p-3 border-t border-gray-700 bg-gray-800/50">

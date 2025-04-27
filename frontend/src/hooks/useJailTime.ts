@@ -4,7 +4,11 @@ import io from 'socket.io-client';
 
 let socket: ReturnType<typeof io> | null = null;
 
+<<<<<<< HEAD
 export function useJailTime(profile: Record<string, unknown>) {
+=======
+export function useJailTime(profile: any) {
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
   const router = useRouter();
 
   useEffect(() => {

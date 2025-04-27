@@ -1,0 +1,22 @@
+{
+  "miniMCPs": [
+    {
+      "name": "MiniMCP-A",
+      "url": "http://localhost:4001",
+      "agents": [
+        {"name": "Agent-Image", "type": "image-processing", "url": "http://localhost:5001"},
+        {"name": "Agent-Video", "type": "video-processing", "url": "http://localhost:5002"}
+      ]
+    },
+    {
+      "name": "MiniMCP-B",
+      "url": "http://localhost:4002",
+      "agents": [
+        {"name": "Agent-Backup", "type": "backup", "url": "http://localhost:5003"}
+      ]
+    }
+  ],
+  "standaloneAgents": [
+    {"name": "Agent-NLP", "type": "nlp", "url": "http://localhost:5004"}
+  ]
+}

@@ -35,7 +35,11 @@ export interface GameSession {
   actions: Array<{
     type: string;
     timestamp: string;
+<<<<<<< HEAD
     data: Record<string, unknown>;
+=======
+    data: any;
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
   }>;
   status: 'active' | 'completed' | 'abandoned';
 }
@@ -88,7 +92,11 @@ export const useGameAction = () => {
       sessionId: string;
       action: {
         type: string;
+<<<<<<< HEAD
         data: Record<string, unknown>;
+=======
+        data: any;
+>>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
       };
     }) => {
       const { data } = await apiClient.post(`/mini-games/sessions/${sessionId}/action`, action);
