@@ -1,11 +1,4 @@
-import React, { useState } from 'react';
-
-/**
- * Demo component for simulating a Pi Network User-to-App payment.
- * In Sandbox mode, this does NOT process real payments.
- * In production, integrate with Pi SDK or Pi payment API.
- */
-export default function PiPaymentDemo() {
+// Removed: Demo Pi payment component. This file is intentionally left blank for production.
   const [amount, setAmount] = useState('1');
   const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
 

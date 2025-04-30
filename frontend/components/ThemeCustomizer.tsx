@@ -14,12 +14,23 @@ const styles = [
   { id: 'cyberpunk', name: 'Cyberpunk', description: 'Sharp edges & neon' },
   { id: 'minimal', name: 'Minimal', description: 'Clean & focused' },
   { id: 'retro', name: 'Retro', description: 'Classic tech vibes' },
+  { id: 'arena', name: 'Arena', description: 'Bold & competitive' },
+  { id: 'stealth', name: 'Stealth', description: 'Dark & mysterious' },
+  { id: 'holographic', name: 'Holographic', description: 'Future tech & transparency' },
 ] as const;
 
 const speeds = [
   { id: 'fast', name: 'Fast', description: 'Quick transitions' },
   { id: 'normal', name: 'Normal', description: 'Balanced speed' },
   { id: 'slow', name: 'Slow', description: 'Smooth & steady' },
+] as const;
+
+const colorPresets = [
+  { name: 'Arena Blue', primary: '#0ea5e9', secondary: '#d946ef' },
+  { name: 'Stealth Green', primary: '#10b981', secondary: '#6366f1' },
+  { name: 'Combat Red', primary: '#ef4444', secondary: '#f59e0b' },
+  { name: 'Cyber Gold', primary: '#f59e0b', secondary: '#06b6d4' },
+  { name: 'Holo Purple', primary: '#8b5cf6', secondary: '#ec4899' },
 ] as const;
 
 interface Props {
@@ -34,11 +45,13 @@ export default function ThemeCustomizer({ isOpen, onClose }: Props) {
     secondaryColor,
     uiStyle,
     animationSpeed,
+    neonIntensity,
     setFont,
     setPrimaryColor,
     setSecondaryColor,
     setUiStyle,
     setAnimationSpeed,
+    setNeonIntensity,
   } = useThemeStore();
 
   return (
@@ -149,6 +162,32 @@ export default function ThemeCustomizer({ isOpen, onClose }: Props) {
                         ))}
                       </div>
                     </Listbox>
+
+                    <h3 className="text-lg font-semibold text-blue-400 mt-6 mb-4">Color Presets</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {colorPresets.map((preset) => (
+                        <button
+                          key={preset.name}
+                          onClick={() => {
+                            setPrimaryColor(preset.primary);
+                            setSecondaryColor(preset.secondary);
+                          }}
+                          className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 transition-colors"
+                        >
+                          <div className="flex gap-2 mb-2">
+                            <div
+                              className="w-6 h-6 rounded-full"
+                              style={{ backgroundColor: preset.primary }}
+                            />
+                            <div
+                              className="w-6 h-6 rounded-full"
+                              style={{ backgroundColor: preset.secondary }}
+                            />
+                          </div>
+                          <span className="text-sm font-medium">{preset.name}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div>
@@ -165,6 +204,26 @@ export default function ThemeCustomizer({ isOpen, onClose }: Props) {
                           Secondary Color
                         </label>
                         <HexColorPicker color={secondaryColor} onChange={setSecondaryColor} />
+                      </div>
+                    </div>
+
+                    <h3 className="text-lg font-semibold text-blue-400 mt-6 mb-4">
+                      Neon Intensity
+                    </h3>
+                    <div className="space-y-2">
+                      <input
+                        type="range"
+                        min="0"
+                        max="2"
+                        step="0.1"
+                        value={neonIntensity}
+                        onChange={(e) => setNeonIntensity(parseFloat(e.target.value))}
+                        className="w-full accent-blue-500"
+                      />
+                      <div className="flex justify-between text-sm text-gray-400">
+                        <span>Subtle</span>
+                        <span>Normal</span>
+                        <span>Intense</span>
                       </div>
                     </div>
 

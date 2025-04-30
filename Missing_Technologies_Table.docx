@@ -1,0 +1,17 @@
+| תחום                | טכנולוגיות/נושאים שלא קיימים בפרויקט |
+|---------------------|--------------------------------------|
+| **פיתוח מובייל**        | <span style="color:#e74c3c">Android, iOS, Flutter, React Native</span>  |
+| **שפות/פלטפורמות**      | <span style="color:#e67e22">ASP.NET Core, Java, ++C, Go, Rust, PHP, Spring Boot</span> |
+| **בסיסי נתונים**        | <span style="color:#f1c40f">PostgreSQL, MongoDB, Redis</span>           |
+| **DevOps/Cloud**        | <span style="color:#3498db">Cloudflare, Terraform, AWS</span>           |
+| **AI/ML מתקדם**         | <span style="color:#9b59b6">AI Red Teaming, MLOps, Prompt Engineering</span> |
+| **פיתוח משחקים**        | <span style="color:#2ecc71">אין מנוע משחק או קוד משחק, רק blueprint</span> |
+| **GraphQL**             | <span style="color:#34495e">אין תמיכה או ספריה ל-GraphQL</span>         |
+| **Design System**       | <span style="color:#16a085">אין ספריית Design System ייעודית (מעבר ל-TailwindCSS)</span> |
+| **Best Practices / Performance / שאלות** | <span style="color:#95a5a6">אין קבצים/מודולים ייעודיים לנושאים אלו</span> |
+| **ניהול מוצר/הנדסה ויחסי מפתחים** | <span style="color:#d35400">Product Manager, Engineering Manager, Developer Relations</span> |
+
+
+**הערה:** ניתן להעתיק את הטבלה למצגת או מסמך Word, הצבעים יישמרו במידה ומדביקים ל-Word Online או Google Docs.
+
+אם תרצה עיצוב נוסף, אייקונים או פורמט pptx, אשמח להכין!

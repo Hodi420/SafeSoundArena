@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: performance-config
+data:
+  performance.yaml: |
+    caching:
+      redis:
+        enabled: true
+        maxmemory: 2gb
+        maxmemory-policy: allkeys-lru
+        keyspace-events: Ex
+        
+      client:
+        browser-cache-max-age: 3600
+        stale-while-revalidate: 60
+        
+    rate_limiting:
+      enabled: true
+      default_rate: 100/minute
+      burst: 50
+      
+    compression:
+      enabled: true
+      level: 6
+      min_size: 1024
+      types:
+        - text/html
+        - text/css
+        - application/javascript
+        - application/json
+        
+    optimization:
+      auto_scaling:
+        enabled: true
+        metrics:
+          - type: cpu
+            target_utilization: 70
+          - type: memory
+            target_utilization: 80
+            
+      load_balancing:
+        algorithm: least_conn
+        health_check:
+          enabled: true
+          interval: 10s
+          timeout: 5s
+          healthy_threshold: 2
+          unhealthy_threshold: 3
+          
+    game_engine:
+      physics:
+        tick_rate: 60
+        interpolation: true
+        prediction: true
+        
+      networking:
+        tcp_nodelay: true
+        keep_alive: true
+        timeout: 30s
+        
+      matchmaking:
+        max_queue_time: 60
+        skill_range: 200
+        region_priority: true
+        
+    database:
+      connection_pool:
+        min_size: 5
+        max_size: 20
+        idle_timeout: 300s
+        
+      query_cache:
+        enabled: true
+        size: 1000
+        ttl: 3600
+        
+    monitoring:
+      metrics_collection:
+        interval: 15s
+        retention: 7d
+        
+      tracing:
+        enabled: true
+        sample_rate: 0.1
+        
+      profiling:
+        enabled: true
+        cpu_profile: true
+        memory_profile: true
+        goroutine_profile: true 

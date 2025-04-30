@@ -1,0 +1,117 @@
+version: '3.8'
+
+services:
+  api-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - '4000:4000'
+    environment:
+      - NODE_ENV=development
+      - PI_API_KEY=${PI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - sa-network
+    depends_on:
+      - redis
+      - clickhouse
+    command: npm run dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - sa-network
+    command: npm run dev
+
+  redis:
+    image: redis:alpine
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - sa-network
+
+  clickhouse:
+    image: clickhouse/clickhouse-server
+    ports:
+      - '8123:8123'
+      - '9000:9000'
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    networks:
+      - sa-network
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    networks:
+      - sa-network
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - '3001:3000'
+    volumes:
+      - ./monitoring/grafana:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    networks:
+      - sa-network
+    depends_on:
+      - prometheus
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    ports:
+      - '16686:16686'
+      - '14250:14250'
+    networks:
+      - sa-network
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+    networks:
+      - sa-network
+
+  ganache:
+    image: trufflesuite/ganache-cli
+    ports:
+      - '8545:8545'
+    command: >
+      --deterministic
+      --mnemonic "test test test test test test test test test test test junk"
+      --networkId 1337
+      --chainId 1337
+    networks:
+      - sa-network
+
+networks:
+  sa-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+  clickhouse_data:
+  prometheus_data:
+  grafana_data: 

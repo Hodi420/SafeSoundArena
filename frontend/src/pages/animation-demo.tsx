@@ -1,28 +1,4 @@
-import React from 'react';
-import { PageTransition } from '../components/PageTransition';
-import { AnimatedCard } from '../components/AnimatedCard';
-import { IconButton } from '../components/IconButton';
-import { ButtonGroup } from '../components/ButtonGroup';
-import { LoadingSpinner } from '../components/LoadingSpinner';
-import { SkeletonCard } from '../components/SkeletonCard';
-import { AnimatedSection } from '../components/AnimatedSection';
-import { DarkModeToggle } from '../components/DarkModeToggle';
-import { useToast } from '../components/ToastContext';
-import { useScrollAnimation } from '../hooks/useScrollAnimation';
-import { motion } from 'framer-motion';
-
-const items = [
-  { id: 1, title: 'First Card', desc: 'This is the first animated card.' },
-  { id: 2, title: 'Second Card', desc: 'This is the second animated card.' },
-  { id: 3, title: 'Third Card', desc: 'This is the third animated card.' },
-];
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0 }
-};
-
-const AnimationDemo: React.FC = () => {
+// Removed: Animation demo page. This file is intentionally left blank for production.
   const { ref, controls } = useScrollAnimation();
   const [loading, setLoading] = React.useState(false);
   const { showToast } = useToast();
@@ -98,4 +74,3 @@ const AnimationDemo: React.FC = () => {
   );
 };
 
-export default AnimationDemo;

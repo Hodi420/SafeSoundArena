@@ -1,9 +1,4 @@
-import React, { useState } from 'react';
-import Filter from 'bad-words';
-
-const filter = new Filter();
-
-export default function ProfanityFilterDemo() {
+// Removed: Profanity filter demo component. This file is intentionally left blank for production.
   const [input, setInput] = useState('');
   const [clean, setClean] = useState('');
   const [isProfane, setIsProfane] = useState(false);

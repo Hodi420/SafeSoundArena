@@ -1,0 +1,301 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-analytics-config
+  namespace: safesoundarena
+data:
+  analytics-config.yaml: |
+    analytics:
+      data_collection:
+        real_time:
+          enabled: true
+          batch_size: 1000
+          flush_interval: 60
+        historical:
+          enabled: true
+          retention_period: "90d"
+          
+      storage:
+        clickhouse:
+          host: "clickhouse-service"
+          database: "game_analytics"
+          tables:
+            - name: "player_events"
+              ttl: "90d"
+              indices: ["player_id", "event_type", "timestamp"]
+            - name: "game_events"
+              ttl: "90d"
+              indices: ["game_id", "event_type", "timestamp"]
+            - name: "blockchain_events"
+              ttl: "365d"
+              indices: ["tx_hash", "event_type", "timestamp"]
+            - name: "ml_predictions"
+              ttl: "30d"
+              indices: ["model_id", "entity_id", "timestamp"]
+              
+      processing:
+        spark:
+          enabled: true
+          workers: 3
+          memory_per_worker: "4g"
+          
+      ml_pipeline:
+        feature_engineering:
+          enabled: true
+          update_interval: 3600
+          feature_store:
+            type: "feast"
+            project: "safesoundarena"
+            entities:
+              - name: "player"
+                features:
+                  - "gameplay_stats"
+                  - "social_metrics"
+                  - "economic_indicators"
+              - name: "game_session"
+                features:
+                  - "performance_metrics"
+                  - "player_interactions"
+                  - "resource_usage"
+        
+        models:
+          - name: "player_churn_prediction"
+            type: "classification"
+            algorithm: "xgboost"
+            training_interval: "24h"
+            features:
+              - "gameplay_duration"
+              - "session_frequency"
+              - "in_game_purchases"
+              - "social_interactions"
+              - "performance_metrics"
+            
+          - name: "matchmaking_optimization"
+            type: "reinforcement"
+            algorithm: "deep_q_learning"
+            update_interval: "1h"
+            features:
+              - "player_skill"
+              - "wait_time"
+              - "connection_quality"
+              - "game_mode_preference"
+            
+          - name: "fraud_detection"
+            type: "anomaly_detection"
+            algorithm: "isolation_forest"
+            training_interval: "12h"
+            features:
+              - "transaction_patterns"
+              - "login_behavior"
+              - "trading_activity"
+            
+          - name: "item_recommendation"
+            type: "recommendation"
+            algorithm: "neural_collaborative_filtering"
+            update_interval: "6h"
+            features:
+              - "purchase_history"
+              - "gameplay_style"
+              - "social_connections"
+            
+          - name: "game_balance_optimizer"
+            type: "reinforcement"
+            algorithm: "ppo"
+            update_interval: "24h"
+            features:
+              - "win_rates"
+              - "resource_distribution"
+              - "player_progression"
+              
+      dashboards:
+        custom_views:
+          - name: "Executive Overview"
+            refresh_rate: "5m"
+            panels:
+              - title: "Business KPIs"
+                type: "stat_group"
+                metrics:
+                  - "daily_revenue"
+                  - "active_players"
+                  - "new_user_conversion"
+                  - "player_retention"
+              
+              - title: "Player Engagement"
+                type: "time_series"
+                metrics:
+                  - "daily_active_users"
+                  - "average_session_duration"
+                  - "social_interactions_per_user"
+                
+              - title: "Economic Health"
+                type: "pie_chart"
+                metrics:
+                  - "revenue_by_item_type"
+                  - "marketplace_volume"
+                  - "token_circulation"
+          
+          - name: "Game Operations"
+            refresh_rate: "1m"
+            panels:
+              - title: "Server Performance"
+                type: "heatmap"
+                metrics:
+                  - "server_load"
+                  - "matchmaking_queue_length"
+                  - "network_latency"
+              
+              - title: "Game Balance"
+                type: "bar_chart"
+                metrics:
+                  - "character_win_rates"
+                  - "item_usage_distribution"
+                  - "resource_economy_flow"
+              
+              - title: "Player Experience"
+                type: "gauge_group"
+                metrics:
+                  - "matchmaking_satisfaction"
+                  - "game_completion_rate"
+                  - "reported_issues"
+          
+          - name: "ML Insights"
+            refresh_rate: "15m"
+            panels:
+              - title: "Churn Risk Analysis"
+                type: "scatter_plot"
+                metrics:
+                  - "predicted_churn_probability"
+                  - "player_satisfaction_index"
+                  - "engagement_score"
+              
+              - title: "Fraud Detection"
+                type: "alert_list"
+                metrics:
+                  - "suspicious_transactions"
+                  - "unusual_behavior_patterns"
+                  - "security_incidents"
+              
+              - title: "Game Balance Recommendations"
+                type: "table"
+                metrics:
+                  - "suggested_balance_changes"
+                  - "impact_predictions"
+                  - "confidence_scores"
+            
+      reporting:
+        automated_reports:
+          - name: "daily_performance"
+            schedule: "0 0 * * *"
+            format: ["pdf", "excel"]
+            distribution:
+              email: ["management@safesoundarena.com"]
+              slack: "#daily-metrics"
+            sections:
+              - name: "Executive Summary"
+                metrics:
+                  - "revenue_summary"
+                  - "user_growth"
+                  - "key_achievements"
+              - name: "Player Analytics"
+                metrics:
+                  - "retention_cohorts"
+                  - "player_segments"
+                  - "conversion_funnel"
+              - name: "Economic Analysis"
+                metrics:
+                  - "revenue_streams"
+                  - "transaction_volume"
+                  - "token_economics"
+          
+          - name: "game_balance"
+            schedule: "0 */6 * * *"
+            format: ["json", "pdf"]
+            distribution:
+              slack: "#game-design"
+              api_endpoint: "https://api.safesoundarena.io/webhooks/balance"
+            sections:
+              - name: "Balance Metrics"
+                metrics:
+                  - "win_rates_by_character"
+                  - "item_usage_patterns"
+                  - "resource_distribution"
+              - name: "ML Recommendations"
+                metrics:
+                  - "suggested_adjustments"
+                  - "predicted_impacts"
+                  - "confidence_levels"
+          
+          - name: "security_audit"
+            schedule: "0 */12 * * *"
+            format: ["pdf"]
+            distribution:
+              email: ["security@safesoundarena.com"]
+              slack: "#security-alerts"
+            sections:
+              - name: "Fraud Detection"
+                metrics:
+                  - "suspicious_activities"
+                  - "risk_assessments"
+                  - "blocked_transactions"
+              - name: "System Security"
+                metrics:
+                  - "authentication_attempts"
+                  - "smart_contract_interactions"
+                  - "permission_changes"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analytics-processor
+  namespace: safesoundarena
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: analytics-processor
+  template:
+    metadata:
+      labels:
+        app: analytics-processor
+    spec:
+      containers:
+      - name: processor
+        image: safesoundarena/analytics-processor:latest
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2000m"
+          limits:
+            memory: "8Gi"
+            cpu: "4000m"
+        env:
+        - name: ANALYTICS_CONFIG
+          value: "/etc/analytics/config.yaml"
+        - name: KAFKA_BROKERS
+          value: "kafka-service:9092"
+        - name: CLICKHOUSE_HOST
+          value: "clickhouse-service"
+        volumeMounts:
+        - name: analytics-config
+          mountPath: /etc/analytics
+      volumes:
+      - name: analytics-config
+        configMap:
+          name: mcp-analytics-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: analytics-service
+  namespace: safesoundarena
+spec:
+  selector:
+    app: analytics-processor
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  - name: websocket
+    port: 8081
+    targetPort: 8081
+  type: ClusterIP 

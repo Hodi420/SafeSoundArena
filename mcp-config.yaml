@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-config
+data:
+  config.yaml: |
+    mcp:
+      version: "1.0"
+      components:
+        orchestrator:
+          enabled: true
+          scaling:
+            min_replicas: 2
+            max_replicas: 10
+            target_cpu_utilization: 70
+          
+        service_mesh:
+          enabled: true
+          protocol: "istio"
+          features:
+            - circuit_breaking
+            - load_balancing
+            - service_discovery
+            - traffic_splitting
+        
+        monitoring:
+          enabled: true
+          components:
+            - name: "prometheus"
+              port: 9090
+            - name: "grafana"
+              port: 3000
+            - name: "alertmanager"
+              port: 9093
+          
+        ai_orchestration:
+          enabled: true
+          components:
+            - name: "langchain-controller"
+              replicas: 2
+            - name: "openai-gateway"
+              replicas: 2
+              rate_limit: 100
+        
+        blockchain_gateway:
+          enabled: true
+          networks:
+            - name: "ethereum"
+              rpc_endpoints:
+                - "https://mainnet.infura.io"
+                - "https://mainnet.alchemyapi.io"
+            - name: "polygon"
+              rpc_endpoints:
+                - "https://polygon-rpc.com"
+        
+        resource_optimization:
+          enabled: true
+          features:
+            auto_scaling: true
+            resource_balancing: true
+            cost_optimization: true
+          
+        security:
+          enabled: true
+          features:
+            - name: "jwt_auth"
+              issuer: "safesoundarena"
+            - name: "rate_limiting"
+              default_rate: "100/minute"
+            - name: "ddos_protection"
+              enabled: true
+        
+        performance:
+          caching:
+            redis:
+              enabled: true
+              replicas: 3
+            cdn:
+              enabled: true
+              provider: "cloudflare"
+          
+        disaster_recovery:
+          backup:
+            enabled: true
+            schedule: "0 */6 * * *"
+            retention_days: 30
+          failover:
+            enabled: true
+            auto_switch: true
+            
+        logging:
+          enabled: true
+          elasticsearch:
+            replicas: 3
+          kibana:
+            enabled: true
+          fluentd:
+            enabled: true 

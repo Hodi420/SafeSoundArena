@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) {
+    return;
+  }
   try {
     await mongoose.connect(process.env.MONGO_URL || 'mongodb://localhost:27017/safesoundarena', {
       useNewUrlParser: true,

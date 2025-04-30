@@ -1,14 +1,4 @@
-import React, { useState } from 'react';
-import Toast from './Toast';
-import { IconButton } from './IconButton';
-
-/**
- * Demo component for displaying an app wallet (public address).
- * In production, integrate with real wallet SDK/API.
- *
- * UI/UX: Modernized copy button, clear feedback, concise warning, accessible labels.
- */
-export default function AppWalletDemo() {
+// Removed: Demo wallet component. This file is intentionally left blank for production.
   // For demo: generate a fake wallet address (not secure!)
   const [wallet] = useState<string>('PITEST_0x' + Math.random().toString(36).substring(2, 12).toUpperCase());
   const [copied, setCopied] = useState(false);

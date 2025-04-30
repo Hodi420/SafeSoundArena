@@ -1,8 +1,4 @@
-// Wallet Address Demo Component
-// This component displays the app wallet address for the authenticated user
-import React from 'react';
-
-const AppWalletDemo: React.FC = () => {
+// Removed: Demo wallet component. This file is intentionally left blank for production.
   // Replace with actual wallet logic as needed
   const walletAddress = 'SAFESOUND-PI-WALLET-ADDRESS-TEST';
   return (
@@ -19,4 +15,3 @@ const AppWalletDemo: React.FC = () => {
   );
 };
 
-export default AppWalletDemo;

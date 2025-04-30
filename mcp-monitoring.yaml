@@ -1,0 +1,207 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mcp-monitor
+  namespace: safesoundarena
+spec:
+  selector:
+    matchLabels:
+      app: mcp-controller
+  endpoints:
+  - port: metrics
+    interval: 15s
+    scrapeTimeout: 10s
+    metricRelabelings:
+    - sourceLabels: [__name__]
+      regex: 'container_.*'
+      action: keep
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: mcp-alerts
+  namespace: safesoundarena
+spec:
+  groups:
+  - name: mcp.performance
+    rules:
+    - alert: MCPHighCPUUsage
+      expr: rate(container_cpu_usage_seconds_total{container=~"mcp-.*"}[5m]) * 100 > 80
+      for: 5m
+      labels:
+        severity: warning
+        category: performance
+      annotations:
+        description: "Container {{ $labels.container }} CPU usage is above 80%"
+        runbook_url: "https://wiki.safesoundarena.io/alerts/high-cpu"
+        
+    - alert: MCPHighMemoryUsage
+      expr: container_memory_usage_bytes{container=~"mcp-.*"} / container_memory_working_set_bytes{container=~"mcp-.*"} * 100 > 85
+      for: 5m
+      labels:
+        severity: warning
+        category: performance
+      annotations:
+        description: "Container {{ $labels.container }} memory usage is above 85%"
+        runbook_url: "https://wiki.safesoundarena.io/alerts/high-memory"
+
+  - name: mcp.availability
+    rules:
+    - alert: MCPServiceDown
+      expr: up{job=~"mcp-.*"} == 0
+      for: 1m
+      labels:
+        severity: critical
+        category: availability
+      annotations:
+        description: "Service {{ $labels.job }} is down"
+        runbook_url: "https://wiki.safesoundarena.io/alerts/service-down"
+        
+    - alert: MCPHighErrorRate
+      expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) * 100 > 5
+      for: 5m
+      labels:
+        severity: critical
+        category: reliability
+      annotations:
+        description: "Error rate is above 5% for {{ $labels.service }}"
+        
+  - name: mcp.game
+    rules:
+    - alert: GameRoomCreationFailed
+      expr: rate(game_room_creation_failed_total[5m]) > 0
+      for: 5m
+      labels:
+        severity: warning
+        category: game
+      annotations:
+        description: "Game room creation failures detected"
+        
+    - alert: HighMatchmakingLatency
+      expr: matchmaking_duration_seconds{quantile="0.95"} > 30
+      for: 5m
+      labels:
+        severity: warning
+        category: game
+      annotations:
+        description: "Matchmaking latency is above 30 seconds"
+
+  - name: mcp.blockchain
+    rules:
+    - alert: BlockchainSyncDelay
+      expr: blockchain_blocks_behind > 50
+      for: 5m
+      labels:
+        severity: warning
+        category: blockchain
+      annotations:
+        description: "Blockchain sync is delayed by {{ $value }} blocks"
+        
+    - alert: HighGasPrice
+      expr: eth_gas_price > 100000000000
+      for: 5m
+      labels:
+        severity: warning
+        category: blockchain
+      annotations:
+        description: "Gas price is unusually high"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-grafana-dashboard
+  namespace: safesoundarena
+data:
+  mcp-dashboard.json: |
+    {
+      "dashboard": {
+        "title": "SafeSoundArena Analytics",
+        "panels": [
+          {
+            "title": "System Performance",
+            "panels": [
+              {
+                "title": "CPU Usage by Service",
+                "type": "graph",
+                "datasource": "Prometheus",
+                "targets": [
+                  {
+                    "expr": "rate(container_cpu_usage_seconds_total{container=~\"mcp-.*\"}[5m]) * 100"
+                  }
+                ]
+              },
+              {
+                "title": "Memory Usage by Service",
+                "type": "graph",
+                "datasource": "Prometheus",
+                "targets": [
+                  {
+                    "expr": "container_memory_usage_bytes{container=~\"mcp-.*\"}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Game Analytics",
+            "panels": [
+              {
+                "title": "Active Players",
+                "type": "stat",
+                "datasource": "Prometheus",
+                "targets": [
+                  {
+                    "expr": "sum(game_active_players)"
+                  }
+                ]
+              },
+              {
+                "title": "Matchmaking Success Rate",
+                "type": "gauge",
+                "datasource": "Prometheus",
+                "targets": [
+                  {
+                    "expr": "sum(rate(matchmaking_success_total[5m])) / sum(rate(matchmaking_attempts_total[5m])) * 100"
+                  }
+                ]
+              },
+              {
+                "title": "Game Room Distribution",
+                "type": "pie",
+                "datasource": "Prometheus",
+                "targets": [
+                  {
+                    "expr": "sum(game_rooms) by (type)"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Blockchain Metrics",
+            "panels": [
+              {
+                "title": "Transaction Success Rate",
+                "type": "gauge",
+                "datasource": "Prometheus",
+                "targets": [
+                  {
+                    "expr": "sum(rate(blockchain_tx_success[5m])) / sum(rate(blockchain_tx_total[5m])) * 100"
+                  }
+                ]
+              },
+              {
+                "title": "Gas Usage Over Time",
+                "type": "graph",
+                "datasource": "Prometheus",
+                "targets": [
+                  {
+                    "expr": "rate(blockchain_gas_used_total[5m])"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    } 

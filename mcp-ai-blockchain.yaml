@@ -1,0 +1,127 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-ai-config
+  namespace: safesoundarena
+data:
+  ai-config.yaml: |
+    ai_services:
+      langchain:
+        model_configs:
+          - name: "gpt-4"
+            max_tokens: 8192
+            temperature: 0.7
+            cache_ttl: 3600
+          - name: "gpt-3.5-turbo"
+            max_tokens: 4096
+            temperature: 0.8
+            cache_ttl: 1800
+        rate_limiting:
+          tokens_per_minute: 90000
+          requests_per_minute: 1000
+        
+      custom_models:
+        - name: "arena-game-ai"
+          endpoint: "/api/game/ai"
+          batch_size: 32
+          model_path: "/models/game"
+          
+      vector_store:
+        type: "pinecone"
+        dimension: 1536
+        metric: "cosine"
+        pods: 2
+        
+      feature_store:
+        type: "redis"
+        ttl: 86400
+        max_memory: "2gb"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-blockchain-config
+  namespace: safesoundarena
+data:
+  blockchain-config.yaml: |
+    blockchain_services:
+      networks:
+        ethereum:
+          providers:
+            - name: "infura"
+              priority: 1
+              max_requests: 100000
+              retry_attempts: 3
+            - name: "alchemy"
+              priority: 2
+              max_requests: 150000
+              retry_attempts: 3
+              
+        polygon:
+          providers:
+            - name: "polygon-rpc"
+              priority: 1
+              max_requests: 200000
+              retry_attempts: 3
+              
+      contracts:
+        nft:
+          address: "${NFT_CONTRACT_ADDRESS}"
+          abi_path: "/contracts/nft.json"
+          gas_limit: 500000
+          
+        marketplace:
+          address: "${MARKETPLACE_CONTRACT_ADDRESS}"
+          abi_path: "/contracts/marketplace.json"
+          gas_limit: 1000000
+          
+      ipfs:
+        gateway: "https://ipfs.safesoundarena.io"
+        pin_service: "pinata"
+        replicas: 3
+        
+      transaction_manager:
+        max_pending: 1000
+        confirmation_blocks: 12
+        gas_price_strategy: "fast"
+        
+      event_listener:
+        blocks_per_batch: 1000
+        max_blocks_behind: 50
+        retry_interval: 5000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blockchain-indexer
+  namespace: safesoundarena
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: blockchain-indexer
+  template:
+    metadata:
+      labels:
+        app: blockchain-indexer
+    spec:
+      containers:
+      - name: indexer
+        image: safesoundarena/blockchain-indexer:latest
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        env:
+        - name: BLOCKCHAIN_CONFIG
+          value: "/etc/blockchain/config.yaml"
+        volumeMounts:
+        - name: blockchain-config
+          mountPath: /etc/blockchain
+      volumes:
+      - name: blockchain-config
+        configMap:
+          name: mcp-blockchain-config 

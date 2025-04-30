@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { IconServer, IconHierarchy, IconUser } from '@tabler/icons-react';
 
 export default function AdminDashboard({ userId }) {
   const [users, setUsers] = useState([]);
@@ -15,6 +17,7 @@ export default function AdminDashboard({ userId }) {
   const [topUsersError, setTopUsersError] = useState('');
   // Time filter for top users
   const [topUsersRange, setTopUsersRange] = useState('all');
+  const [hierarchyLoading, setHierarchyLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -76,8 +79,16 @@ export default function AdminDashboard({ userId }) {
       .then(r => r.json()).then(d => setSelfUpdateMsg(d.message || d.error || 'done'));
   }
 
+  function refreshHierarchy() {
+    setHierarchyLoading(true);
+    fetch('/api/root/hierarchy')
+      .then(r => r.json())
+      .then(data => { setHierarchy(data); setHierarchyLoading(false); })
+      .catch(() => setHierarchyLoading(false));
+  }
+
   if (loading) return <div>טוען נתונים ניהוליים...</div>;
-  if (error) return <div>{error}</div>;
+  if (error) return <div>{error.replace('טעיות', 'טעויות')}</div>;
   return (
     <div style={{ maxWidth: 800, margin: 'auto', background: '#f5f5f5', padding: 24, borderRadius: 8 }}>
       <h2>דשבורד ניהולי</h2>
@@ -167,9 +178,13 @@ export default function AdminDashboard({ userId }) {
         </table>
       </div>
       <div style={{ marginBottom: 24 }}>
-        <h3>היררכיה (MCP > Mini-MCP > Agents)</h3>
-        {hierarchy ? (
-          <pre style={{ background: '#eee', padding: 12, borderRadius: 4 }}>{JSON.stringify(hierarchy, null, 2)}</pre>
+        <h3>היררכיה (MCP &gt; Mini-MCP &gt; Agents)
+          <button onClick={refreshHierarchy} style={{ marginRight: 12, padding: '2px 10px', borderRadius: 6, background: '#00eaff', color: '#222', border: 'none', fontWeight: 600, cursor: 'pointer', fontSize: 14 }}>רענן</button>
+        </h3>
+        {hierarchyLoading ? (
+          <Spinner />
+        ) : hierarchy ? (
+          <McpHierarchyTree hierarchy={hierarchy} />
         ) : 'לא נטען'}
       </div>
       <div style={{ marginBottom: 24 }}>
@@ -182,4 +197,79 @@ export default function AdminDashboard({ userId }) {
       </div>
     </div>
   );
+}
+
+// MCP Hierarchy Tree Component
+function McpHierarchyTree({ hierarchy }) {
+  if (!hierarchy) return null;
+  return (
+    <div style={{ background: '#222', color: '#fff', borderRadius: 8, padding: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+        <StatusDot status={hierarchy.status || 'unknown'} />
+        <IconServer color="#00eaff" style={{ marginRight: 8 }} />
+        <span style={{ fontWeight: 'bold', fontSize: 18 }}>Root MCP: {hierarchy.rootMcpId || 'N/A'}</span>
+      </div>
+      <div style={{ marginLeft: 24 }}>
+        {hierarchy.miniMcps && hierarchy.miniMcps.length > 0 ? hierarchy.miniMcps.map((mini, i) => (
+          <MiniMcpNode key={mini.miniMcpId || i} mini={mini} />
+        )) : <div>אין Mini-MCPs</div>}
+      </div>
+    </div>
+  );
+}
+
+function MiniMcpNode({ mini }) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
+        <StatusDot status={mini.status || 'unknown'} />
+        <IconHierarchy color="#ff00e0" style={{ marginRight: 6 }} />
+        <span style={{ fontWeight: 500, fontSize: 16 }}>{mini.miniMcpId || mini.name}</span>
+        <span style={{ marginLeft: 8, fontSize: 12, color: '#0ff' }}>{mini.status || ''}</span>
+        <span style={{ marginLeft: 8, fontSize: 12, color: '#aaa' }}>{open ? '▲' : '▼'}</span>
+      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            style={{ marginLeft: 24, marginTop: 6 }}
+          >
+            {mini.agents && mini.agents.length > 0 ? mini.agents.map((agent, j) => (
+              <div key={agent.agentId || j} style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                <StatusDot status={agent.status || 'unknown'} />
+                <IconUser color="#00ff6a" style={{ marginRight: 6 }} />
+                <span style={{ fontSize: 15 }}>{agent.agentId || agent.name}</span>
+                <span style={{ marginLeft: 8, fontSize: 12, color: agent.status === 'active' ? '#0f0' : '#f00' }}>
+                  {agent.status || ''}
+                </span>
+              </div>
+            )) : <div style={{ color: '#aaa' }}>אין Agents</div>}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// Spinner component
+function Spinner() {
+  return (
+    <motion.div
+      animate={{ rotate: 360 }}
+      transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+      style={{ width: 28, height: 28, border: '4px solid #0ff', borderTop: '4px solid #222', borderRadius: '50%', margin: 'auto' }}
+    />
+  );
+}
+
+// StatusDot component
+function StatusDot({ status }) {
+  let color = '#aaa';
+  if (status === 'active' || status === 'online') color = '#0f0';
+  else if (status === 'warning') color = '#ff0';
+  else if (status === 'offline' || status === 'inactive') color = '#f00';
+  return <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: '50%', background: color, marginRight: 6, border: '1.5px solid #fff', boxShadow: `0 0 6px ${color}` }} />;
 }

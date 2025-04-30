@@ -1,0 +1,47 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - services/api-gateway
+  - services/game-service
+  - services/auth-service
+  - services/blockchain-service
+  - services/ai-service
+  - services/matchmaking-service
+  - services/analytics-service
+  - infrastructure/redis
+  - infrastructure/clickhouse
+  - infrastructure/prometheus
+  - infrastructure/grafana
+  - infrastructure/jaeger
+
+commonLabels:
+  app.kubernetes.io/part-of: safesoundarena
+  app.kubernetes.io/managed-by: kustomize
+
+configMapGenerator:
+  - name: game-config
+    files:
+      - configs/game-config.yaml
+  - name: monitoring-config
+    files:
+      - configs/prometheus.yaml
+      - configs/grafana.ini
+
+secretGenerator:
+  - name: app-secrets
+    envs:
+      - .env.secret
+
+patches:
+  - target:
+      kind: Deployment
+      labelSelector: "app.kubernetes.io/part-of=safesoundarena"
+    patch: |-
+      - op: add
+        path: /spec/template/metadata/annotations/prometheus.io~1scrape
+        value: "true"
+      - op: add
+        path: /spec/template/metadata/annotations/prometheus.io~1port
+        value: "metrics" 

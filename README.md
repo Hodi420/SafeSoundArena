@@ -1,3 +1,91 @@
+# SafeSoundArena
+
+מערכת חכמה לניהול התראות, עיבוד תורים, וטפסים מאובטחים. הפרויקט משלב טכנולוגיות מתקדמות (Node.js, React, MongoDB, Redis, BullMQ, Pi Network, GPT-4.1) ומתאים לפריסה בענן או בלוקאלי.
+
+---
+
+## תוכן העניינים
+- [התקנה והרצה](#התקנה-והרצה)
+- [מבנה הפרויקט](#מבנה-הפרויקט)
+- [בדיקות](#בדיקות)
+- [CI/CD ודיפלוי](#cicd-ודיפלוי)
+- [Best Practices](#best-practices)
+- [סביבה ומשתני ENV](#סביבה-ומשתני-env)
+- [מודולים עיקריים](#מודולים-עיקריים)
+- [תרומות](#תרומות)
+
+---
+
+## התקנה והרצה
+
+1. התקנת תלויות:
+   ```bash
+   npm install
+   cd frontend && npm install
+   ```
+2. הפעלת מסד נתונים (MongoDB) ו-Redis:
+   - ודא שמונגו ורדיס רצים בלוקאלי או העזר ב-Docker.
+3. הרצת שרת:
+   ```bash
+   npm start
+   ```
+4. הרצת פרונט:
+   ```bash
+   cd frontend && npm start
+   ```
+
+## מבנה הפרויקט
+
+- `server/` — שרת Node.js (Express), דגמי DB, תורים (bullmq)
+- `frontend/` — אפליקציית React, טפסים, קומפוננטות
+- `tests/` — בדיקות יחידה (Jest)
+- `.github/workflows/` — pipeline ל-CI
+- `Dockerfile` / `netlify.toml` — דיפלוי מהיר בענן
+
+## בדיקות
+
+להרצת בדיקות:
+```bash
+npm test
+```
+- בדיקות לדגמי DB קיימות (`tests/notification.test.js`).
+- מומלץ להוסיף בדיקות ל-API ולפרונט (Jest/React Testing Library).
+
+## CI/CD ודיפלוי
+- pipeline אוטומטי ב-GitHub Actions (`.github/workflows/nodejs.yml`)
+- קיימים Dockerfile ו-netlify.toml לדיפלוי מהיר (ראה בתיקיות המתאימות)
+- תמיכה ב־Netlify, Docker, או דיפלוי עצמאי
+
+## Best Practices
+- ולידציה דו-צדדית (שרת + פרונט)
+- שימוש ב-ENV לניהול סיסמאות/חיבורים
+- אינדוקס שדות קריטיים ב-DB
+- נגישות וטיפול בשגיאות ב-UI
+- הפרדת אחריות בין מודולים, שמות ברורים, תיעוד קוד
+
+## סביבה ומשתני ENV
+
+להרצה יש להגדיר קבצי סביבה (למשל `.env.sandbox`, `.env.production`).
+השתמש ב-`env.sandbox.example.txt` כתבנית.
+
+### Environment Variables עיקריים:
+- `NEXT_PUBLIC_APP_ENV` — מצב סביבתי (sandbox/production)
+- `MONGO_URL` — כתובת MongoDB
+- `REDIS_HOST`, `REDIS_PORT` — חיבור Redis
+- `PI_JWT_SECRET` — סוד JWT
+- משתנים נוספים ראה בקובץ הדוגמה.
+
+## מודולים עיקריים
+- Agent להרצת פקודות מערכת, משימות אוטומטיות, חיבור ל-API חיצוניים (GitHub, OpenAI, Ollama, אינטרנט).
+- מערכת הרשאות, לוג Audit מלא, ואישור כפול לפעולות רגישות.
+- תורים (BullMQ), ניהול התראות, cron, webhooks.
+- פרונט React עם טפסים מאובטחים ונגישים.
+
+## תרומות
+הצעות, Pull Requests ודיווחי באגים יתקבלו בברכה!
+
+---
+
 ## Environment Setup
 
 To run this project, you need to create environment files for each environment (e.g., `.env.sandbox`, `.env.production`). Use the provided `env.sandbox.example.txt` as a template.
