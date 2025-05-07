@@ -3,7 +3,7 @@
 # Build stage
 FROM node:18-alpine AS builder
 WORKDIR /app
-
+ENV NEXT_TELEMETRY_DISABLED=1
 # Check for updates first
 RUN apk update && apk upgrade
 
