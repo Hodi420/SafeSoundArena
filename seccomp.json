@@ -1,0 +1,98 @@
+{
+  "defaultAction": "SCMP_ACT_ERRNO",
+  "architectures": [
+    "SCMP_ARCH_X86_64",
+    "SCMP_ARCH_X86",
+    "SCMP_ARCH_X32"
+  ],
+  "syscalls": [
+    {
+      "name": "accept",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "bind",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "clock_gettime",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "close",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "connect",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "execve",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "exit",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "futex",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "getpeername",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "getsockname",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "listen",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "mmap",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "mprotect",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "munmap",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "open",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "read",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "recvfrom",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "rt_sigaction",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "rt_sigprocmask",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "sendto",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "socket",
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "name": "write",
+      "action": "SCMP_ACT_ALLOW"
+    }
+  ]
+}

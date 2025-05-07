@@ -3,9 +3,34 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const config = require('./agent-config.json');
+const rateLimit = require('express-rate-limit');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 app.use(express.json());
+
+const AGENT_VERSION = '1.0.0';
+const AGENT_ANALOGY = 'אני כמו רובוט עוזר אישי שמבצע משימות, בודק בריאות, ומספק מידע על עצמו.';
+const AGENT_DESCRIPTION = 'Agent חכם להרצת פקודות, ניהול קבצים, אינטגרציה עם AI, ועוד.';
+const AGENT_CAPABILITIES = [
+  'open_game', 'move_file', 'delete_temp', 'run_update',
+  'fetch_github', 'query_openai', 'query_ollama', 'fetch_url'
+];
+
+// Rate limiting: 60 requests per minute per IP
+const limiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  message: { error: 'Too many requests, please try again later.' }
+});
+app.use(limiter);
+
+// Request ID middleware
+app.use((req, res, next) => {
+  req.requestId = uuidv4();
+  res.setHeader('X-Request-ID', req.requestId);
+  next();
+});
 
 function isAllowed(command) {
   return config.allowedCommands.includes(command);
@@ -28,7 +53,75 @@ function isActiveHour() {
   return nowMinutes >= startMinutes && nowMinutes <= endMinutes;
 }
 
-app.post('/api/agent', (req, res) => {
+// Healthz endpoint (detailed)
+app.get('/healthz', (req, res) => {
+  res.json({
+    status: 'online',
+    version: AGENT_VERSION,
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    agentId: config.agentId || 'unknown',
+    type: config.type || 'generic',
+    time: new Date().toISOString()
+  });
+});
+
+// Meta endpoint
+app.get('/meta', (req, res) => {
+  res.json({
+    agentId: config.agentId || 'unknown',
+    type: config.type || 'generic',
+    version: AGENT_VERSION,
+    description: AGENT_DESCRIPTION,
+    capabilities: AGENT_CAPABILITIES,
+    tags: config.tags || [],
+    analogy: AGENT_ANALOGY
+  });
+});
+
+// Capabilities endpoint
+app.get('/capabilities', (req, res) => {
+  res.json({
+    agentId: config.agentId || 'unknown',
+    capabilities: AGENT_CAPABILITIES
+  });
+});
+
+// Logs endpoint (last 100 lines)
+app.get('/logs', (req, res) => {
+  try {
+    const logPath = path.resolve('agent.log');
+    if (!fs.existsSync(logPath)) return res.json({ log: [] });
+    const lines = fs.readFileSync(logPath, 'utf-8').split('\n');
+    res.json({ log: lines.slice(-100), requestId: req.requestId });
+  } catch (e) {
+    sendError(res, 500, 'Failed to read log', req, e.message);
+  }
+});
+
+// Analogy endpoint
+app.get('/analogy', (req, res) => {
+  res.json({ analogy: AGENT_ANALOGY, description: AGENT_DESCRIPTION });
+});
+
+// Basic API key check middleware (optional, demo)
+function apiKeyCheck(req, res, next) {
+  if (config.apiKey && req.headers['x-api-key'] !== config.apiKey) {
+    return res.status(401).json({ error: 'Invalid API key' });
+  }
+  next();
+}
+
+// Unified error handler
+function sendError(res, code, message, req, details) {
+  res.status(code).json({
+    error: message,
+    requestId: req && req.requestId,
+    details: details || undefined
+  });
+}
+
+app.post('/api/agent', apiKeyCheck, (req, res) => {
   const { command, args, targetPath, confirm, apiKey } = req.body;
   if (!isAllowed(command)) return res.status(403).json({ error: 'Command not allowed' });
   if (targetPath && isRestrictedPath(targetPath)) return res.status(403).json({ error: 'Target path restricted' });
@@ -157,6 +250,138 @@ app.post('/api/agent', (req, res) => {
 
   // Unknown command
   res.status(400).json({ error: 'Unknown or unimplemented command' });
+});
+
+// Settings endpoints
+app.get('/settings', (req, res) => {
+  try {
+    const settings = {
+      agentId: config.agentId,
+      type: config.type,
+      activeHours: config.activeHours,
+      allowedCommands: config.allowedCommands,
+      requireConfirmation: config.requireConfirmation,
+      tags: config.tags || [],
+      webhookUrl: config.webhookUrl || null
+    };
+    res.json({ settings, requestId: req.requestId });
+  } catch (e) {
+    sendError(res, 500, 'Failed to get settings', req, e.message);
+  }
+});
+
+app.post('/set', (req, res) => {
+  try {
+    const updates = req.body;
+    const configPath = path.resolve('agent-config.json');
+    const newConfig = { ...config, ...updates };
+    fs.writeFileSync(configPath, JSON.stringify(newConfig, null, 2));
+    Object.assign(config, updates); // Update in-memory config
+    res.json({ ok: true, updated: updates, requestId: req.requestId });
+  } catch (e) {
+    sendError(res, 500, 'Failed to update settings', req, e.message);
+  }
+});
+
+// Webhook trigger endpoint
+app.post('/webhook', (req, res) => {
+  try {
+    const event = req.body;
+    if (!config.webhookUrl) return sendError(res, 400, 'No webhookUrl configured', req);
+    const https = require('https');
+    const url = new URL(config.webhookUrl);
+    const data = JSON.stringify({ event, agentId: config.agentId, time: new Date().toISOString() });
+    const options = {
+      hostname: url.hostname,
+      port: url.port || 443,
+      path: url.pathname,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
+    };
+    const webhookReq = https.request(options, resp => {
+      let respData = '';
+      resp.on('data', chunk => respData += chunk);
+      resp.on('end', () => {
+        res.json({ ok: true, webhookResponse: respData, requestId: req.requestId });
+      });
+    });
+    webhookReq.on('error', e => sendError(res, 500, 'Webhook request failed', req, e.message));
+    webhookReq.write(data);
+    webhookReq.end();
+  } catch (e) {
+    sendError(res, 500, 'Failed to trigger webhook', req, e.message);
+  }
+});
+
+// Self-update endpoint (stub)
+app.post('/self-update', (req, res) => {
+  // In real use: git pull, npm install, restart process, etc.
+  res.json({ ok: true, message: 'Self-update triggered (stub)', requestId: req.requestId });
+});
+
+// API documentation endpoint
+app.get('/docs', (req, res) => {
+  res.json({
+    endpoints: [
+      {
+        path: '/healthz', method: 'GET',
+        description: 'Health check with status, version, uptime, memory, agentId, type, time',
+        example_response: {
+          status: 'online', version: '1.0.0', uptime: 123.45, memory: {}, agentId: '...', type: '...', time: '...'
+        }
+      },
+      {
+        path: '/meta', method: 'GET',
+        description: 'Agent metadata: id, type, version, description, capabilities, tags, analogy',
+        example_response: {
+          agentId: '...', type: '...', version: '1.0.0', description: '...', capabilities: [], tags: [], analogy: '...'
+        }
+      },
+      {
+        path: '/capabilities', method: 'GET',
+        description: 'List of supported commands/capabilities',
+        example_response: { agentId: '...', capabilities: [] }
+      },
+      {
+        path: '/logs', method: 'GET',
+        description: 'Last 100 log lines',
+        example_response: { log: ['...'], requestId: '...' }
+      },
+      {
+        path: '/analogy', method: 'GET',
+        description: 'Agent analogy and description',
+        example_response: { analogy: '...', description: '...' }
+      },
+      {
+        path: '/settings', method: 'GET',
+        description: 'Get agent settings',
+        example_response: { settings: {}, requestId: '...' }
+      },
+      {
+        path: '/set', method: 'POST',
+        description: 'Update agent settings',
+        example_request: { allowedCommands: ['open_game'] },
+        example_response: { ok: true, updated: {}, requestId: '...' }
+      },
+      {
+        path: '/webhook', method: 'POST',
+        description: 'Trigger webhook with event data',
+        example_request: { event: { type: 'test', data: {} } },
+        example_response: { ok: true, webhookResponse: '...', requestId: '...' }
+      },
+      {
+        path: '/self-update', method: 'POST',
+        description: 'Trigger self-update (stub)',
+        example_response: { ok: true, message: 'Self-update triggered (stub)', requestId: '...' }
+      },
+      {
+        path: '/api/agent', method: 'POST',
+        description: 'Run a command (see /capabilities)',
+        example_request: { command: 'open_game', args: { exePath: 'C:/game.exe' }, confirm: true },
+        example_response: { ok: true, message: '...' }
+      }
+    ]
+  });
 });
 
 module.exports = app;

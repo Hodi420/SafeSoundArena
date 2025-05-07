@@ -1,0 +1,1 @@
+const config = require('./agent-config.json'); 

@@ -21,12 +21,8 @@
   },
   "include": [
     "src",
-<<<<<<< HEAD
     "tests",
     "pages"
-=======
-    "tests"
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
   ],
   "exclude": [
     "node_modules"
