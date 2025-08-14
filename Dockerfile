@@ -1,6 +1,6 @@
 # Multi-stage build for production
 # Builder stage
-FROM node:18-alpine
+FROM node:18-alpine AS runner
 
 # הגבלות זמן ריצה
 RUN apk add --no-cache tini
@@ -18,7 +18,7 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
 
 # אבטחת תהליכים
 RUN sysctl -w kernel.yama.ptrace_scope=1
-RUN sysctl -w kernel.kptr_restrict=2 AS builder
+RUN sysctl -w kernel.kptr_restrict=2
 
 # הגבלות משאבים
 RUN apk add --no-cache dumb-init
@@ -40,7 +40,7 @@ COPY . .
 RUN npm run build
 
 # Runner stage
-FROM node:18-alpine
+FROM node:18-alpine AS runner
 
 # הגבלות זמן ריצה
 RUN apk add --no-cache tini

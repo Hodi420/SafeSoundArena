@@ -1,3 +1,27 @@
+// --- MCP Permissions API ---
+// רשימת כל המשתמשים עם הרשאות
+app.get('/api/mcp/users', (req, res) => {
+  const mcpPermissions = require('./mcp-permissions');
+  res.json({ users: mcpPermissions.getAllUsers() });
+});
+
+// הוספת הרשאה למשתמש
+app.post('/api/mcp/permissions', (req, res) => {
+  const { userId, role } = req.body;
+  if (!userId || !role) return res.status(400).json({ error: 'userId and role required' });
+  const mcpPermissions = require('./mcp-permissions');
+  mcpPermissions.addPermission(userId, role);
+  res.json({ success: true, userId, role });
+});
+
+// הסרת הרשאה ממשתמש
+app.delete('/api/mcp/permissions', (req, res) => {
+  const { userId, role } = req.body;
+  if (!userId || !role) return res.status(400).json({ error: 'userId and role required' });
+  const mcpPermissions = require('./mcp-permissions');
+  mcpPermissions.removePermission(userId, role);
+  res.json({ success: true, userId, role });
+});
 // app.js - SafeSoundArena backend bootstrap
 // נקודת כניסה ראשית לשרת ולמודולים המרכזיים
 require('dotenv').config();
@@ -8,11 +32,32 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
+
 // ייבוא מודולים עיקריים (skeleton)
 const scrollsEngine = require('./scrolls-engine');
 const jailTimeEvents = require('./jailtime-events');
 const proofOfActivity = require('./proof-of-activity');
 const shameHonorBoards = require('./shame-honor-boards');
+
+// מודול ניהול הרשאות MCP
+const mcpPermissions = require('./mcp-permissions');
+// דוגמת שימוש: הוספת הרשאות למשתמש (לצורכי פיתוח)
+// ניתן להחליף לטעינה מקובץ או DB לפי הצורך
+mcpPermissions.addPermission('devUser', 'admin');
+mcpPermissions.addPermission('devUser', 'write');
+mcpPermissions.addPermission('testUser', 'read');
+
+// דוגמת API לבדיקה
+app.get('/api/mcp/permissions/:userId', (req, res) => {
+  const { userId } = req.params;
+  res.json({ userId, roles: mcpPermissions.getUserRoles(userId) });
+});
+
+// דוגמת API לבדוק הרשאה
+app.get('/api/mcp/has-permission/:userId/:role', (req, res) => {
+  const { userId, role } = req.params;
+  res.json({ userId, role, has: mcpPermissions.hasPermission(userId, role) });
+});
 
 let jailActive = false;
 let usersInJail = {};

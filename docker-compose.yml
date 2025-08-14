@@ -45,3 +45,9 @@ networks:
 
 volumes:
   ipfs_data: {}
+
+healthcheck:
+  test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+  interval: 10s
+  timeout: 5s
+  retries: 3

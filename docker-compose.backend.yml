@@ -1,0 +1,18 @@
+# Docker Compose for SafeSoundArena Backend (with MCP Permissions)
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    container_name: safesoundarena-backend
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - ADMIN_TOKEN=changeme
+      - ALLOWED_ORIGINS=*
+    volumes:
+      - ./backend:/usr/src/app
+      - ./backend/mcp-permissions.json:/usr/src/app/mcp-permissions.json
+    restart: unless-stopped
+    command: ["node", "app.js"]

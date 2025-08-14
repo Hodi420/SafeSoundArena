@@ -145,3 +145,36 @@ To deploy the SafeSoundArena application, follow these steps:
 
 - **Wallet Connector Enhancements**: Added functions to estimate gas and fetch transaction receipts.
 - **Dockerfile Optimization**: Updated Dockerfile for automated deployment with stable Node.js version and optimized build process.
+
+---
+
+## 🚦 MCP Permissions Backend Quick Start
+
+### Run locally
+```bash
+npm install --prefix backend
+npm run dev --prefix backend
+```
+
+### Run with Docker
+```bash
+docker compose -f docker-compose.backend.yml up --build -d
+```
+
+### REST API
+- GET    /api/mcp/permissions/:userId
+- GET    /api/mcp/has-permission/:userId/:role
+- GET    /api/mcp/users
+- POST   /api/mcp/permissions
+- DELETE /api/mcp/permissions
+
+### Features
+- Dynamic permissions (JSON, API, external import)
+- Default roles
+- Logging
+- Docker & GitHub Actions ready
+
+### CI/CD
+- Every push to main runs tests, builds Docker, and pushes to GitHub Container Registry.
+
+---

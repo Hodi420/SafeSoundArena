@@ -9,6 +9,11 @@ const Agent = require('./models/agent');
 const Hierarchy = require('./models/hierarchy');
 const { sendMail } = require('./mailer');
 const app = express();
+const leaderboardRoutes = require('./routes/leaderboardRoutes');
+const authRoutes = require('./routes/authRoutes');
+
+app.use('/api', leaderboardRoutes);
+app.use('/api/auth', authRoutes);
 app.use(express.json());
 
 // Connect to MongoDB

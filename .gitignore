@@ -38,6 +38,7 @@ Thumbs.db
 build/
 dist/
 coverage/
+backend/mcp-permissions.json
 .cache/
 # System
 .DS_Store

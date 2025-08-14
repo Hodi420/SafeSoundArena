@@ -1,0 +1,33 @@
+# Continuous Integration for SafeSoundArena Backend
+# This workflow installs dependencies, runs lint, and builds Docker image
+
+name: Backend CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint (optional)
+        run: |
+          if [ -f .eslintrc.js ] || [ -f .eslintrc.json ]; then npm run lint; else echo "No linter configured"; fi
+      - name: Build Docker image
+        run: docker build -t safesoundarena-backend .
+      - name: Docker image size
+        run: docker images safesoundarena-backend --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"

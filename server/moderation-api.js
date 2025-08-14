@@ -4,6 +4,7 @@ const nsfw = require('nsfwjs');
 const sharp = require('sharp');
 const Filter = require('bad-words');
 const crypto = require('crypto');
+const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -24,7 +25,7 @@ function checkConsent(req, res, next) {
 }
 
 // Profanity filter endpoint
-router.post('/text', checkConsent, (req, res) => {
+router.post('/text', authMiddleware.authenticateJWT, checkConsent, (req, res) => {
   const { text } = req.body;
   if (!text) return res.status(400).json({ error: 'Missing text' });
   const isProfane = filter.isProfane(text);
@@ -33,7 +34,7 @@ router.post('/text', checkConsent, (req, res) => {
 });
 
 // Image moderation endpoint
-router.post('/image', upload.single('image'), checkConsent, async (req, res) => {
+router.post('/image', authMiddleware.authenticateJWT, upload.single('image'), checkConsent, async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Missing image' });
   if (!nsfwModel) return res.status(503).json({ error: 'Model not loaded' });
   // Downscale for faster inference
@@ -44,7 +45,7 @@ router.post('/image', upload.single('image'), checkConsent, async (req, res) => 
 });
 
 // Diagnostics endpoint (example)
-router.post('/diagnostics', checkConsent, (req, res) => {
+router.post('/diagnostics', authMiddleware.authenticateJWT, checkConsent, (req, res) => {
   const { fps, usingIGPU, onBattery, memGB, cores } = req.body;
   // Minimal retention: Only log if problematic
   if (fps < 30 || usingIGPU || onBattery) {
@@ -57,7 +58,7 @@ router.post('/diagnostics', checkConsent, (req, res) => {
 });
 
 // Data deletion endpoint (GDPR right to be forgotten)
-router.post('/delete', (req, res) => {
+router.post('/delete', authMiddleware.authenticateJWT, (req, res) => {
   // Example: remove user data by anonId (not implemented here)
   res.json({ deleted: true });
 });

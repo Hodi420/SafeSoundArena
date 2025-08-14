@@ -2,13 +2,53 @@
 // Express server entry point for DeciderBot UI API
 require('dotenv').config();
 const express = require('express');
+const helmet = require('helmet');
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: process.env.API_RATE_LIMIT || 100,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 const path = require('path');
 const bodyParser = require('body-parser');
 const DeciderBot = require('../aiClients/deciderBot');
-const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
 const app = express();
+const redis = require('redis');
+const authMiddleware = require('../middleware/authMiddleware');
+
+// חיבור ל-Redis
+const redisClient = redis.createClient({
+  socket: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    reconnectStrategy: (retries) => Math.min(retries * 100, 3000)
+  }
+});
+
+redisClient.on('error', (err) => {
+  console.error('Redis error:', err);
+});
+
+redisClient.on('connect', () => {
+  console.log('Connected to Redis at', process.env.REDIS_HOST);
+});
+
+redisClient.connect().catch(err => {
+  console.error('Failed to connect to Redis:', err);
+  process.exit(1);
+});
+
+// Middleware בסיסי
+app.use(limiter);
+app.use(helmet());
+app.use(cors({ origin: process.env.CORS_ORIGIN }));
+app.use(express.json());
+app.use(authMiddleware.authenticateJWT);
 app.use(cors());
 app.use(bodyParser.json());
 app.use('/public', express.static(path.join(__dirname, 'public')));
@@ -487,6 +527,8 @@ app.get('*', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3030;
+app.use(authMiddleware.errorHandler);
+
 app.listen(PORT, () => {
   console.log(`DeciderBot UI API running on http://localhost:${PORT}`);
 });

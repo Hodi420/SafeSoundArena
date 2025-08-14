@@ -1,37 +1,22 @@
 {
-<<<<<<< HEAD
   "name": "safesoundarena-monorepo",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "safesoundarena-server",
+    "frontend"
+  ],
   "scripts": {
-    "test": "mocha --exit"
+    "test": "mocha --exit",
+    "dev": "cd frontend && npm run dev"
   },
   "devDependencies": {
     "mocha": "^10.0.0",
     "sinon": "^20.0.0"
-=======
-  "name": "safesoundarena-server",
-  "version": "1.0.0",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
   },
   "dependencies": {
-    "@tabler/icons-react": "^3.31.0",
-    "axios": "^1.8.4",
-    "chalk": "^5.4.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "ethers": "^5.7.2",
-    "express": "^4.18.2",
-    "express-rate-limit": "^6.7.0",
-    "helmet": "^6.0.1",
-    "langchain": "^0.3.22",
-    "openai": "^4.95.0",
-    "socket.io": "^4.8.1"
-  },
-  "devDependencies": {
-    "eslint": "^9.25.1"
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.14.1"
   }
 }
