@@ -1,20 +1,37 @@
 FROM node:20-alpine
-WORKDIR /usr/src/app
 
-# הגדרת יוזר לא-שורש
+# System deps needed for healthcheck
+RUN apk add --no-cache curl
+
+# Create app user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-COPY package*.json ./
-RUN npm install --production && npm cache clean --force;
+# Set workdir at repo root then install backend deps
+WORKDIR /usr/src/app
 
+# Copy backend package files and install production deps
+COPY backend/package*.json backend/
+WORKDIR /usr/src/app/backend
+RUN npm install --production && npm cache clean --force
+
+# Return to repo root and copy all sources (to include shared aiClients/ etc.)
+WORKDIR /usr/src/app
 COPY . .
 
-# מחיקת קבצי פיתוח
-RUN rm -rf test/ tests/ *.md *.log *.bak *.tmp
+# Install ts-node/typescript globally for running TypeScript in production
+RUN npm install -g ts-node typescript
 
-# הגבלת הרשאות
+# Cleanup unnecessary dirs to keep image small
+RUN rm -rf frontend/ docs/ tests/ test/ *.log *.tmp || true
+
+# Permissions
 RUN chown -R appuser:appgroup /usr/src/app
 USER appuser
 
 EXPOSE 4000
-CMD ["node", "app.js"]
+
+# Run from backend directory
+WORKDIR /usr/src/app/backend
+
+# Start the TypeScript server
+CMD ["npm", "run", "start"]

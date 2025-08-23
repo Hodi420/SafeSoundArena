@@ -1,0 +1,18 @@
+# Default reviewers for the entire repository
+*       @Hodi420 @your-team-name
+
+# Specific file patterns and their owners
+/blockchain/    @Hodi420 @blockchain-team
+/server/        @Hodi420 @backend-team
+/frontend/      @Hodi420 @frontend-team
+/docs/          @Hodi420 @docs-team
+
+# Configuration files
+/.github/       @Hodi420 @devops-team
+*.md            @Hodi420 @docs-team
+
+# Tests
+/test/          @Hodi420 @qa-team
+/__tests__/     @Hodi420 @qa-team
+*.test.js       @Hodi420 @qa-team
+*.spec.js       @Hodi420 @qa-team

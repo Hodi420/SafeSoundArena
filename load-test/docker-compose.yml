@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  k6:
+    image: grafana/k6:latest
+    container_name: safesoundarena-k6
+    environment:
+      - K6_OUT=influxdb=http://influxdb:8086/k6
+      - K6_VIRTUAL_USERS=${K6_VUS:-10}
+      - K6_DURATION=${K6_DURATION:-5m}
+      - K6_STAGES=${K6_STAGES:-'10s:20,30s:15,10s:5,10s:0'}
+    volumes:
+      - ./:/scripts
+    networks:
+      - k6-network
+    depends_on:
+      - influxdb
+      - grafana
+    command: run --out influxdb=http://influxdb:8086/k6 /scripts/scenarios/auth.test.js
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+
+  influxdb:
+    image: influxdb:1.8
+    container_name: safesoundarena-influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=k6
+      - INFLUXDB_USER=k6
+      - INFLUXDB_USER_PASSWORD=k6password
+    volumes:
+      - influxdb-data:/var/lib/influxdb
+    networks:
+      - k6-network
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: safesoundarena-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - k6-network
+    depends_on:
+      - influxdb
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://admin:admin@localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  loki:
+    image: grafana/loki:latest
+    container_name: safesoundarena-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki-storage:/loki
+    networks:
+      - k6-network
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: safesoundarena-promtail
+    volumes:
+      - ./logs:/var/log
+      - ./promtail:/etc/promtail
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - k6-network
+    depends_on:
+      - loki
+
+networks:
+  k6-network:
+    driver: bridge
+
+volumes:
+  influxdb-data:
+  grafana-storage:
+  loki-storage:

@@ -1,18 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>System Diagnostics Test</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 1rem; }
-    .warning { color: orange; }
-    .error { color: red; }
-    pre { background: #f1f1f1; padding: 1rem; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 1rem;
+    }
+
+    .warning {
+      color: orange;
+    }
+
+    .error {
+      color: red;
+    }
+
+    pre {
+      background: #f1f1f1;
+      padding: 1rem;
+    }
   </style>
 </head>
+
 <body>
   <h1>System Diagnostics</h1>
   <div id="report">Running diagnostics...</div>
+  <div style="margin-top:0.5rem; font-size:0.9rem; color:#444">
+    <strong>Note:</strong> Browser-reported memory is an approximation (for privacy). Use the OS/Node checks below to
+    verify physical RAM.
+  </div>
+  <div style="margin-top:1rem">
+    <label><input type="checkbox" id="consent"> I consent to send this diagnostics snapshot to the local diagnostics
+      server</label>
+    <button id="sendBtn" style="margin-left:0.5rem">Send snapshot to local server</button>
+    <span id="sendStatus" style="margin-left:0.5rem;color:#555"></span>
+  </div>
   <script>
     async function runDiagnostics() {
       const reportEl = document.getElementById('report');
@@ -22,7 +47,7 @@
       const ext = gl?.getExtension('WEBGL_debug_renderer_info');
       const renderer = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : 'unknown';
       const usingIGPU = /intel|uhd/i.test(renderer);
-      
+
       // battery
       const battery = navigator.getBattery ? await navigator.getBattery() : { charging: true };
       const onBattery = !battery.charging;
@@ -45,16 +70,36 @@
 
       // Build report
       let html = '';
+      html += `<p><strong>User Agent:</strong> ${navigator.userAgent}</p>`;
+      html += `<p><strong>Reported deviceMemory (approx):</strong> ${memGB} GB <span style="color:#b35400">(approximate)</span></p>`;
       html += `<p><strong>Renderer:</strong> ${renderer}</p>`;
       if (usingIGPU) html += `<p class="warning">Warning: Using integrated GPU</p>`;
       html += `<p><strong>Power:</strong> ${onBattery ? 'Battery' : 'AC connected'}</p>`;
       if (onBattery) html += `<p class="warning">Warning: On battery power</p>`;
       html += `<p><strong>FPS (1s):</strong> ${fps}</p>`;
       if (fps < 30) html += `<p class="error">Low FPS detected</p>`;
-      html += `<p><strong>Memory (GB):</strong> ${memGB}</p>`;
       html += `<p><strong>CPU Cores:</strong> ${cores}</p>`;
 
+      html += '<h3 style="margin-top:1rem">How to verify physical RAM (Windows)</h3>';
+      html += '<pre style="background:#f6f8fa; padding:0.5rem">PowerShell:\nGet-CimInstance Win32_ComputerSystem | Select-Object TotalPhysicalMemory\n# human-friendly:\n(Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB\n\nNode (from project):\nnode -e "console.log(require(\'os\').totalmem()/1024/1024/1024, \"GB\")"</pre>';
+      html += '<p style="color:#444; font-size:0.9rem">Tip: If the browser shows less than expected, the browser intentionally reduces precision for privacy, or you may be inside a VM/container with restricted memory.</p>';
+
       reportEl.innerHTML = html;
+      // wire send button
+      const sendBtn = document.getElementById('sendBtn');
+      const sendStatus = document.getElementById('sendStatus');
+      sendBtn.onclick = async () => {
+        if (!document.getElementById('consent').checked) { sendStatus.textContent = 'Consent required'; return; }
+        sendStatus.textContent = 'Sending...';
+        try {
+          const snapshot = buildSnapshot();
+          const resp = await fetch('http://localhost:3001/api/diagnostics', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(snapshot) });
+          const j = await resp.json();
+          sendStatus.textContent = j.saved ? 'Saved locally' : 'Server error';
+        } catch (e) {
+          sendStatus.textContent = 'Failed: ' + e.message;
+        }
+      };
       console.group('Diagnostics');
       console.log({ renderer, usingIGPU, onBattery, fps, memGB, cores });
       if (usingIGPU) console.warn('Using integrated GPU');
@@ -62,7 +107,20 @@
       if (fps < 30) console.warn('Low FPS');
       console.groupEnd();
     }
+    function buildSnapshot() {
+      return {
+        source: 'browser',
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        reportedDeviceMemoryGB: navigator.deviceMemory || null,
+        cpuCores: navigator.hardwareConcurrency || null,
+        gpuRenderer: (function () { try { const c = document.createElement('canvas'); const g = c.getContext('webgl'); const ex = g?.getExtension('WEBGL_debug_renderer_info'); return ex ? g.getParameter(ex.UNMASKED_RENDERER_WEBGL) : null; } catch (e) { return null; } })(),
+        fpsSample: window.__lastFPSSample || null,
+        onBattery: (navigator.getBattery ? false : null)
+      };
+    }
     runDiagnostics();
   </script>
 </body>
+
 </html>

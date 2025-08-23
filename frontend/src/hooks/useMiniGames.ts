@@ -35,19 +35,13 @@ export interface GameSession {
   actions: Array<{
     type: string;
     timestamp: string;
-<<<<<<< HEAD
-    data: Record<string, unknown>;
-=======
-    data: any;
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+    data: Record<string, any>;
   }>;
   status: 'active' | 'completed' | 'abandoned';
 }
 
 export const useMiniGames = () => {
-  import { MiniGame } from '../../types/api';
-
-return useQuery<MiniGame[]>({
+  return useQuery<MiniGame[]>({
     queryKey: ['mini-games'],
     queryFn: async (): Promise<MiniGame[]> => {
       const { data } = await apiClient.get('/mini-games');
@@ -92,11 +86,7 @@ export const useGameAction = () => {
       sessionId: string;
       action: {
         type: string;
-<<<<<<< HEAD
-        data: Record<string, unknown>;
-=======
-        data: any;
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+        data: Record<string, any>;
       };
     }) => {
       const { data } = await apiClient.post(`/mini-games/sessions/${sessionId}/action`, action);

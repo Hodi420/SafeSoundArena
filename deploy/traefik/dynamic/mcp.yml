@@ -1,0 +1,16 @@
+http:
+  routers:
+    mcp:
+      rule: Host(`mcp.example.com`)
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      service: mcp
+  services:
+    mcp:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:3005"
+
+

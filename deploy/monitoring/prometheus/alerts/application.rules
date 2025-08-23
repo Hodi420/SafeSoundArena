@@ -1,0 +1,101 @@
+groups:
+- name: application
+  rules:
+    # High error rate
+    - alert: HighErrorRate
+      expr: sum(rate(http_requests_total{status=~"5.."}[5m])) by (service, route) / sum(rate(http_requests_total[5m])) by (service, route) > 0.05
+      for: 5m
+      labels:
+        severity: critical
+        team: backend
+      annotations:
+        summary: "High error rate on {{ $labels.service }}/{{ $labels.route }}"
+        description: "Error rate is {{ $value | humanizePercentage }}% for {{ $labels.service }}/{{ $labels.route }}"
+
+    # High latency
+    - alert: HighLatency
+      expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service, route)) > 1
+      for: 10m
+      labels:
+        severity: warning
+        team: backend
+      annotations:
+        summary: "High latency on {{ $labels.service }}/{{ $labels.route }}"
+        description: "95th percentile latency is {{ $value | humanize }}s for {{ $labels.service }}/{{ $labels.route }}"
+
+    # Failed health checks
+    - alert: ServiceDown
+      expr: up == 0
+      for: 1m
+      labels:
+        severity: critical
+        team: devops
+      annotations:
+        summary: "Service {{ $labels.instance }} is down"
+        description: "{{ $labels.job }} has been down for more than 1 minute."
+
+    # High memory usage
+    - alert: HighMemoryUsage
+      expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+      for: 5m
+      labels:
+        severity: warning
+        team: devops
+      annotations:
+        summary: "High memory usage on {{ $labels.instance }}"
+        description: "Memory usage is {{ $value | humanizePercentage }}%"
+
+    # High CPU usage
+    - alert: HighCpuUsage
+      expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100 > 80
+      for: 5m
+      labels:
+        severity: warning
+        team: devops
+      annotations:
+        summary: "High CPU usage on {{ $labels.instance }}"
+        description: "CPU usage is {{ $value | humanize }}%"
+
+    # Disk space running low
+    - alert: LowDiskSpace
+      expr: (node_filesystem_avail_bytes{mountpoint="/"} * 100) / node_filesystem_size_bytes{mountpoint="/"} < 15
+      for: 10m
+      labels:
+        severity: warning
+        team: devops
+      annotations:
+        summary: "Low disk space on {{ $labels.instance }}"
+        description: "Only {{ $value | humanize }}% space left on {{ $labels.mountpoint }}"
+
+    # High number of database connections
+    - alert: HighDbConnections
+      expr: sum(mongodb_connections{state="active"}) by (instance) > 100
+      for: 5m
+      labels:
+        severity: warning
+        team: database
+      annotations:
+        summary: "High number of database connections on {{ $labels.instance }}"
+        description: "{{ $value }} active connections"
+
+    # Authentication failures
+    - alert: AuthFailureRateHigh
+      expr: rate(auth_failed_login_attempts_total[5m]) > 10
+      for: 2m
+      labels:
+        severity: warning
+        team: security
+      annotations:
+        summary: "High authentication failure rate on {{ $labels.instance }}"
+        description: "{{ $value | humanize }} failed login attempts per second"
+
+    # Suspicious activity
+    - alert: SuspiciousActivity
+      expr: rate(auth_security_events_total{type=~"brute_force|injection_attempt"}[5m]) > 5
+      for: 1m
+      labels:
+        severity: critical
+        team: security
+      annotations:
+        summary: "Suspicious activity detected on {{ $labels.instance }}"
+        description: "{{ $value | humanize }} security events per second"

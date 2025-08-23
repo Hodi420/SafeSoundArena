@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { Dialog, Transition, Listbox } from '@headlessui/react';
 import { HexColorPicker } from 'react-colorful';
-import { useThemeStore } from '../store/useThemeStore';
+import { useThemeStore } from '../../store/useThemeStore';
 import { motion } from 'framer-motion';
 
 const fonts = [

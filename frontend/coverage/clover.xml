@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1745819225709" clover="3.2.0">
+  <project timestamp="1745819225709" name="All files">
+    <metrics statements="6" coveredstatements="4" conditionals="7" coveredconditionals="5" methods="4" coveredmethods="3" elements="17" coveredelements="12" complexity="0" loc="6" ncloc="6" packages="1" files="1" classes="1"/>
+    <file name="MainBanner.tsx" path="C:\Users\idanv\Desktop\SafeSoundArena\frontend\src\components\MainBanner.tsx">
+      <metrics statements="6" coveredstatements="4" conditionals="7" coveredconditionals="5" methods="4" coveredmethods="3"/>
+      <line num="6" count="1" type="cond" truecount="3" falsecount="1"/>
+      <line num="7" count="1" type="stmt"/>
+      <line num="9" count="1" type="cond" truecount="2" falsecount="1"/>
+      <line num="12" count="0" type="stmt"/>
+      <line num="15" count="0" type="stmt"/>
+      <line num="19" count="2" type="stmt"/>
+    </file>
+  </project>
+</coverage>

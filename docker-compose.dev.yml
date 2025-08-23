@@ -7,18 +7,28 @@ services:
       dockerfile: Dockerfile.dev
     ports:
       - '4000:4000'
+      - '3001:3001' # WebSocket server port
     environment:
       - NODE_ENV=development
       - PI_API_KEY=${PI_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - BLOCKCHAIN_RPC_URL=http://ganache:8545
+      - CONTRACT_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3
+      - WALLET_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+      - JWT_SECRET=dev-secret-123
+      - REFRESH_TOKEN_SECRET=dev-refresh-secret-123
+      - MONGODB_URI=mongodb://mongo:27017/safesoundarena
+      - REDIS_URL=redis://redis:6379
+      - WEBSOCKET_PORT=3001
+    depends_on:
+      - ganache
+      - mongo
+      - redis
     volumes:
       - .:/app
       - /app/node_modules
     networks:
       - sa-network
-    depends_on:
-      - redis
-      - clickhouse
     command: npm run dev
 
   frontend:
@@ -36,6 +46,19 @@ services:
     networks:
       - sa-network
     command: npm run dev
+
+  mongo:
+    image: mongo:6.0
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-password}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-safesoundarena}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - sa-network
 
   redis:
     image: redis:alpine
@@ -99,10 +122,12 @@ services:
     ports:
       - '8545:8545'
     command: >
-      --deterministic
-      --mnemonic "test test test test test test test test test test test junk"
-      --networkId 1337
-      --chainId 1337
+      --account="0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80,1000000000000000000000"
+      --account="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d,1000000000000000000000"
+      --account="0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a,1000000000000000000000"
+      --db=/data/ganache
+    volumes:
+      - ganache_data:/data
     networks:
       - sa-network
 
@@ -111,7 +136,9 @@ networks:
     driver: bridge
 
 volumes:
+  mongo_data:
   redis_data:
   clickhouse_data:
   prometheus_data:
-  grafana_data: 
+  grafana_data:
+  ganache_data:

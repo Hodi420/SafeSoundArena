@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import PiWalletConnect from '../components/PiWalletConnect';
+import ProfileIdentityForm from '../components/ProfileIdentityForm';
+import PersonalTokensManager from '../components/PersonalTokensManager';
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
@@ -37,6 +39,11 @@ export default function SettingsPage() {
         <div className="mt-8 text-xs text-gray-400">
           Powered by SafeSoundArena
         </div>
+      </div>
+      {/* אזור פרופיל וטוקנים אישיים */}
+      <div className="max-w-3xl w-full mt-8 px-4">
+        <ProfileIdentityForm />
+        <PersonalTokensManager />
       </div>
     </div>
   );

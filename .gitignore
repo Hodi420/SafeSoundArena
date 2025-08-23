@@ -1,47 +1,126 @@
-# Node dependencies
+# =========================
+# Project Dependencies
+# =========================
 node_modules/
+.pnp
+.pnp.js
 
-# Build output
-.next/
+# =========================
+# Build Outputs
+# =========================
+/dist
+/build
+/.next
+/out
+/.nuxt
+/.output
+/.svelte-kit
+/.vercel
+/.netlify
 
-# Logs
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# =========================
+# Logs and Databases
+# =========================
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.sqlite
+*.sqlite3
 
-# Env files
-.env*
+# =========================
+# Testing
+# =========================
+/coverage
+.nyc_output
 
-# OS files
-.DS_Store
-Thumbs.db
+# =========================
+# Debug
+# =========================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-# Misc
-*.swp
-*.swo
-# Temp & backup files
-*.tmp
-*.temp
-*.bak
-*.old
-*.orig
-*.backup
-*~
-* (1)*
-* (2)*
-* (copy)*
-*duplicate*
-# Editor/IDE
-.vscode/
-.idea/
-.history/
-.eslintcache
-# Build/output
-build/
-dist/
-coverage/
-backend/mcp-permissions.json
+# =========================
+# Local Development
+# =========================
 .cache/
-# System
+.parcel-cache/
+.temp/
+.tmp/
+.turbo/
+
+# =========================
+# Editor directories and files
+# =========================
+.idea
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# =========================
+# System Files
+# =========================
 .DS_Store
 Thumbs.db
-# Logs
-*.log
+
+# =========================
+# Project Specific
+# =========================
+backend/mcp-permissions.json
+
+# =========================
+# Package Manager Files
+# =========================
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# =========================
+# Misc
+# =========================
+*.pem
+*.p12
+*.key
+*.csr
+*.cer
+*.crt
+*.pfx
+*.p7b
+*.p7s
+*.p7c
+*.p8
+*.p8e
+*.sig
+*.sigstore
+*.spc
+*.sst
+*.stl
+*.stl.tmp
+*.stl.txt
+*.stl.xml
+*.stl.html
+*.stl.json
+*.stl.log
+*.stl.tmp
+*.stl.txt
+*.stl.xml
+*.stl.html
+*.stl.json
+*.stl.log

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: safesoundarena-config
+  namespace: safesoundarena-staging
+data:
+  NODE_ENV: "staging"
+  PORT: "3000"
+  API_URL: "https://api.staging.safesoundarena.com"
+  SENTRY_DSN: ""
+  GA_TRACKING_ID: ""
+  # Add other environment-specific configuration here

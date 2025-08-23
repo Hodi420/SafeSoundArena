@@ -1,0 +1,89 @@
+{
+  "annotations": {"list": [{"builtIn": 1, "datasource": "-- Grafana --", "enable": true, "hide": true, "name": "Annotations & Alerts"}]},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 2,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "lineWidth": 2, "fillOpacity": 10}, "unit": "reqps"}},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "id": 10,
+      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
+      "targets": [{"expr": "sum(rate(auth_security_events_total[5m])) by (type)", "legendFormat": "{{type}}", "refId": "A"}],
+      "title": "Security Events",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "lineWidth": 2}}},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "id": 11,
+      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
+      "targets": [{"expr": "sum(rate(auth_failed_login_attempts_total[5m])) by (reason)", "legendFormat": "{{reason}}", "refId": "A"}],
+      "title": "Failed Login Attempts",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "lineWidth": 2}}},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "id": 12,
+      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
+      "targets": [{"expr": "sum(rate(auth_rate_limit_events_total[5m])) by (type, key)", "legendFormat": "{{type}} - {{key}}", "refId": "A"}],
+      "title": "Rate Limiting Events",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "lineWidth": 2}}},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "id": 13,
+      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
+      "targets": [{"expr": "sum(auth_active_sessions) by (user_type)", "legendFormat": "{{user_type}}", "refId": "A"}],
+      "title": "Active Sessions",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "lineWidth": 2}}},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "id": 14,
+      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
+      "targets": [{"expr": "sum(rate(auth_tokens_issued_total[5m])) by (token_type)", "legendFormat": "{{token_type}}", "refId": "A"}],
+      "title": "Tokens Issued",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "lineWidth": 2}}},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "id": 15,
+      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
+      "targets": [{"expr": "sum(rate(auth_account_locks_total[5m])) by (reason)", "legendFormat": "{{reason}}", "refId": "A"}],
+      "title": "Account Locks",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": ["security", "authentication", "monitoring"],
+  "templating": {
+    "list": [
+      {
+        "current": {"selected": false, "text": "Prometheus", "value": "Prometheus"},
+        "hide": 0,
+        "name": "DS_PROMETHEUS",
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": {"from": "now-6h", "to": "now"},
+  "timepicker": {"refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"]},
+  "timezone": "browser",
+  "title": "Authentication Security Dashboard",
+  "version": 1,
+  "weekStart": ""
+}

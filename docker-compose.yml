@@ -1,33 +1,117 @@
 version: '3.8'
 
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - sa-network
+    command: redis-server --appendonly yes
   api-server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: backend/Dockerfile
     ports:
       - '4000:4000'
     environment:
+      - PORT=4000
+      - NODE_ENV=production
+      - CLIENT_URL=http://frontend:3000
       - PI_API_KEY=${PI_API_KEY}
-    volumes:
-      - .:/app
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     networks:
       - sa-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - redis
+      - ollama
+      - text-gen-inference
+  mcp:
+    build: ./server
+    image: safesoundarena/mcp:local
+    ports:
+      - "3005:3005"
+    environment:
+      - PORT=3005
+      - MCP_ENABLE_SHELL=false
+      - MCP_ENABLE_GIT=false
+      - MCP_ENABLE_HTTP=false
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
     ports:
       - '3000:3000'
     environment:
       - NEXT_PUBLIC_API_URL=http://api-server:4000
     depends_on:
       - api-server
-    volumes:
-      - ./frontend:/app
     networks:
       - sa-network
+
+  # Local Ollama inference for lightweight models
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - '11434:11434'
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - sa-network
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    command: |
+      sh -c "
+        ollama serve &
+        sleep 5 &&
+        ollama pull llama3.1:8b &&
+        ollama pull mistral:7b &&
+        wait
+      "
+
+  # Hugging Face Text Generation Inference for larger models
+  text-gen-inference:
+    image: ghcr.io/huggingface/text-generation-inference:latest
+    ports:
+      - '8081:80'
+    volumes:
+      - tgi_data:/data
+    networks:
+      - sa-network
+    environment:
+      - MODEL_ID=microsoft/DialoGPT-medium
+      - NUM_SHARD=1
+      - PORT=80
+      - QUANTIZE=bitsandbytes
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   ipfs:
     image: ipfs/go-ipfs:latest
@@ -39,15 +123,13 @@ services:
     networks:
       - sa-network
 
+
 networks:
   sa-network:
     driver: bridge
 
 volumes:
   ipfs_data: {}
-
-healthcheck:
-  test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
-  interval: 10s
-  timeout: 5s
-  retries: 3
+  ollama_data: {}
+  tgi_data: {}
+  redis_data: {}

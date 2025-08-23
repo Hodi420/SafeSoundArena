@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useRoom } from '../src/context/RoomContext';
+// To avoid build-time provider requirement, stub roomId during SSG/SSR
+const safeUseRoom = () => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const mod = require('../src/context/RoomContext');
+    return (mod.useRoom as () => { roomId: string })();
+  } catch {
+    return { roomId: 'debug' };
+  }
+};
 
 interface LogEvent {
   type: string;
@@ -28,7 +37,7 @@ function getTypeColor(type: string) {
 }
 
 export default function DebugRoom() {
-  const { roomId } = useRoom();
+  const { roomId } = safeUseRoom();
   const [logs, setLogs] = useState<LogEvent[]>([]);
   const [filter, setFilter] = useState('');
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});

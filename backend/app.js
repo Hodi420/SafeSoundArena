@@ -1,3 +1,16 @@
+// app.js - SafeSoundArena backend bootstrap
+// נקודת כניסה ראשית לשרת ולמודולים המרכזיים
+require('dotenv').config();
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+// יצירת אפליקציית Express
+const app = express();
+
 // --- MCP Permissions API ---
 // רשימת כל המשתמשים עם הרשאות
 app.get('/api/mcp/users', (req, res) => {
@@ -22,15 +35,6 @@ app.delete('/api/mcp/permissions', (req, res) => {
   mcpPermissions.removePermission(userId, role);
   res.json({ success: true, userId, role });
 });
-// app.js - SafeSoundArena backend bootstrap
-// נקודת כניסה ראשית לשרת ולמודולים המרכזיים
-require('dotenv').config();
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 
 
 // ייבוא מודולים עיקריים (skeleton)
@@ -46,6 +50,26 @@ const mcpPermissions = require('./mcp-permissions');
 mcpPermissions.addPermission('devUser', 'admin');
 mcpPermissions.addPermission('devUser', 'write');
 mcpPermissions.addPermission('testUser', 'read');
+
+// הגדרת פורט
+const PORT = process.env.PORT || 4000;
+
+// הגדרת middleware
+app.use(cors());
+app.use(helmet());
+app.use(express.json());
+
+// הגדרת rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 דקות
+  max: 100 // מקסימום 100 בקשות לכל IP
+});
+app.use(limiter);
+
+// הפעלת השרת
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 // דוגמת API לבדיקה
 app.get('/api/mcp/permissions/:userId', (req, res) => {
@@ -64,10 +88,8 @@ let usersInJail = {};
 let jailStartTime = null;
 let jailEndTime = null;
 
-const app = express();
+// עדכון הגדרות CORS
 app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || ['*'], optionsSuccessStatus: 200 }));
-app.use(express.json());
-app.use(helmet());
 
 const server = http.createServer(app);
 const io = socketIo(server, { cors: { origin: '*' } });

@@ -1,0 +1,87 @@
+global:
+  resolve_timeout: 5m
+  # Default settings for all notifications
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+  smtp_smarthost: '${SMTP_SERVER}:587'
+  smtp_from: '${ALERT_EMAIL_FROM}'
+  smtp_auth_username: '${SMTP_USERNAME}'
+  smtp_auth_password: '${SMTP_PASSWORD}'
+  smtp_require_tls: true
+
+route:
+  group_by: ['alertname', 'severity', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 3h
+  receiver: 'team-email'
+  routes:
+    # Critical alerts go to PagerDuty
+    - match:
+        severity: 'critical'
+      receiver: 'pagerduty-critical'
+      continue: true
+    
+    # Warnings go to Slack
+    - match:
+        severity: 'warning'
+      receiver: 'slack-warnings'
+      continue: true
+    
+    # Authentication-related alerts
+    - match:
+        service: 'auth'
+      receiver: 'auth-team-email'
+      continue: true
+
+receivers:
+  # Default email receiver
+  - name: 'team-email'
+    email_configs:
+      - to: '${TEAM_EMAIL}'
+        send_resolved: true
+        headers:
+          subject: '{{ template "email.default.subject" . }}'
+        html: '{{ template "email.default.html" . }}'
+  
+  # Auth team specific email
+  - name: 'auth-team-email'
+    email_configs:
+      - to: '${AUTH_TEAM_EMAIL}'
+        send_resolved: true
+        headers:
+          subject: '[Auth] {{ template "email.default.subject" . }}'
+        html: '{{ template "email.default.html" . }}'
+  
+  # Slack notifications
+  - name: 'slack-warnings'
+    slack_configs:
+      - channel: '#alerts-warnings'
+        send_resolved: true
+        title: '{{ template "slack.default.title" . }}'
+        text: '{{ template "slack.default.text" . }}'
+        icon_emoji: '⚠️'
+        color: '{{ if eq .Status "firing" }}warning{{ else }}good{{ end }}'
+  
+  # PagerDuty for critical alerts
+  - name: 'pagerduty-critical'
+    pagerduty_configs:
+      - routing_key: '${PAGERDUTY_ROUTING_KEY}'
+        description: '{{ .CommonAnnotations.summary }}'
+        details:
+          firing: '{{ .Alerts.Firing | len }}'
+          resolved: '{{ .Alerts.Resolved | len }}'
+          group_labels: '{{ .CommonLabels.SortedPairs.Values | join " " }}'
+  
+  # Microsoft Teams Webhook
+  - name: 'teams-notifications'
+    webhook_configs:
+      - url: '${TEAMS_WEBHOOK_URL}'
+        send_resolved: true
+        http_config:
+          basic_auth:
+            username: '${TEAMS_WEBHOOK_USER}'
+            password: '${TEAMS_WEBHOOK_PASSWORD}'
+
+# Templates
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'

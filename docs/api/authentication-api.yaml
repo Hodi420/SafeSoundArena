@@ -1,0 +1,256 @@
+openapi: 3.0.0
+info:
+  title: SafeSoundArena Authentication API
+  description: |
+    API documentation for user authentication and authorization in SafeSoundArena.
+    This includes JWT-based authentication and Pi Network integration.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@safesoundarena.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.safesoundarena.com/v1
+    description: Production server
+  - url: http://localhost:3002/v1
+    description: Local development server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    piAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Pi Network access token
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 5f8d0d55b54764421b7166d3
+        username:
+          type: string
+          example: johndoe
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        role:
+          type: string
+          enum: [user, admin]
+          example: user
+        createdAt:
+          type: string
+          format: date-time
+          example: 2023-01-01T00:00:00Z
+    
+    AuthTokens:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT access token (15 min expiration)
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refreshToken:
+          type: string
+          description: Refresh token (7 days expiration)
+          example: 7f7a5e5a-3c3d-4b2f-8d1d-1f1e1d1c1b1a
+        expiresIn:
+          type: integer
+          description: Access token expiration in seconds
+          example: 900
+    
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: Invalid credentials
+        code:
+          type: string
+          description: Error code for programmatic handling
+          example: INVALID_CREDENTIALS
+        details:
+          type: object
+          description: Additional error details
+          example: { "field": "email", "message": "Invalid email format" }
+
+paths:
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email, password]
+              properties:
+                username:
+                  type: string
+                  minLength: 3
+                  maxLength: 30
+                  example: johndoe
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: SecurePass123!
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  tokens:
+                    $ref: '#/components/schemas/AuthTokens'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Authenticate user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  example: SecurePass123!
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  tokens:
+                    $ref: '#/components/schemas/AuthTokens'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/refresh-token:
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+                  example: 7f7a5e5a-3c3d-4b2f-8d1d-1f1e1d1c1b1a
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+        '401':
+          description: Invalid or expired refresh token
+  
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      summary: Logout user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Successfully logged out
+        '401':
+          description: Unauthorized
+  
+  /pi/auth:
+    post:
+      tags: [Pi Network]
+      summary: Authenticate with Pi Network
+      security:
+        - piAuth: []
+      responses:
+        '200':
+          description: Pi Network authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  tokens:
+                    $ref: '#/components/schemas/AuthTokens'
+        '401':
+          description: Invalid Pi Network token
+  
+  /me:
+    get:
+      tags: [User]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized

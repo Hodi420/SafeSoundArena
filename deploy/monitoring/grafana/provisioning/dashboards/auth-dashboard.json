@@ -1,0 +1,85 @@
+{
+  "annotations": {"list": [{"builtIn": 1, "datasource": "-- Grafana --", "enable": true, "hide": true, "name": "Annotations & Alerts"}]},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 1,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "description": "Track successful and failed login attempts",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisLabel": "", "drawStyle": "line", "lineWidth": 2, "pointSize": 5}, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "red", "value": 100}]}}},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"legend": {"calcs": ["lastNotNull", "mean", "max"], "displayMode": "table"}},
+      "targets": [
+        {"expr": "sum(rate(auth_login_attempts_total{status=\"success\"}[5m]))", "legendFormat": "Successful Logins", "refId": "A"},
+        {"expr": "sum(rate(auth_login_attempts_total{status=\"failed\"}[5m]))", "legendFormat": "Failed Logins", "refId": "B"}
+      ],
+      "title": "Login Attempts",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "description": "Number of active user sessions",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "red", "value": 1000}]}}},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "id": 2,
+      "options": {"colorMode": "value", "graphMode": "area"},
+      "targets": [{"expr": "auth_active_sessions", "legendFormat": "Active Sessions", "refId": "A"}],
+      "title": "Active Sessions",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "description": "Track token refresh operations",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}}},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "id": 3,
+      "targets": [
+        {"expr": "sum(rate(auth_token_refreshes_total{status=\"success\"}[5m]))", "legendFormat": "Successful", "refId": "A"},
+        {"expr": "sum(rate(auth_token_refreshes_total{status=\"failed\"}[5m]))", "legendFormat": "Failed", "refId": "B"}
+      ],
+      "title": "Token Refresh Operations",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "description": "Authentication request latencies",
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "id": 4,
+      "targets": [
+        {"expr": "histogram_quantile(0.95, sum(rate(auth_request_duration_seconds_bucket[5m])) by (le, endpoint, method))", "legendFormat": "{{endpoint}} {{method}} - p95", "refId": "A"},
+        {"expr": "histogram_quantile(0.99, sum(rate(auth_request_duration_seconds_bucket[5m])) by (le, endpoint, method))", "legendFormat": "{{endpoint}} {{method}} - p99", "refId": "B"}
+      ],
+      "title": "Request Latency (seconds)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "description": "Authentication error rates",
+      "fieldConfig": {"defaults": {"unit": "percent"}},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "id": 5,
+      "targets": [
+        {"expr": "sum(rate(auth_login_attempts_total{status=\"failed\"}[5m])) by (method) / sum(rate(auth_login_attempts_total[5m])) by (method) * 100", "legendFormat": "{{method}} - Error Rate", "refId": "A"}
+      ],
+      "title": "Error Rate (%)",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": ["authentication", "monitoring"],
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "timepicker": {"refresh_intervals": ["5s", "30s", "1m", "5m"], "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]},
+  "timezone": "browser",
+  "title": "Authentication Service Dashboard",
+  "version": 1,
+  "weekStart": ""
+}

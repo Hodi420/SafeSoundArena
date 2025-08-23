@@ -1,0 +1,25 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: safesoundarena-web-pdb
+  namespace: safesoundarena-staging
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: safesoundarena
+      environment: staging
+      tier: frontend
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: safesoundarena-web-pdb
+  namespace: safesoundarena-prod
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: safesoundarena
+      environment: production
+      tier: frontend
