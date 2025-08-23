@@ -1,0 +1,120 @@
+name: Load Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - 'load-test/**'
+      - '.github/workflows/load-testing.yml'
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to test against'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      test_type:
+        description: 'Type of test to run'
+        required: true
+        default: 'smoke'
+        type: choice
+        options:
+        - smoke
+        - load
+        - stress
+
+env:
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  K6_STATSD_ENABLE_TAGS: true
+  K6_PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+  K6_PROMETHEUS_RW_INSECURE_SKIP_TLS_VERIFY: true
+
+jobs:
+  load-test:
+    name: Run Load Tests
+    runs-on: ubuntu-latest
+    container:
+      image: grafana/k6:latest
+      options: --entrypoint ""
+    
+    services:
+      # InfluxDB for test results
+      influxdb:
+        image: influxdb:1.8
+        ports:
+          - "8086:8086"
+        env:
+          - INFLUXDB_DB=k6
+          - INFLUXDB_USER=k6
+          - INFLUXDB_USER_PASSWORD=k6password
+        options: >-
+          --health-cmd "influx ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - name: Checkout code
+  uses: actions/checkout@v4
+    
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        cd load-test
+        npm ci
+    
+    - name: Generate test data
+      run: |
+        cd load-test
+        node scripts/generate-test-data.js
+    
+    - name: Run k6 tests
+      env:
+        BASE_URL: ${{ github.event.inputs.environment == 'production' && 'https://api.safesoundarena.com' || 'https://api.staging.safesoundarena.com' }}
+        TEST_TYPE: ${{ github.event.inputs.test_type || 'smoke' }}
+      run: |
+        echo "Running $TEST_TYPE tests against $BASE_URL"
+        
+        # Run k6 with the specified test type
+        k6 run \
+          --out influxdb=http://influxdb:8086/k6 \
+          --tag testid=$(date +%s) \
+          --tag branch=${GITHUB_REF##*/} \
+          --tag commit=${{ github.sha }} \
+          --tag environment=${{ github.event.inputs.environment || 'staging' }} \
+          --tag test_type=$TEST_TYPE \
+          /github/workspace/load-test/scenarios/auth.test.js \
+          -e SCENARIO=$TEST_TYPE
+    
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: load-test-results
+        path: |
+          load-test/test-data/*.json
+          load-test/results/*.json
+        retention-days: 7
+    
+    - name: Send notification
+      if: failure()
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_COLOR: '#FF0000'
+        SLACK_TITLE: 'Load Test Failed'
+        SLACK_MESSAGE: 'Load test failed in ${{ github.workflow }} run ${{ github.run_id }}'
+        SLACK_USERNAME: 'GitHub Actions'
+        SLACK_ICON: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'

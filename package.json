@@ -3,20 +3,32 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "safesoundarena-server",
+    "server",
     "frontend"
   ],
   "scripts": {
     "test": "mocha --exit",
-    "dev": "cd frontend && npm run dev"
+    "dev": "cd frontend && npm run dev",
+    "mcp": "npm run dev --workspace server",
+    "verify-env": "node scripts/verify-env.js",
+    "setup": "node scripts/setup-dev.js"
   },
   "devDependencies": {
-    "mocha": "^10.0.0",
-    "sinon": "^20.0.0"
+    "dotenv": "^17.2.1",
+    "mocha": "^11.7.1",
+    "sinon": "^21.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
+    "brace-expansion": "^4.0.1",
+    "chalk": "^5.4.1",
+    "form-data": "^4.0.4",
+    "install": "^0.13.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.14.1"
+    "mongoose": "^8.17.0",
+    "next": "^15.4.5",
+    "openai": "^5.12.2"
   }
 }
