@@ -24,11 +24,7 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (typeof window !== 'undefined') sessionStorage.setItem('roomId', roomId);
   }, [roomId]);
 
-  return (
-    <RoomContext.Provider value={{ roomId, setRoomId }}>
-      {children}
-    </RoomContext.Provider>
-  );
+  return <RoomContext.Provider value={{ roomId, setRoomId }}>{children}</RoomContext.Provider>;
 };
 
 export const useRoom = () => {

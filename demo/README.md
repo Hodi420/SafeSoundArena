@@ -46,6 +46,7 @@ npm start
 ### 4. Open the Demo in Your Browser
 
 Open two browser windows and navigate to:
+
 ```
 http://localhost:4000
 ```

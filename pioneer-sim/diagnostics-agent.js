@@ -5,7 +5,9 @@ const { URL } = require('url');
 const http = require('http');
 const https = require('https');
 
-function gb(x){ return Math.round(x/1024/1024/1024*100)/100; }
+function gb(x) {
+  return Math.round((x / 1024 / 1024 / 1024) * 100) / 100;
+}
 
 function collectSnapshot() {
   const cpus = os.cpus() || [];
@@ -23,7 +25,7 @@ function collectSnapshot() {
     cpuModel,
     loadavg: os.loadavg ? os.loadavg() : null,
     uptimeSeconds: Math.round(os.uptime()),
-    networkInterfaces: os.networkInterfaces ? Object.keys(os.networkInterfaces()) : null
+    networkInterfaces: os.networkInterfaces ? Object.keys(os.networkInterfaces()) : null,
   };
   return snapshot;
 }
@@ -31,12 +33,27 @@ function collectSnapshot() {
 function ensureKeypair(keyPath) {
   if (fs.existsSync(keyPath)) {
     const data = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
-    return { publicKey: Buffer.from(data.publicKey, 'base64'), privateKey: Buffer.from(data.privateKey, 'base64'), keyId: data.keyId };
+    return {
+      publicKey: Buffer.from(data.publicKey, 'base64'),
+      privateKey: Buffer.from(data.privateKey, 'base64'),
+      keyId: data.keyId,
+    };
   }
   const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519');
   const keyId = `agent-${Date.now()}`;
-  fs.writeFileSync(keyPath, JSON.stringify({ keyId, publicKey: publicKey.export({ type: 'spki', format: 'pem' }), privateKey: privateKey.export({ type: 'pkcs8', format: 'pem' }) }));
-  return { publicKey: publicKey.export({ type: 'spki', format: 'pem' }), privateKey: privateKey.export({ type: 'pkcs8', format: 'pem' }), keyId };
+  fs.writeFileSync(
+    keyPath,
+    JSON.stringify({
+      keyId,
+      publicKey: publicKey.export({ type: 'spki', format: 'pem' }),
+      privateKey: privateKey.export({ type: 'pkcs8', format: 'pem' }),
+    })
+  );
+  return {
+    publicKey: publicKey.export({ type: 'spki', format: 'pem' }),
+    privateKey: privateKey.export({ type: 'pkcs8', format: 'pem' }),
+    keyId,
+  };
 }
 
 function signSnapshotEd25519(snapshot, privateKeyPem) {
@@ -60,22 +77,28 @@ function postJSON(urlStr, obj) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Content-Length': data.length
-        }
+          'Content-Length': data.length,
+        },
       };
       const lib = url.protocol === 'https:' ? https : http;
       const req = lib.request(opts, (res) => {
         let body = '';
-        res.on('data', (c) => body += c);
+        res.on('data', (c) => (body += c));
         res.on('end', () => {
-          try { const j = JSON.parse(body || '{}'); resolve({ status: res.statusCode, body: j }); }
-          catch (e) { resolve({ status: res.statusCode, body: body }); }
+          try {
+            const j = JSON.parse(body || '{}');
+            resolve({ status: res.statusCode, body: j });
+          } catch (e) {
+            resolve({ status: res.statusCode, body: body });
+          }
         });
       });
       req.on('error', (err) => reject(err));
       req.write(data);
       req.end();
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
 }
 
@@ -84,7 +107,8 @@ async function main() {
 
   const serverUrl = process.env.DIAG_SERVER_URL || 'http://localhost:3001';
   const keyPath = path.join(__dirname, 'data', 'agent-key.json');
-  if (!fs.existsSync(path.dirname(keyPath))) fs.mkdirSync(path.dirname(keyPath), { recursive: true });
+  if (!fs.existsSync(path.dirname(keyPath)))
+    fs.mkdirSync(path.dirname(keyPath), { recursive: true });
   const kp = ensureKeypair(keyPath);
 
   const snapshot = collectSnapshot();
@@ -92,7 +116,10 @@ async function main() {
 
   // register public key with server
   try {
-    await postJSON(`${serverUrl}/api/register-agent`, { agentKeyId: kp.keyId, publicKeyPem: kp.publicKey });
+    await postJSON(`${serverUrl}/api/register-agent`, {
+      agentKeyId: kp.keyId,
+      publicKeyPem: kp.publicKey,
+    });
     console.log('Registered public key with server as', kp.keyId);
   } catch (e) {
     console.warn('Failed to register key (continuing):', e.message);

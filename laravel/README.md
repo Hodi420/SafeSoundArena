@@ -14,16 +14,18 @@ This directory contains the Laravel application with Horizon for queue managemen
 ### Installation
 
 1. **Start the services**
+
    ```bash
    # From the project root
    docker-compose -f docker-compose.laravel.yml up -d
    ```
 
 2. **Initialize Laravel**
+
    ```bash
    # Enter the Laravel container
    docker-compose -f docker-compose.laravel.yml exec laravel bash
-   
+
    # Inside the container, run:
    chmod +x init-laravel.sh
    ./init-laravel.sh
@@ -36,6 +38,7 @@ This directory contains the Laravel application with Horizon for queue managemen
 ## API Endpoints
 
 ### Process a Video
+
 ```http
 POST /api/videos/process
 Content-Type: application/json
@@ -47,6 +50,7 @@ Content-Type: application/json
 ```
 
 ### Check Job Status
+
 ```http
 GET /api/videos/status/{jobId}
 ```
@@ -54,9 +58,11 @@ GET /api/videos/status/{jobId}
 ## Development
 
 ### Running Queue Workers
+
 Horizon is already configured to run in the `horizon` service. You can monitor it at `/horizon`.
 
 ### Viewing Logs
+
 ```bash
 docker-compose -f docker-compose.laravel.yml logs -f laravel
 ```

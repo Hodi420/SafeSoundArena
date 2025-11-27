@@ -9,11 +9,11 @@ router.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     const user = new User({
       email,
       password: hashedPassword,
-      onboardingComplete: false
+      onboardingComplete: false,
     });
 
     await user.save();
@@ -33,11 +33,7 @@ router.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ error: 'פרטי התחברות לא תקינים' });
     }
 
-    const accessToken = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
+    const accessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     res.json({ accessToken });
   } catch (error) {

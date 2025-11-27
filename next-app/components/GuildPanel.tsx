@@ -6,15 +6,16 @@ export default function GuildPanel() {
   const joinGuild = useJoinGuild();
   const leaveGuild = useLeaveGuild();
 
-  if (isLoading) return (
-    <div className="bg-gray-900 rounded-lg p-4 border border-green-500 animate-pulse">
-      <div className="h-6 bg-gray-700 rounded w-40 mb-4"></div>
-      <div className="flex gap-4">
-        <div className="h-10 w-32 bg-gray-700 rounded"></div>
-        <div className="h-10 w-32 bg-gray-700 rounded"></div>
+  if (isLoading)
+    return (
+      <div className="bg-gray-900 rounded-lg p-4 border border-green-500 animate-pulse">
+        <div className="h-6 bg-gray-700 rounded w-40 mb-4"></div>
+        <div className="flex gap-4">
+          <div className="h-10 w-32 bg-gray-700 rounded"></div>
+          <div className="h-10 w-32 bg-gray-700 rounded"></div>
+        </div>
       </div>
-    </div>
-  );
+    );
 
   if (error) {
     return (
@@ -38,9 +39,14 @@ export default function GuildPanel() {
     <div className="bg-gray-900 rounded-lg p-4 border border-green-500">
       <div className="font-bold mb-2">🔗 Guilds</div>
       <div className="flex flex-col gap-4 mt-4">
-        {guilds.map(guild => (
-          <div key={guild.id} className="flex items-center justify-between bg-gray-800 rounded-md p-3 border border-green-700 mb-2">
-            <span className="text-2xl" aria-label="Guild emoji">{guild.emoji}</span>
+        {guilds.map((guild) => (
+          <div
+            key={guild.id}
+            className="flex items-center justify-between bg-gray-800 rounded-md p-3 border border-green-700 mb-2"
+          >
+            <span className="text-2xl" aria-label="Guild emoji">
+              {guild.emoji}
+            </span>
             <div className="flex-1 ml-3 overflow-hidden">
               <div className="font-bold">{guild.name}</div>
               <div className="text-xs text-gray-400">Leader: {guild.leader}</div>
@@ -55,13 +61,23 @@ export default function GuildPanel() {
             >
               {joinGuild.isPending ? (
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <circle cx="10" cy="10" r="8.5" stroke="#1976d2" strokeWidth="1.5"/>
-                  <path d="M10 6v8M6 10h8" stroke="#1976d2" strokeWidth="1.8" strokeLinecap="round"/>
+                  <circle cx="10" cy="10" r="8.5" stroke="#1976d2" strokeWidth="1.5" />
+                  <path
+                    d="M10 6v8M6 10h8"
+                    stroke="#1976d2"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                  />
                 </svg>
               ) : (
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <circle cx="10" cy="10" r="8.5" stroke="#1976d2" strokeWidth="1.5"/>
-                  <path d="M10 6v8M6 10h8" stroke="#1976d2" strokeWidth="1.8" strokeLinecap="round"/>
+                  <circle cx="10" cy="10" r="8.5" stroke="#1976d2" strokeWidth="1.5" />
+                  <path
+                    d="M10 6v8M6 10h8"
+                    stroke="#1976d2"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                  />
                 </svg>
               )}
             </button>
@@ -74,13 +90,13 @@ export default function GuildPanel() {
             >
               {leaveGuild.isPending ? (
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <circle cx="10" cy="10" r="8.5" stroke="#a00" strokeWidth="1.5"/>
-                  <path d="M6 10h8" stroke="#a00" strokeWidth="1.8" strokeLinecap="round"/>
+                  <circle cx="10" cy="10" r="8.5" stroke="#a00" strokeWidth="1.5" />
+                  <path d="M6 10h8" stroke="#a00" strokeWidth="1.8" strokeLinecap="round" />
                 </svg>
               ) : (
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <circle cx="10" cy="10" r="8.5" stroke="#a00" strokeWidth="1.5"/>
-                  <path d="M6 10h8" stroke="#a00" strokeWidth="1.8" strokeLinecap="round"/>
+                  <circle cx="10" cy="10" r="8.5" stroke="#a00" strokeWidth="1.5" />
+                  <path d="M6 10h8" stroke="#a00" strokeWidth="1.8" strokeLinecap="round" />
                 </svg>
               )}
             </button>

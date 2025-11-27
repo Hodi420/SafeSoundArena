@@ -5,7 +5,9 @@ import { useMiniGames } from '../hooks/useMiniGames';
 import { EMOJIS } from '../constants/emojis';
 
 export default function GameWorld() {
-  const { data: character } = { data: { level: 1, health: 100, maxHealth: 100, energy: 50, maxEnergy: 100, element: 'FIRE' } } as any;
+  const { data: character } = {
+    data: { level: 1, health: 100, maxHealth: 100, energy: 50, maxEnergy: 100, element: 'FIRE' },
+  } as any;
   const { data: weather } = useWeather();
   const { data: inventory } = useInventory();
   const { data: miniGames } = useMiniGames();
@@ -13,7 +15,7 @@ export default function GameWorld() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Status Bar */}
-      <motion.div 
+      <motion.div
         className="fixed top-0 left-0 right-0 bg-gray-900 border-b border-blue-500 p-4"
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -21,25 +23,34 @@ export default function GameWorld() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="text-blue-400">
-              {(character as any)?.element && (EMOJIS.ELEMENTS as any)[(character as any).element]} Lvl {(character as any)?.level}
+              {(character as any)?.element && (EMOJIS.ELEMENTS as any)[(character as any).element]}{' '}
+              Lvl {(character as any)?.level}
             </div>
             <div className="flex items-center">
-              <span className="text-red-400">❤️ {(character as any)?.health}/{(character as any)?.maxHealth}</span>
+              <span className="text-red-400">
+                ❤️ {(character as any)?.health}/{(character as any)?.maxHealth}
+              </span>
               <div className="w-24 h-2 bg-gray-800 ml-2 rounded-full overflow-hidden">
-                <motion.div 
+                <motion.div
                   className="h-full bg-red-500"
                   initial={{ width: 0 }}
-                  animate={{ width: `${((character as any)?.health || 0) / ((character as any)?.maxHealth || 1) * 100}%` }}
+                  animate={{
+                    width: `${(((character as any)?.health || 0) / ((character as any)?.maxHealth || 1)) * 100}%`,
+                  }}
                 />
               </div>
             </div>
             <div className="flex items-center">
-              <span className="text-blue-400">⚡ {(character as any)?.energy}/{(character as any)?.maxEnergy}</span>
+              <span className="text-blue-400">
+                ⚡ {(character as any)?.energy}/{(character as any)?.maxEnergy}
+              </span>
               <div className="w-24 h-2 bg-gray-800 ml-2 rounded-full overflow-hidden">
-                <motion.div 
+                <motion.div
                   className="h-full bg-blue-500"
                   initial={{ width: 0 }}
-                  animate={{ width: `${((character as any)?.energy || 0) / ((character as any)?.maxEnergy || 1) * 100}%` }}
+                  animate={{
+                    width: `${(((character as any)?.energy || 0) / ((character as any)?.maxEnergy || 1)) * 100}%`,
+                  }}
                 />
               </div>
             </div>
@@ -59,7 +70,9 @@ export default function GameWorld() {
                   {item.emoji}
                 </motion.div>
               ))}
-              <button className="text-gray-400 hover:text-white">+{(((inventory ?? []) as any[]).length || 0) - 3}</button>
+              <button className="text-gray-400 hover:text-white">
+                +{(((inventory ?? []) as any[]).length || 0) - 3}
+              </button>
             </div>
           </div>
         </div>
@@ -83,7 +96,7 @@ export default function GameWorld() {
                   <div className="text-3xl mb-2">{game.emoji}</div>
                   <h3 className="text-xl font-bold text-blue-400 mb-2">{game.name}</h3>
                   <p className="text-gray-400 mb-4">{game.description}</p>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <span className="text-yellow-400">🏆</span>

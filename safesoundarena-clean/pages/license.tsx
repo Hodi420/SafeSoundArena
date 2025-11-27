@@ -15,7 +15,7 @@ export default function LicensePage() {
       const r = await fetch(`${LICENSE_SERVER}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ licenseKey: key, systemInfo: { app: 'safesoundarena' } })
+        body: JSON.stringify({ licenseKey: key, systemInfo: { app: 'safesoundarena' } }),
       });
       const data = await r.json();
       setResult(data);
@@ -30,12 +30,19 @@ export default function LicensePage() {
     <Layout>
       <h1 className="text-2xl font-bold mb-4">License Verification</h1>
       <div className="flex gap-2">
-        <input value={key} onChange={e => setKey(e.target.value)} placeholder="Enter license key" className="flex-1 border rounded px-3 py-2" />
-        <button className="px-3 py-2 rounded-md border" onClick={verify} disabled={loading || !key}>Verify</button>
+        <input
+          value={key}
+          onChange={(e) => setKey(e.target.value)}
+          placeholder="Enter license key"
+          className="flex-1 border rounded px-3 py-2"
+        />
+        <button className="px-3 py-2 rounded-md border" onClick={verify} disabled={loading || !key}>
+          Verify
+        </button>
       </div>
-      <pre className="mt-4 text-xs bg-gray-50 dark:bg-gray-900 p-3 rounded overflow-auto">{JSON.stringify(result, null, 2)}</pre>
+      <pre className="mt-4 text-xs bg-gray-50 dark:bg-gray-900 p-3 rounded overflow-auto">
+        {JSON.stringify(result, null, 2)}
+      </pre>
     </Layout>
   );
 }
-
-

@@ -1,5 +1,18 @@
 import React, { useState } from 'react';
-import { Box, Typography, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Tabs,
+  Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Avatar,
+} from '@mui/material';
 import { useQuery, useSubscription, gql } from '@apollo/client';
 import { client } from '../api/graphql';
 
@@ -52,9 +65,9 @@ const SimpleLeaderboard = () => {
       <Typography variant="h4" gutterBottom>
         SafeSoundArena Leaderboard
       </Typography>
-      
-      <Tabs 
-        value={tabValue} 
+
+      <Tabs
+        value={tabValue}
         onChange={handleTabChange}
         aria-label="leaderboard tabs"
         sx={{ mb: 3 }}
@@ -80,15 +93,13 @@ const SimpleLeaderboard = () => {
                   <Avatar src={user.avatar} />
                   {user.username}
                 </TableCell>
-                <TableCell align="right">
-                  {user[`${tabValue}Score`]}
-                </TableCell>
+                <TableCell align="right">{user[`${tabValue}Score`]}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-      
+
       <Box sx={{ mt: 3 }}>
         <Typography variant="body2" color="text.secondary">
           This is a simplified version of the leaderboard for testing purposes.

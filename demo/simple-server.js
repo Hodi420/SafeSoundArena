@@ -6,15 +6,15 @@ const PORT = 3000;
 
 const server = http.createServer((req, res) => {
   console.log(`Request for ${req.url}`);
-  
+
   // Set the content type
   let contentType = 'text/html';
   let filePath = '.' + req.url;
-  
+
   if (filePath === './') {
     filePath = './index.html';
   }
-  
+
   // Set content type based on file extension
   const extname = path.extname(filePath);
   switch (extname) {
@@ -31,7 +31,7 @@ const server = http.createServer((req, res) => {
       contentType = 'image/png';
       break;
   }
-  
+
   // Read the file
   fs.readFile(filePath, (error, content) => {
     if (error) {

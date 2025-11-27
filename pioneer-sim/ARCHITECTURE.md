@@ -9,6 +9,7 @@ Components:
 - Dispute & Governance: dispute contract or DAO to resolve contested proofs, slashing, and appeals.
 
 Data flow:
+
 1. Agent -> signs events -> pushes to aggregator
 2. Aggregator -> builds Merkle tree -> publishes root to contract
 3. Consumers -> request Merkle proofs from aggregator/IPFS to verify user events against published root

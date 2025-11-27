@@ -32,7 +32,7 @@ app.post('/api/agent/selfupdate', selfUpdate);
 
 // Example: add heavy job to BullMQ queue
 app.post('/api/agent/heavy-task', (req, res) => {
-  myQueue.add('heavy-task', req.body).then(job => {
+  myQueue.add('heavy-task', req.body).then((job) => {
     res.json({ ok: true, jobId: job.id });
   });
 });

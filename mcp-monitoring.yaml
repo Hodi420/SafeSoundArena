@@ -8,13 +8,13 @@ spec:
     matchLabels:
       app: mcp-controller
   endpoints:
-  - port: metrics
-    interval: 15s
-    scrapeTimeout: 10s
-    metricRelabelings:
-    - sourceLabels: [__name__]
-      regex: 'container_.*'
-      action: keep
+    - port: metrics
+      interval: 15s
+      scrapeTimeout: 10s
+      metricRelabelings:
+        - sourceLabels: [__name__]
+          regex: 'container_.*'
+          action: keep
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
@@ -23,88 +23,88 @@ metadata:
   namespace: safesoundarena
 spec:
   groups:
-  - name: mcp.performance
-    rules:
-    - alert: MCPHighCPUUsage
-      expr: rate(container_cpu_usage_seconds_total{container=~"mcp-.*"}[5m]) * 100 > 80
-      for: 5m
-      labels:
-        severity: warning
-        category: performance
-      annotations:
-        description: "Container {{ $labels.container }} CPU usage is above 80%"
-        runbook_url: "https://wiki.safesoundarena.io/alerts/high-cpu"
-        
-    - alert: MCPHighMemoryUsage
-      expr: container_memory_usage_bytes{container=~"mcp-.*"} / container_memory_working_set_bytes{container=~"mcp-.*"} * 100 > 85
-      for: 5m
-      labels:
-        severity: warning
-        category: performance
-      annotations:
-        description: "Container {{ $labels.container }} memory usage is above 85%"
-        runbook_url: "https://wiki.safesoundarena.io/alerts/high-memory"
+    - name: mcp.performance
+      rules:
+        - alert: MCPHighCPUUsage
+          expr: rate(container_cpu_usage_seconds_total{container=~"mcp-.*"}[5m]) * 100 > 80
+          for: 5m
+          labels:
+            severity: warning
+            category: performance
+          annotations:
+            description: 'Container {{ $labels.container }} CPU usage is above 80%'
+            runbook_url: 'https://wiki.safesoundarena.io/alerts/high-cpu'
 
-  - name: mcp.availability
-    rules:
-    - alert: MCPServiceDown
-      expr: up{job=~"mcp-.*"} == 0
-      for: 1m
-      labels:
-        severity: critical
-        category: availability
-      annotations:
-        description: "Service {{ $labels.job }} is down"
-        runbook_url: "https://wiki.safesoundarena.io/alerts/service-down"
-        
-    - alert: MCPHighErrorRate
-      expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) * 100 > 5
-      for: 5m
-      labels:
-        severity: critical
-        category: reliability
-      annotations:
-        description: "Error rate is above 5% for {{ $labels.service }}"
-        
-  - name: mcp.game
-    rules:
-    - alert: GameRoomCreationFailed
-      expr: rate(game_room_creation_failed_total[5m]) > 0
-      for: 5m
-      labels:
-        severity: warning
-        category: game
-      annotations:
-        description: "Game room creation failures detected"
-        
-    - alert: HighMatchmakingLatency
-      expr: matchmaking_duration_seconds{quantile="0.95"} > 30
-      for: 5m
-      labels:
-        severity: warning
-        category: game
-      annotations:
-        description: "Matchmaking latency is above 30 seconds"
+        - alert: MCPHighMemoryUsage
+          expr: container_memory_usage_bytes{container=~"mcp-.*"} / container_memory_working_set_bytes{container=~"mcp-.*"} * 100 > 85
+          for: 5m
+          labels:
+            severity: warning
+            category: performance
+          annotations:
+            description: 'Container {{ $labels.container }} memory usage is above 85%'
+            runbook_url: 'https://wiki.safesoundarena.io/alerts/high-memory'
 
-  - name: mcp.blockchain
-    rules:
-    - alert: BlockchainSyncDelay
-      expr: blockchain_blocks_behind > 50
-      for: 5m
-      labels:
-        severity: warning
-        category: blockchain
-      annotations:
-        description: "Blockchain sync is delayed by {{ $value }} blocks"
-        
-    - alert: HighGasPrice
-      expr: eth_gas_price > 100000000000
-      for: 5m
-      labels:
-        severity: warning
-        category: blockchain
-      annotations:
-        description: "Gas price is unusually high"
+    - name: mcp.availability
+      rules:
+        - alert: MCPServiceDown
+          expr: up{job=~"mcp-.*"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            category: availability
+          annotations:
+            description: 'Service {{ $labels.job }} is down'
+            runbook_url: 'https://wiki.safesoundarena.io/alerts/service-down'
+
+        - alert: MCPHighErrorRate
+          expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) * 100 > 5
+          for: 5m
+          labels:
+            severity: critical
+            category: reliability
+          annotations:
+            description: 'Error rate is above 5% for {{ $labels.service }}'
+
+    - name: mcp.game
+      rules:
+        - alert: GameRoomCreationFailed
+          expr: rate(game_room_creation_failed_total[5m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+            category: game
+          annotations:
+            description: 'Game room creation failures detected'
+
+        - alert: HighMatchmakingLatency
+          expr: matchmaking_duration_seconds{quantile="0.95"} > 30
+          for: 5m
+          labels:
+            severity: warning
+            category: game
+          annotations:
+            description: 'Matchmaking latency is above 30 seconds'
+
+    - name: mcp.blockchain
+      rules:
+        - alert: BlockchainSyncDelay
+          expr: blockchain_blocks_behind > 50
+          for: 5m
+          labels:
+            severity: warning
+            category: blockchain
+          annotations:
+            description: 'Blockchain sync is delayed by {{ $value }} blocks'
+
+        - alert: HighGasPrice
+          expr: eth_gas_price > 100000000000
+          for: 5m
+          labels:
+            severity: warning
+            category: blockchain
+          annotations:
+            description: 'Gas price is unusually high'
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -204,4 +204,4 @@ data:
           }
         ]
       }
-    } 
+    }

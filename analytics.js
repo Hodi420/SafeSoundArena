@@ -18,7 +18,15 @@ function saveAnalytics(data) {
   fs.writeFileSync(ANALYTICS_FILE, JSON.stringify(data, null, 2), 'utf8');
 }
 
-function logQuery({ prompt, consensus, all, tally, userId = 'anonymous', pioneerKey = null, timestamp = new Date().toISOString() }) {
+function logQuery({
+  prompt,
+  consensus,
+  all,
+  tally,
+  userId = 'anonymous',
+  pioneerKey = null,
+  timestamp = new Date().toISOString(),
+}) {
   const data = loadAnalytics();
   data.queries.push({ prompt, consensus, all, tally, userId, pioneerKey, timestamp });
   saveAnalytics(data);
@@ -31,7 +39,7 @@ function getStats() {
     mostCommonConsensus: getMostCommonConsensus(data.queries),
     providerUsage: getProviderUsage(data.queries),
     last10: data.queries.slice(-10),
-    userBreakdown: getUserBreakdown(data.queries)
+    userBreakdown: getUserBreakdown(data.queries),
   };
 }
 
@@ -52,7 +60,8 @@ function getMostCommonConsensus(queries) {
     if (!q.consensus) continue;
     counts[q.consensus] = (counts[q.consensus] || 0) + 1;
   }
-  let max = 0, most = null;
+  let max = 0,
+    most = null;
   for (const k in counts) {
     if (counts[k] > max) {
       max = counts[k];

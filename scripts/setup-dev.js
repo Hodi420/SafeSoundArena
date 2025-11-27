@@ -10,17 +10,18 @@ const colors = {
   red: '\x1b[31m',
   yellow: '\x1b[33m',
   blue: '\x1b[34m',
-  cyan: '\x1b[36m'
+  cyan: '\x1b[36m',
 };
 
 // Print status message
 const printStatus = (name, status, message = '') => {
-  const statusText = status === 'success' 
-    ? `${colors.green}✓${colors.reset}` 
-    : status === 'warning' 
-      ? `${colors.yellow}⚠${colors.reset}` 
-      : `${colors.red}✗${colors.reset}`;
-  
+  const statusText =
+    status === 'success'
+      ? `${colors.green}✓${colors.reset}`
+      : status === 'warning'
+        ? `${colors.yellow}⚠${colors.reset}`
+        : `${colors.red}✗${colors.reset}`;
+
   console.log(`[${statusText}] ${name} ${message}`);
 };
 
@@ -41,14 +42,14 @@ const runCommand = (command, cwd = process.cwd()) => {
     const options = { cwd, stdio: 'pipe' };
     return {
       success: true,
-      output: execSync(command, options).toString().trim()
+      output: execSync(command, options).toString().trim(),
     };
   } catch (error) {
     return {
       success: false,
       error: error.message,
       output: error.stdout ? error.stdout.toString().trim() : '',
-      errorOutput: error.stderr ? error.stderr.toString().trim() : ''
+      errorOutput: error.stderr ? error.stderr.toString().trim() : '',
     };
   }
 };
@@ -58,13 +59,13 @@ const checkNodeVersion = () => {
   const requiredVersion = '16.0.0';
   const nodeVersion = process.version.replace('v', '');
   const isCompatible = require('semver').gte(nodeVersion, requiredVersion);
-  
+
   printStatus(
-    'Node.js', 
+    'Node.js',
     isCompatible ? 'success' : 'error',
     isCompatible ? `v${nodeVersion}` : `v${nodeVersion} (requires v${requiredVersion}+)`
   );
-  
+
   return isCompatible;
 };
 
@@ -72,7 +73,7 @@ const checkNodeVersion = () => {
 const checkDocker = () => {
   try {
     execSync('docker --version');
-    
+
     // Check if Docker daemon is running
     try {
       execSync('docker ps');
@@ -104,13 +105,13 @@ const checkDockerCompose = () => {
 // Install dependencies for a directory
 const installDependencies = (dir) => {
   console.log(`\n${colors.cyan}Installing dependencies in ${dir}...${colors.reset}`);
-  
+
   const packageJsonPath = path.join(dir, 'package.json');
   if (!fs.existsSync(packageJsonPath)) {
     printStatus('package.json', 'warning', 'Not found, skipping');
     return false;
   }
-  
+
   const result = runCommand('npm install', dir);
   if (result.success) {
     printStatus('Dependencies', 'success', 'Installed successfully');
@@ -126,17 +127,17 @@ const installDependencies = (dir) => {
 const setupEnvFile = () => {
   const envExamplePath = path.join(process.cwd(), '.env.example');
   const envPath = path.join(process.cwd(), '.env');
-  
+
   if (!fs.existsSync(envExamplePath)) {
     printStatus('.env.example', 'warning', 'Not found, skipping');
     return false;
   }
-  
+
   if (fs.existsSync(envPath)) {
     printStatus('.env', 'warning', 'Already exists, skipping');
     return true;
   }
-  
+
   try {
     fs.copyFileSync(envExamplePath, envPath);
     printStatus('.env', 'success', 'Created from .env.example');
@@ -151,13 +152,13 @@ const setupEnvFile = () => {
 // Start Docker containers
 const startDockerContainers = () => {
   console.log(`\n${colors.cyan}Starting Docker containers...${colors.reset}`);
-  
+
   const dockerComposePath = path.join(process.cwd(), 'docker-compose.dev.yml');
   if (!fs.existsSync(dockerComposePath)) {
     printStatus('docker-compose.dev.yml', 'error', 'Not found');
     return false;
   }
-  
+
   const result = runCommand('docker-compose -f docker-compose.dev.yml up -d');
   if (result.success) {
     printStatus('Docker containers', 'success', 'Started successfully');
@@ -171,57 +172,61 @@ const startDockerContainers = () => {
 
 // Main function
 const main = async () => {
-  console.log(`\n${colors.cyan}🚀 Setting up SafeSoundArena development environment...${colors.reset}\n`);
-  
+  console.log(
+    `\n${colors.cyan}🚀 Setting up SafeSoundArena development environment...${colors.reset}\n`
+  );
+
   // Check system requirements
   console.log('📋 Checking system requirements:');
   const nodeOk = checkNodeVersion();
   const dockerOk = checkDocker();
   const composeOk = checkDockerCompose();
-  
+
   if (!nodeOk || !dockerOk || !composeOk) {
-    console.log(`\n${colors.red}❌ Please install the missing requirements before continuing.${colors.reset}\n`);
+    console.log(
+      `\n${colors.red}❌ Please install the missing requirements before continuing.${colors.reset}\n`
+    );
     process.exit(1);
   }
-  
+
   // Setup .env file
   console.log(`\n⚙️  Setting up environment variables:`);
   setupEnvFile();
-  
+
   // Install dependencies
   console.log(`\n📦 Installing dependencies:`);
   installDependencies(process.cwd());
-  
+
   // Install blockchain dependencies
   const blockchainPath = path.join(process.cwd(), 'blockchain');
   if (fs.existsSync(blockchainPath)) {
     installDependencies(blockchainPath);
   }
-  
+
   // Install server dependencies
   const serverPath = path.join(process.cwd(), 'server');
   if (fs.existsSync(serverPath)) {
     installDependencies(serverPath);
   }
-  
+
   // Install frontend dependencies
   const frontendPath = path.join(process.cwd(), 'frontend');
   if (fs.existsSync(frontendPath)) {
     installDependencies(frontendPath);
   }
-  
+
   // Start Docker containers
   console.log(`\n🐳 Starting development services:`);
   startDockerContainers();
-  
+
   // Print next steps
   console.log(`\n${colors.green}✅ Setup completed successfully!${colors.reset}\n`);
-  
+
   console.log('Next steps:');
   console.log(`  1. Start the development server: ${colors.cyan}npm run dev${colors.reset}`);
   console.log(`  2. Open your browser to: ${colors.cyan}http://localhost:3000${colors.reset}`);
   console.log(`  3. Run tests: ${colors.cyan}npm test${colors.reset}\n`);
-  
+
   console.log('For more information, check the README.md file.\n');
 };
 

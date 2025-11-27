@@ -29,6 +29,5 @@ function MyApp({ Component, pageProps }: AppProps) {
   );
   // Always wrap with ToastProvider to satisfy hooks on prerender
   return <ToastProvider>{content}</ToastProvider>;
-
 }
 export default MyApp;

@@ -12,12 +12,12 @@ describe('PioneerPoH', function () {
     await ctr.connect(owner).setRelayer(relayer.address);
     const epoch = 42;
     const root = ethers.keccak256(ethers.toUtf8Bytes('root-42'));
-  // submit root from relayer with manifest CID
-  const manifestCid = 'QmTestManifestCid';
-  await ctr.connect(relayer).submitRoot(epoch, root, manifestCid);
-  const stored = await ctr.getRoot(epoch);
-  const storedManifest = await ctr.getManifest(epoch);
-  expect(stored).to.equal(root);
-  expect(storedManifest).to.equal(manifestCid);
+    // submit root from relayer with manifest CID
+    const manifestCid = 'QmTestManifestCid';
+    await ctr.connect(relayer).submitRoot(epoch, root, manifestCid);
+    const stored = await ctr.getRoot(epoch);
+    const storedManifest = await ctr.getManifest(epoch);
+    expect(stored).to.equal(root);
+    expect(storedManifest).to.equal(manifestCid);
   });
 });

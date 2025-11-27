@@ -1,128 +1,137 @@
-import express, { Router, Request, Response } from 'express';
+import express, { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { createClient } from 'redis';
 import { PubSub } from 'graphql-subscriptions';
 
-const express = require('express');
-const router = express.Router();
-const { v4: uuidv4 } = require('uuid');
-
-// In-memory storage for development
-let db = {
-  users: [
-    {
-      _id: '1',
-      username: 'user1',
-      avatar: 'https://i.pravatar.cc/150?img=1',
-      scores: {
-        overall: 1000,
-        scamDetection: 400,
-        communityImpact: 600
-      }
-    },
-    {
-      _id: '2',
-      username: 'user2',
-      avatar: 'https://i.pravatar.cc/150?img=2',
-      scores: {
-        overall: 800,
-        scamDetection: 600,
-        communityImpact: 200
-      }
-    },
-    {
-      _id: '3',
-      username: 'user3',
-      avatar: 'https://i.pravatar.cc/150?img=3',
-      scores: {
-        overall: 1200,
-        scamDetection: 200,
-        communityImpact: 1000
-      }
-    }
-  ]
-};
+const router: Router = express.Router();
+const pubsub = new PubSub();
 
 const LEADERBOARD_TYPES = ['overall', 'scam_detection', 'community_impact'];
 
-// Helper function to get users collection
+// Helper function to map leaderboard type to stored score key
+function scoreKeyFromType(type: string): 'overall' | 'scamDetection' | 'communityImpact' {
+  if (type === 'scam_detection') return 'scamDetection';
+  if (type === 'community_impact') return 'communityImpact';
+  return 'overall';
+}
+
+// Helper to return a collection-like API backed by Redis for tests/dev
 const getUsersCollection = () => {
   return {
-    find: (query = {}) => ({
-      sort: (sortCriteria: { [key: string]: number }) => ({
+    find: (query: any = {}) => ({
+      sort: (sortCriteria: { [k: string]: number }) => ({
         limit: (limit: number) => ({
-          project: (projection: { [key: string]: number }) => ({
+          project: (projection: { [k: string]: number }) => ({
             toArray: async (): Promise<User[]> => {
-              const [field, direction] = Object.entries(sortCriteria)[0];
+              const [[field, direction]] = Object.entries(sortCriteria) as [string, number][];
               const scoreType = field.replace('scores.', '');
               const leaderboardKey = `leaderboard:${scoreType}`;
-              const userIds = await redisClient.zRange(leaderboardKey, 0, limit ? limit - 1 : -1, { REV: direction === -1 });
+              const userIds = await (redisClient as any).zRange(
+                leaderboardKey,
+                0,
+                limit ? limit - 1 : -1,
+                { REV: direction === -1 }
+              );
               const users: User[] = [];
               for (const id of userIds) {
-                const userData = await redisClient.hGetAll(`user:${id}`);
-                if (userData) {
+                const raw = await redisClient.hGetAll(`user:${id}`);
+                const userData = raw as unknown as Record<string, string>;
+                if (userData && Object.keys(userData).length) {
                   users.push({
                     _id: id,
                     username: userData.username,
                     avatar: userData.avatar,
                     scores: {
-                      overall: parseInt(userData.overall || '0'),
-                      scamDetection: parseInt(userData.scamDetection || '0'),
-                      communityImpact: parseInt(userData.communityImpact || '0'),
-                    }
+                      overall: Number(userData.overall || 0),
+                      scamDetection: Number(userData.scamDetection || 0),
+                      communityImpact: Number(userData.communityImpact || 0),
+                    },
                   });
                 }
               }
               return users;
-            }
-          })
-        })
-      })
+            },
+          }),
+        }),
+      }),
     }),
-    findOne: async (query: { [key: string]: any }) => {
+    findOne: async (query: { [k: string]: any }) => {
       if (query._id) {
-        const userData = await redisClient.hGetAll(`user:${query._id}`);
-        if (Object.keys(userData).length === 0) return null;
+        const raw = await redisClient.hGetAll(`user:${query._id}`);
+        const userData = raw as unknown as Record<string, string>;
+        if (!userData || Object.keys(userData).length === 0) return null;
         return {
           _id: query._id,
           username: userData.username,
           avatar: userData.avatar,
           scores: {
-            overall: parseInt(userData.overall || '0'),
-            scamDetection: parseInt(userData.scamDetection || '0'),
-            communityImpact: parseInt(userData.communityImpact || '0'),
-          }
+            overall: Number(userData.overall || 0),
+            scamDetection: Number(userData.scamDetection || 0),
+            communityImpact: Number(userData.communityImpact || 0),
+          },
         };
       }
       return null;
     },
-    updateOne: async (filter: { [key: string]: any }, update: { [key: string]: any }, options?: { upsert?: boolean }) => {
+    updateOne: async (
+      filter: { [k: string]: any },
+      update: any,
+      options?: { upsert?: boolean }
+    ) => {
       let userId = filter._id;
       if (!userId && options?.upsert) {
         userId = uuidv4();
       }
       if (!userId) return { result: { n: 0, ok: 1 } };
       const userKey = `user:${userId}`;
-      // Handle $set and $inc
-      // For simplicity, assume $inc for scores
+
       if (update.$inc) {
         for (const [key, value] of Object.entries(update.$inc)) {
           if (key.startsWith('scores.')) {
             const scoreType = key.split('.')[1];
-            const current = parseInt(await redisClient.hGet(userKey, scoreType) || '0');
-            await redisClient.hSet(userKey, scoreType, current + value);
-            await redisClient.zAdd(`leaderboard:${scoreType}`, { score: current + value, value: userId });
-            // In updateOne, after updating scores
-            // Fetch updated user data
-            const updatedUser = await this.findOne({ _id: userId });
-            pubsub.publish(`LEADERBOARD_UPDATED_${scoreType.toUpperCase()}`, { leaderboardUpdated: updatedUser });
+            const current = Number((await redisClient.hGet(userKey, scoreType)) || 0);
+            const incValue = Number(value || 0);
+            const newVal = current + incValue;
+            await redisClient.hSet(userKey, scoreType, String(newVal));
+            await (redisClient as any).zAdd(`leaderboard:${scoreType}`, {
+              score: newVal,
+              value: userId,
+            });
+            const updatedUser = await getUsersCollection().findOne({ _id: userId });
+            await pubsub.publish(`LEADERBOARD_UPDATED_${scoreType.toUpperCase()}`, {
+              leaderboardUpdated: updatedUser,
+            });
           }
         }
       }
-      // Update overall if needed
-      // ... similar for other operations
+
+      if (update.$set) {
+        for (const [key, value] of Object.entries(update.$set)) {
+          if (key.startsWith('scores.')) {
+            const scoreType = key.split('.')[1];
+            await redisClient.hSet(userKey, scoreType, String(value));
+            // update sorted set as well
+            const newVal = Number(value || 0);
+            await (redisClient as any).zAdd(`leaderboard:${scoreType}`, {
+              score: newVal,
+              value: userId,
+            });
+          } else {
+            await redisClient.hSet(userKey, key, String(value));
+          }
+        }
+      }
+
+      // Ensure scores object exists on insert
+      if (options?.upsert && update.$setOnInsert) {
+        const s = update.$setOnInsert.scores || {};
+        await redisClient.hSet(userKey, 'overall', String(s.overall || 0));
+        await redisClient.hSet(userKey, 'scamDetection', String(s.scamDetection || 0));
+        await redisClient.hSet(userKey, 'communityImpact', String(s.communityImpact || 0));
+      }
+
       return { result: { n: 1, ok: 1 } };
-    }
+    },
   };
 };
 
@@ -130,48 +139,25 @@ const getUsersCollection = () => {
 router.get('/:type?', async (req, res) => {
   try {
     const type = req.params.type || 'overall';
-    
+
     if (!LEADERBOARD_TYPES.includes(type)) {
       return res.status(400).json({ error: 'Invalid leaderboard type' });
     }
 
-    const collection = getUsersCollection();
-    let sortField = 'scores.overall';
-    
-    // Determine sort field based on leaderboard type
-    switch(type) {
-      case 'scam_detection':
-        sortField = 'scores.scamDetection';
-        break;
-      case 'community_impact':
-        sortField = 'scores.communityImpact';
-        break;
-      default: // overall
-        sortField = 'scores.overall';
-    }
+    const key = scoreKeyFromType(type);
+    const sortField = `scores.${key}`;
 
+    const collection = getUsersCollection();
     const leaderboard = await collection
       .find({})
       .sort({ [sortField]: -1 })
-      .limit(100) // Top 100 users
-      .project({
-        username: 1,
-        avatar: 1,
-        [sortField]: 1
-      })
+      .limit(100)
+      .project({ username: 1, avatar: 1, [sortField]: 1 })
       .toArray();
 
-    // Add rank to each user
     const rankedLeaderboard = leaderboard.map((user, index) => {
-      const scoreField = sortField.replace('scores.', '');
-      const score = user.scores ? user.scores[scoreField] || 0 : 0;
-      
-      return {
-        rank: index + 1,
-        username: user.username,
-        avatar: user.avatar,
-        score: score
-      };
+      const score = user.scores ? (user.scores as any)[key] || 0 : 0;
+      return { rank: index + 1, username: user.username, avatar: user.avatar, score };
     });
 
     res.json(rankedLeaderboard);
@@ -185,58 +171,46 @@ router.get('/:type?', async (req, res) => {
 router.post('/update-score', async (req, res) => {
   try {
     const { userId, type, score, action } = req.body;
-    
+
     if (!userId || !type || (score === undefined && !action)) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    
+
     if (!LEADERBOARD_TYPES.includes(type) && type !== 'all') {
       return res.status(400).json({ error: 'Invalid score type' });
     }
 
     const collection = getUsersCollection();
-    const updateQuery = {};
-    
+    const updateQuery: any = {};
+
     if (action) {
-      // For actions like 'increment'
       updateQuery.$inc = {};
-      const scoreValue = score || 1; // Default increment by 1 if no score provided
-      
+      const scoreValue = Number(score || 1);
       if (type === 'all') {
         updateQuery.$inc['scores.overall'] = scoreValue;
         updateQuery.$inc['scores.scamDetection'] = scoreValue;
         updateQuery.$inc['scores.communityImpact'] = scoreValue;
       } else {
-        updateQuery.$inc[`scores.${type}`] = scoreValue;
+        const key = scoreKeyFromType(type);
+        updateQuery.$inc[`scores.${key}`] = scoreValue;
       }
     } else {
-      // For absolute score updates
       updateQuery.$set = updateQuery.$set || {};
-      
       if (type === 'all') {
         updateQuery.$set['scores.overall'] = score;
         updateQuery.$set['scores.scamDetection'] = score;
         updateQuery.$set['scores.communityImpact'] = score;
       } else {
-        updateQuery.$set[`scores.${type}`] = score;
+        const key = scoreKeyFromType(type);
+        updateQuery.$set[`scores.${key}`] = score;
       }
     }
 
-    // Ensure the scores object exists
     updateQuery.$setOnInsert = {
-      scores: {
-        overall: 0,
-        scamDetection: 0,
-        communityImpact: 0
-      }
+      scores: { overall: 0, scamDetection: 0, communityImpact: 0 },
     };
 
-    const result = await collection.updateOne(
-      { _id: userId },
-      updateQuery,
-      { upsert: true }
-    );
-
+    const result = await collection.updateOne({ _id: userId }, updateQuery, { upsert: true });
     res.json({ success: true, result });
   } catch (error) {
     console.error('Error updating score:', error);
@@ -244,14 +218,11 @@ router.post('/update-score', async (req, res) => {
   }
 });
 
-module.exports = router;
-
 // Redis client
 const redisClient = createClient({ url: process.env.REDIS_URL || 'redis://localhost:6379' });
 redisClient.on('error', (err) => console.log('Redis Client Error', err));
-await redisClient.connect();
-// Remove in-memory db
-// Replace with Redis operations in getUsersCollection
+redisClient.connect().catch((err) => console.error('Redis connect error', err));
+
 interface User {
   _id: string;
   username: string;
@@ -263,122 +234,4 @@ interface User {
   };
 }
 
-// Get leaderboard by type
-router.get('/:type?', async (req, res) => {
-  try {
-    const type = req.params.type || 'overall';
-    
-    if (!LEADERBOARD_TYPES.includes(type)) {
-      return res.status(400).json({ error: 'Invalid leaderboard type' });
-    }
-
-    const collection = getUsersCollection();
-    let sortField = 'scores.overall';
-    
-    // Determine sort field based on leaderboard type
-    switch(type) {
-      case 'scam_detection':
-        sortField = 'scores.scamDetection';
-        break;
-      case 'community_impact':
-        sortField = 'scores.communityImpact';
-        break;
-      default: // overall
-        sortField = 'scores.overall';
-    }
-
-    const leaderboard = await collection
-      .find({})
-      .sort({ [sortField]: -1 })
-      .limit(100) // Top 100 users
-      .project({
-        username: 1,
-        avatar: 1,
-        [sortField]: 1
-      })
-      .toArray();
-
-    // Add rank to each user
-    const rankedLeaderboard = leaderboard.map((user, index) => {
-      const scoreField = sortField.replace('scores.', '');
-      const score = user.scores ? user.scores[scoreField] || 0 : 0;
-      
-      return {
-        rank: index + 1,
-        username: user.username,
-        avatar: user.avatar,
-        score: score
-      };
-    });
-
-    res.json(rankedLeaderboard);
-  } catch (error) {
-    console.error('Error fetching leaderboard:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Update user score
-router.post('/update-score', async (req, res) => {
-  try {
-    const { userId, type, score, action } = req.body;
-    
-    if (!userId || !type || (score === undefined && !action)) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-    
-    if (!LEADERBOARD_TYPES.includes(type) && type !== 'all') {
-      return res.status(400).json({ error: 'Invalid score type' });
-    }
-
-    const collection = getUsersCollection();
-    const updateQuery = {};
-    
-    if (action) {
-      // For actions like 'increment'
-      updateQuery.$inc = {};
-      const scoreValue = score || 1; // Default increment by 1 if no score provided
-      
-      if (type === 'all') {
-        updateQuery.$inc['scores.overall'] = scoreValue;
-        updateQuery.$inc['scores.scamDetection'] = scoreValue;
-        updateQuery.$inc['scores.communityImpact'] = scoreValue;
-      } else {
-        updateQuery.$inc[`scores.${type}`] = scoreValue;
-      }
-    } else {
-      // For absolute score updates
-      updateQuery.$set = updateQuery.$set || {};
-      
-      if (type === 'all') {
-        updateQuery.$set['scores.overall'] = score;
-        updateQuery.$set['scores.scamDetection'] = score;
-        updateQuery.$set['scores.communityImpact'] = score;
-      } else {
-        updateQuery.$set[`scores.${type}`] = score;
-      }
-    }
-
-    // Ensure the scores object exists
-    updateQuery.$setOnInsert = {
-      scores: {
-        overall: 0,
-        scamDetection: 0,
-        communityImpact: 0
-      }
-    };
-
-    const result = await collection.updateOne(
-      { _id: userId },
-      updateQuery,
-      { upsert: true }
-    );
-
-    res.json({ success: true, result });
-  } catch (error) {
-    console.error('Error updating score:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-module.exports = router;
+export default router;

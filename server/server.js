@@ -44,7 +44,7 @@ const onListening = () => {
   const addr = server.address();
   const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
   logger.info(`Server is running on ${bind} in ${process.env.NODE_ENV} mode`);
-  
+
   // Log WebSocket server status
   logger.info('WebSocket server is running');
 };

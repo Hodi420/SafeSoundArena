@@ -17,25 +17,25 @@ module.exports = {
       chainId: 250,
       gas: 8000000,
       gasPrice: '30000000000', // 30 Gwei
-    }
+    },
   },
   contracts: {
     SafeSoundArena: {
       address: {
         1337: process.env.LOCAL_CONTRACT_ADDRESS || '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         4002: process.env.TESTNET_CONTRACT_ADDRESS || '',
-        250: process.env.MAINNET_CONTRACT_ADDRESS || ''
+        250: process.env.MAINNET_CONTRACT_ADDRESS || '',
       },
-      abi: require('./artifacts/contracts/SafeSoundArena.sol/SafeSoundArena.json').abi
+      abi: require('./artifacts/contracts/SafeSoundArena.sol/SafeSoundArena.json').abi,
     },
     SSAToken: {
       address: {
         1337: process.env.LOCAL_TOKEN_ADDRESS || '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
         4002: process.env.TESTNET_TOKEN_ADDRESS || '',
-        250: process.env.MAINNET_TOKEN_ADDRESS || ''
+        250: process.env.MAINNET_TOKEN_ADDRESS || '',
       },
-      abi: require('./artifacts/contracts/SSAToken.sol/SSAToken.json').abi
-    }
+      abi: require('./artifacts/contracts/SSAToken.sol/SSAToken.json').abi,
+    },
   },
-  defaultNetwork: process.env.NETWORK || 'development'
+  defaultNetwork: process.env.NETWORK || 'development',
 };

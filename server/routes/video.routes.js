@@ -6,28 +6,32 @@ const { videoQueue } = require('../queue/queue');
 router.post('/process', async (req, res) => {
   try {
     const { videoId, userId } = req.body;
-    
+
     if (!videoId) {
       return res.status(400).json({ error: 'Video ID is required' });
     }
 
     // Add job to the queue
-    const job = await videoQueue.add('process-video', {
-      videoId,
-      userId: userId || 'anonymous',
-      timestamp: new Date()
-    }, {
-      // Job options
-      removeOnComplete: true,
-      removeOnFail: false,
-      attempts: 3,
-      backoff: 5000
-    });
+    const job = await videoQueue.add(
+      'process-video',
+      {
+        videoId,
+        userId: userId || 'anonymous',
+        timestamp: new Date(),
+      },
+      {
+        // Job options
+        removeOnComplete: true,
+        removeOnFail: false,
+        attempts: 3,
+        backoff: 5000,
+      }
+    );
 
     res.status(202).json({
       message: 'Video processing started',
       jobId: job.id,
-      status: 'queued'
+      status: 'queued',
     });
   } catch (error) {
     console.error('Error adding job to queue:', error);
@@ -54,7 +58,7 @@ router.get('/status/:jobId', async (req, res) => {
       state,
       progress,
       result,
-      data: job.data
+      data: job.data,
     });
   } catch (error) {
     console.error('Error getting job status:', error);

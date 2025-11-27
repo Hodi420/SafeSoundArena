@@ -15,11 +15,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!response.ok) throw new Error('Failed to fetch items from external API');
     const items = await response.json();
     type StoreItem = {
-  id: number;
-  title: string;
-  price: number;
-  // add other fields if needed
-};
+      id: number;
+      title: string;
+      price: number;
+      // add other fields if needed
+    };
 
     const mapped = (items as StoreItem[]).map((item) => ({
       id: item.id,
@@ -31,4 +31,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(500).json({ error: (error as Error).message });
   }
 }
-

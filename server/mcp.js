@@ -6,7 +6,7 @@ require('dotenv').config();
 
 // Verify required environment variables
 const requiredEnvVars = ['PORT', 'MONGODB_URI'];
-const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
 
 if (missingVars.length > 0) {
   console.error('Missing required environment variables:', missingVars.join(', '));
@@ -58,7 +58,7 @@ console.log('Express middleware configured');
 
 const agents = [
   { name: 'Agent1', url: 'http://localhost:3001' },
-  { name: 'Agent2', url: 'http://localhost:3002' }
+  { name: 'Agent2', url: 'http://localhost:3002' },
 ];
 console.log('Agents configured');
 
@@ -66,7 +66,7 @@ console.log('Agents configured');
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
   format: winston.format.json(),
-  transports: [new winston.transports.Console()]
+  transports: [new winston.transports.Console()],
 });
 
 // Correlation/Request ID
@@ -77,18 +77,22 @@ app.use((req, res, next) => {
 });
 
 // CORS allowlist (comma-separated origins) or allow all if not set
-const allowedOrigins = (process.env.MCP_CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
-const corsOptions = allowedOrigins.length === 0
-  ? {}
-  : {
-      origin: function(origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      }
-    };
+const allowedOrigins = (process.env.MCP_CORS_ORIGINS || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+const corsOptions =
+  allowedOrigins.length === 0
+    ? {}
+    : {
+        origin: function (origin, callback) {
+          if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error('Not allowed by CORS'));
+          }
+        },
+      };
 app.use(cors(corsOptions));
 app.use(helmet());
 app.use(morgan('dev'));
@@ -120,7 +124,7 @@ const httpRequestDurationMicroseconds = new promClient.Histogram({
   name: 'http_request_duration_ms',
   help: 'Duration of HTTP requests in ms',
   labelNames: ['method', 'route', 'code'],
-  buckets: [50, 100, 200, 300, 500, 1000, 2000, 5000]
+  buckets: [50, 100, 200, 300, 500, 1000, 2000, 5000],
 });
 
 app.use((req, res, next) => {
@@ -133,7 +137,7 @@ app.use((req, res, next) => {
         method: req.method,
         path: req.path,
         status: res.statusCode,
-        ip: req.ip
+        ip: req.ip,
       });
     } catch (_) {}
   });
@@ -143,8 +147,13 @@ app.use((req, res, next) => {
 // Graceful JSON parse errors (return 400 instead of HTML error page)
 app.use((err, req, res, next) => {
   const isJsonParse = err && (err.type === 'entity.parse.failed' || err instanceof SyntaxError);
-  const status = err && (err.status || err.statusCode) ? (err.status || err.statusCode) : (isJsonParse ? 400 : 500);
-  const message = isJsonParse ? 'Invalid JSON body' : (err && err.message ? err.message : 'Internal Server Error');
+  const status =
+    err && (err.status || err.statusCode) ? err.status || err.statusCode : isJsonParse ? 400 : 500;
+  const message = isJsonParse
+    ? 'Invalid JSON body'
+    : err && err.message
+      ? err.message
+      : 'Internal Server Error';
   if (res.headersSent) return next(err);
   return res.status(status).json({ error: message });
 });
@@ -154,46 +163,50 @@ const swaggerSpec = {
   openapi: '3.0.0',
   info: { title: 'SafeSoundArena MCP', version: '1.0.0' },
   paths: {
-    '/healthz': { get: { summary: 'Health check', responses: { '200': { description: 'OK' } } } },
-    '/metrics': { get: { summary: 'Prometheus metrics', responses: { '200': { description: 'Metrics' } } } },
-    '/api/mcp/agents': { get: { summary: 'List agents status', responses: { '200': { description: 'Statuses' } } } },
+    '/healthz': { get: { summary: 'Health check', responses: { 200: { description: 'OK' } } } },
+    '/metrics': {
+      get: { summary: 'Prometheus metrics', responses: { 200: { description: 'Metrics' } } },
+    },
+    '/api/mcp/agents': {
+      get: { summary: 'List agents status', responses: { 200: { description: 'Statuses' } } },
+    },
     '/api/mcp/agents/{name}/command': {
       post: {
         summary: 'Send command to agent',
         parameters: [{ name: 'name', in: 'path', required: true, schema: { type: 'string' } }],
         requestBody: { required: true },
-        responses: { '200': { description: 'Response from agent' } }
-      }
+        responses: { 200: { description: 'Response from agent' } },
+      },
     },
     '/api/mcp/shell': {
       post: {
         summary: 'Execute shell command',
         requestBody: { required: true },
-        responses: { '200': { description: 'Shell output' } }
-      }
+        responses: { 200: { description: 'Shell output' } },
+      },
     },
     '/api/mcp/git': {
       post: {
         summary: 'Run git action',
         requestBody: { required: true },
-        responses: { '200': { description: 'Git result' } }
-      }
+        responses: { 200: { description: 'Git result' } },
+      },
     },
     '/api/mcp/http/get': {
       post: {
         summary: 'HTTP GET (read-only, allowlist + size/timeout limits)',
         requestBody: { required: true },
-        responses: { '200': { description: 'HTTP response' } }
-      }
+        responses: { 200: { description: 'HTTP response' } },
+      },
     },
     '/api/mcp/fs/read': {
       post: {
         summary: 'Read a text file (read-only, dev use)',
         requestBody: { required: true },
-        responses: { '200': { description: 'File content' } }
-      }
-    }
-  }
+        responses: { 200: { description: 'File content' } },
+      },
+    },
+  },
 };
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -208,27 +221,29 @@ app.get('/metrics', async (req, res) => {
 
 // קבלת סטטוס מכל ה-Agents
 app.get('/api/mcp/agents', async (req, res) => {
-  const statuses = await Promise.all(agents.map(async agent => {
-    try {
-      const r = await fetch(agent.url + '/healthz');
-      const status = await r.json();
-      return { ...agent, status: status.status, time: status.time };
-    } catch {
-      return { ...agent, status: 'offline' };
-    }
-  }));
+  const statuses = await Promise.all(
+    agents.map(async (agent) => {
+      try {
+        const r = await fetch(agent.url + '/healthz');
+        const status = await r.json();
+        return { ...agent, status: status.status, time: status.time };
+      } catch {
+        return { ...agent, status: 'offline' };
+      }
+    })
+  );
   res.json(statuses);
 });
 
 // שליחת פקודה ל-Agent
 app.post('/api/mcp/agents/:name/command', async (req, res) => {
-  const agent = agents.find(a => a.name === req.params.name);
+  const agent = agents.find((a) => a.name === req.params.name);
   if (!agent) return res.status(404).json({ error: 'Agent not found' });
   try {
     const r = await fetch(agent.url + '/api/agent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(req.body),
     });
     const data = await r.json();
     res.json({ ok: true, response: data });
@@ -240,17 +255,26 @@ app.post('/api/mcp/agents/:name/command', async (req, res) => {
 // ---- Open-source helpers: shell and git (MCP-style endpoints) ----
 app.post('/api/mcp/shell', async (req, res) => {
   if (!isEnabled('MCP_ENABLE_SHELL', false)) {
-    return res.status(403).json({ error: 'Shell access disabled. Set MCP_ENABLE_SHELL=true to enable.' });
+    return res
+      .status(403)
+      .json({ error: 'Shell access disabled. Set MCP_ENABLE_SHELL=true to enable.' });
   }
   const { cmd, args = [], cwd = process.cwd(), timeoutMs = 60000 } = req.body || {};
   if (!cmd) return res.status(400).json({ error: 'Missing cmd' });
   try {
-    const child = execFile(cmd, args, { cwd, timeout: timeoutMs, windowsHide: true }, (err, stdout, stderr) => {
-      if (err) {
-        return res.status(500).json({ error: 'Shell error', details: err.message, stdout, stderr });
+    const child = execFile(
+      cmd,
+      args,
+      { cwd, timeout: timeoutMs, windowsHide: true },
+      (err, stdout, stderr) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ error: 'Shell error', details: err.message, stdout, stderr });
+        }
+        res.json({ code: 0, output: stdout, stderr });
       }
-      res.json({ code: 0, output: stdout, stderr });
-    });
+    );
     child.on('error', (e) => {
       res.status(500).json({ error: 'Spawn error', details: e.message });
     });
@@ -261,7 +285,9 @@ app.post('/api/mcp/shell', async (req, res) => {
 
 app.post('/api/mcp/git', async (req, res) => {
   if (!isEnabled('MCP_ENABLE_GIT', false)) {
-    return res.status(403).json({ error: 'Git access disabled. Set MCP_ENABLE_GIT=true to enable.' });
+    return res
+      .status(403)
+      .json({ error: 'Git access disabled. Set MCP_ENABLE_GIT=true to enable.' });
   }
   const { action, repoPath = process.cwd(), payload = {} } = req.body || {};
   try {
@@ -295,19 +321,29 @@ app.post('/api/mcp/git', async (req, res) => {
 // Read-only HTTP GET with allowlist
 app.post('/api/mcp/http/get', async (req, res) => {
   if (!isEnabled('MCP_ENABLE_HTTP', false)) {
-    return res.status(403).json({ error: 'HTTP client disabled. Set MCP_ENABLE_HTTP=true to enable.' });
+    return res
+      .status(403)
+      .json({ error: 'HTTP client disabled. Set MCP_ENABLE_HTTP=true to enable.' });
   }
   try {
     const { url, headers = {} } = req.body || {};
     if (!url) return res.status(400).json({ error: 'Missing url' });
     const u = new URL(url);
-    const allow = (process.env.MCP_HTTP_ALLOWLIST || '').split(',').map(s => s.trim()).filter(Boolean);
+    const allow = (process.env.MCP_HTTP_ALLOWLIST || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
     if (allow.length === 0 || !allow.includes(u.hostname)) {
       return res.status(403).json({ error: 'Host not allowed' });
     }
     const r = await fetch(url, { method: 'GET', headers, timeout: 10000, size: 262144 });
     const text = await r.text();
-    res.json({ ok: true, status: r.status, headers: Object.fromEntries(Object.entries(r.headers.raw ? r.headers.raw() : {})), body: text });
+    res.json({
+      ok: true,
+      status: r.status,
+      headers: Object.fromEntries(Object.entries(r.headers.raw ? r.headers.raw() : {})),
+      body: text,
+    });
   } catch (e) {
     res.status(500).json({ error: 'HTTP error', details: e.message });
   }
@@ -318,7 +354,8 @@ app.post('/api/mcp/fs/read', async (req, res) => {
   try {
     const base = process.cwd();
     const resolved = path.resolve(base, relPath);
-    if (!resolved.startsWith(base)) return res.status(400).json({ error: 'Path traversal blocked' });
+    if (!resolved.startsWith(base))
+      return res.status(400).json({ error: 'Path traversal blocked' });
     const stat = fs.statSync(resolved);
     if (!stat.isFile()) return res.status(400).json({ error: 'Not a file' });
     const size = Math.min(stat.size, maxBytes);

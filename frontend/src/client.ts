@@ -31,5 +31,5 @@ export const apiClient = {
     const res = await fetch(url, { method: 'DELETE', credentials: 'same-origin' });
     if (!res.ok) throw new Error(await res.text());
     return await res.json();
-  }
+  },
 };

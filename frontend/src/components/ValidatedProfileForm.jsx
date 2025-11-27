@@ -10,7 +10,11 @@ const schema = z.object({
 });
 
 export default function ValidatedProfileForm({ onSubmit }) {
-  const { register, handleSubmit, formState: { errors, isSubmitting, isSubmitSuccessful } } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isSubmitSuccessful },
+  } = useForm({
     resolver: zodResolver(schema),
     mode: 'onChange',
   });
@@ -19,23 +23,50 @@ export default function ValidatedProfileForm({ onSubmit }) {
     <form onSubmit={handleSubmit(onSubmit)} aria-label="טופס פרופיל">
       <div>
         <label htmlFor="name">שם מלא:</label>
-        <input id="name" {...register('name')} aria-invalid={!!errors.name} aria-describedby="name-error" />
-        {errors.name && <span id="name-error" style={{color:'red'}}>{errors.name.message}</span>}
+        <input
+          id="name"
+          {...register('name')}
+          aria-invalid={!!errors.name}
+          aria-describedby="name-error"
+        />
+        {errors.name && (
+          <span id="name-error" style={{ color: 'red' }}>
+            {errors.name.message}
+          </span>
+        )}
       </div>
       <div>
         <label htmlFor="email">אימייל:</label>
-        <input id="email" {...register('email')} aria-invalid={!!errors.email} aria-describedby="email-error" />
-        {errors.email && <span id="email-error" style={{color:'red'}}>{errors.email.message}</span>}
+        <input
+          id="email"
+          {...register('email')}
+          aria-invalid={!!errors.email}
+          aria-describedby="email-error"
+        />
+        {errors.email && (
+          <span id="email-error" style={{ color: 'red' }}>
+            {errors.email.message}
+          </span>
+        )}
       </div>
       <div>
         <label htmlFor="phone">טלפון:</label>
-        <input id="phone" {...register('phone')} aria-invalid={!!errors.phone} aria-describedby="phone-error" />
-        {errors.phone && <span id="phone-error" style={{color:'red'}}>{errors.phone.message}</span>}
+        <input
+          id="phone"
+          {...register('phone')}
+          aria-invalid={!!errors.phone}
+          aria-describedby="phone-error"
+        />
+        {errors.phone && (
+          <span id="phone-error" style={{ color: 'red' }}>
+            {errors.phone.message}
+          </span>
+        )}
       </div>
       <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "שומר..." : "שמור"}
+        {isSubmitting ? 'שומר...' : 'שמור'}
       </button>
-      {isSubmitSuccessful && <div style={{color:'green'}}>הפרטים נשמרו בהצלחה!</div>}
+      {isSubmitSuccessful && <div style={{ color: 'green' }}>הפרטים נשמרו בהצלחה!</div>}
     </form>
   );
 }

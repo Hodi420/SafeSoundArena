@@ -8,7 +8,7 @@ const colors = {
   green: '\x1b[32m',
   red: '\x1b[31m',
   yellow: '\x1b[33m',
-  blue: '\x1b[34m'
+  blue: '\x1b[34m',
 };
 
 // Check if a command exists
@@ -24,12 +24,13 @@ const commandExists = (cmd) => {
 
 // Print status message
 const printStatus = (name, status, message = '') => {
-  const statusText = status === 'success' 
-    ? `${colors.green}✓${colors.reset}` 
-    : status === 'warning' 
-      ? `${colors.yellow}⚠${colors.reset}` 
-      : `${colors.red}✗${colors.reset}`;
-  
+  const statusText =
+    status === 'success'
+      ? `${colors.green}✓${colors.reset}`
+      : status === 'warning'
+        ? `${colors.yellow}⚠${colors.reset}`
+        : `${colors.red}✗${colors.reset}`;
+
   console.log(`[${statusText}] ${name} ${message}`);
 };
 
@@ -38,13 +39,13 @@ const checkNodeVersion = () => {
   const requiredVersion = '16.0.0';
   const nodeVersion = process.version.replace('v', '');
   const isCompatible = require('semver').gte(nodeVersion, requiredVersion);
-  
+
   printStatus(
-    'Node.js', 
+    'Node.js',
     isCompatible ? 'success' : 'error',
     isCompatible ? `v${nodeVersion}` : `v${nodeVersion} (requires v${requiredVersion}+)`
   );
-  
+
   return isCompatible;
 };
 
@@ -52,7 +53,7 @@ const checkNodeVersion = () => {
 const checkDocker = () => {
   try {
     execSync('docker --version');
-    
+
     // Check if Docker daemon is running
     try {
       execSync('docker ps');
@@ -89,39 +90,32 @@ const checkEnvVars = () => {
     'MONGODB_URI',
     'REDIS_URL',
     'BLOCKCHAIN_RPC_URL',
-    'CONTRACT_ADDRESS'
+    'CONTRACT_ADDRESS',
   ];
-  
+
   let allVarsPresent = true;
-  
-  requiredVars.forEach(varName => {
+
+  requiredVars.forEach((varName) => {
     if (!process.env[varName]) {
       printStatus(`Env var ${varName}`, 'error', 'Not set');
       allVarsPresent = false;
     } else {
-      const displayValue = varName.includes('SECRET') || varName.includes('KEY') 
-        ? '********' 
-        : process.env[varName];
+      const displayValue =
+        varName.includes('SECRET') || varName.includes('KEY') ? '********' : process.env[varName];
       printStatus(`Env var ${varName}`, 'success', displayValue);
     }
   });
-  
+
   return allVarsPresent;
 };
 
 // Check project structure
 const checkProjectStructure = () => {
-  const requiredDirs = [
-    'contracts',
-    'server',
-    'frontend',
-    'blockchain',
-    'scripts'
-  ];
-  
+  const requiredDirs = ['contracts', 'server', 'frontend', 'blockchain', 'scripts'];
+
   let structureValid = true;
-  
-  requiredDirs.forEach(dir => {
+
+  requiredDirs.forEach((dir) => {
     const dirPath = path.join(__dirname, '..', dir);
     if (fs.existsSync(dirPath)) {
       printStatus(`Directory ${dir}`, 'success');
@@ -130,7 +124,7 @@ const checkProjectStructure = () => {
       structureValid = false;
     }
   });
-  
+
   return structureValid;
 };
 
@@ -139,71 +133,75 @@ const checkServices = async () => {
   const services = [
     { name: 'MongoDB', port: 27017 },
     { name: 'Redis', port: 6379 },
-    { name: 'Ganache', port: 8545 }
+    { name: 'Ganache', port: 8545 },
   ];
-  
+
   let allServicesRunning = true;
-  
+
   for (const service of services) {
     try {
       // Try to connect to the service port
       const net = require('net');
       const client = new net.Socket();
-      
+
       await new Promise((resolve, reject) => {
         client.on('error', () => {
           client.destroy();
           reject();
         });
-        
+
         client.connect(service.port, '127.0.0.1', () => {
           client.destroy();
           resolve();
         });
       });
-      
+
       printStatus(`${service.name} (port ${service.port})`, 'success');
     } catch (e) {
       printStatus(`${service.name} (port ${service.port})`, 'error', 'Not running');
       allServicesRunning = false;
     }
   }
-  
+
   return allServicesRunning;
 };
 
 // Main function
 const main = async () => {
   console.log('\n🔍 Verifying SafeSoundArena development environment...\n');
-  
+
   // Check system requirements
   console.log('\n📋 System Requirements:');
   const nodeOk = checkNodeVersion();
   const dockerOk = checkDocker();
   const composeOk = checkDockerCompose();
-  
+
   // Check project setup
   console.log('\n🏗️  Project Setup:');
   const envOk = checkEnvVars();
   const structureOk = checkProjectStructure();
-  
+
   // Check services
   console.log('\n🌐 Services:');
   const servicesOk = await checkServices();
-  
+
   // Summary
   console.log('\n📊 Summary:');
   const allChecksPassed = nodeOk && dockerOk && composeOk && envOk && structureOk && servicesOk;
-  
+
   if (allChecksPassed) {
-    console.log(`\n${colors.green}✅ All checks passed! Your environment is ready for development.${colors.reset}\n`);
+    console.log(
+      `\n${colors.green}✅ All checks passed! Your environment is ready for development.${colors.reset}\n`
+    );
     console.log('To start the development environment, run:');
     console.log('  1. docker-compose -f docker-compose.dev.yml up -d');
     console.log('  2. cd blockchain && npm install && npm test');
     console.log('  3. cd ../server && npm install && npm run dev');
     console.log('  4. cd ../frontend && npm install && npm run dev\n');
   } else {
-    console.log(`\n${colors.red}❌ Some checks failed. Please fix the issues above before proceeding.${colors.reset}\n`);
+    console.log(
+      `\n${colors.red}❌ Some checks failed. Please fix the issues above before proceeding.${colors.reset}\n`
+    );
     process.exit(1);
   }
 };

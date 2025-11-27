@@ -13,27 +13,34 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.3.0
+
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.4.0
         with:
           node-version: ${{ matrix.node-version }}
+
       - name: Install root dependencies
         run: npm install
+
       - name: Build backend (if applicable)
         run: |
           if [ -f server.js ]; then npm run build || echo "No build script"; fi
+
       - name: Test backend (if applicable)
         run: |
           if [ -f server.js ]; then npm test || echo "No tests"; fi
+
       - name: Install frontend dependencies
         run: |
-          cd frontend && npm install
+          if [ -d frontend ]; then cd frontend && npm install; fi
+
       - name: Build frontend
         run: |
-          cd frontend && npm run build
+          if [ -d frontend ]; then cd frontend && npm run build; fi
+
       - name: Test frontend
         run: |
-          cd frontend && npm run test || echo "No frontend tests"
+          if [ -d frontend ]; then cd frontend && npm run test || echo "No frontend tests"; fi

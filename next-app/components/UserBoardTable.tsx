@@ -24,7 +24,12 @@ export default function UserBoardTable({ users, title }: { users: User[]; title:
         </thead>
         <tbody>
           {users.map((u, i) => (
-            <tr key={i} className={u.type === 'scammer' ? 'bg-red-100' : u.type === 'leader' ? 'bg-green-100' : ''}>
+            <tr
+              key={i}
+              className={
+                u.type === 'scammer' ? 'bg-red-100' : u.type === 'leader' ? 'bg-green-100' : ''
+              }
+            >
               <td>{u.username}</td>
               <td>{u.type}</td>
               <td>{u.community_score}</td>

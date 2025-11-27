@@ -18,13 +18,8 @@ class WebSocketService {
 
     const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
     const wsUrl = `${wsProtocol}${window.location.host}/api/ws`;
-    
-    this.socket = new WebSocket(wsUrl, [
-      'access-token',
-      token,
-      'client-id',
-      this.connectionId,
-    ]);
+
+    this.socket = new WebSocket(wsUrl, ['access-token', token, 'client-id', this.connectionId]);
 
     this.socket.onopen = () => {
       console.log('WebSocket Connected');
@@ -56,11 +51,11 @@ class WebSocketService {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       const timeout = Math.min(
         this.reconnectInterval * Math.pow(2, this.reconnectAttempts),
-        this.maxReconnectInterval
+        this.maxReconnectInterval,
       );
 
       console.log(`Reconnecting in ${timeout}ms...`);
-      
+
       setTimeout(() => {
         this.reconnectAttempts++;
         this.connect();
@@ -73,9 +68,9 @@ class WebSocketService {
 
   handleMessage(message) {
     const { event, data } = message;
-    
+
     if (this.callbacks[event]) {
-      this.callbacks[event].forEach(callback => {
+      this.callbacks[event].forEach((callback) => {
         try {
           callback(data);
         } catch (error) {
@@ -90,7 +85,7 @@ class WebSocketService {
       this.callbacks[event] = [];
     }
     this.callbacks[event].push(callback);
-    
+
     // Return unsubscribe function
     return () => {
       this.off(event, callback);
@@ -99,8 +94,8 @@ class WebSocketService {
 
   off(event, callback) {
     if (this.callbacks[event]) {
-      this.callbacks[event] = this.callbacks[event].filter(cb => cb !== callback);
-      
+      this.callbacks[event] = this.callbacks[event].filter((cb) => cb !== callback);
+
       if (this.callbacks[event].length === 0) {
         delete this.callbacks[event];
       }
@@ -134,7 +129,7 @@ export const webSocketService = new WebSocketService();
 // WebSocket hook for React components
 export function useWebSocket(event, callback) {
   const callbackRef = useRef(callback);
-  
+
   // Update callback ref if callback changes
   useEffect(() => {
     callbackRef.current = callback;

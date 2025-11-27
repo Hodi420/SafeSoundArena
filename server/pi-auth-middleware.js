@@ -13,12 +13,14 @@ async function piAuth(req, res, next) {
   try {
     // Validate token with Pi API
     const response = await axios.get(`${PI_API_BASE}/user/profile`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
     req.piUser = response.data; // Attach Pi user profile to request
     next();
   } catch (err) {
-    return res.status(401).json({ error: 'Invalid Pi Network token', details: err.response?.data || err.message });
+    return res
+      .status(401)
+      .json({ error: 'Invalid Pi Network token', details: err.response?.data || err.message });
   }
 }
 

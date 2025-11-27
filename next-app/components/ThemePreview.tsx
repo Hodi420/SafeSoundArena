@@ -93,27 +93,17 @@ export const ThemePreview: React.FC = () => {
       <section>
         <h2 className="text-2xl font-bold text-blue-400 neon-text mb-4">Game Cards</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <motion.div
-            whileHover={{ y: -4 }}
-            className="card neon-border p-6"
-          >
+          <motion.div whileHover={{ y: -4 }} className="card neon-border p-6">
             <h3 className="text-xl font-semibold mb-2">Current Match</h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Arena: Cyber Nexus
-            </p>
+            <p className="text-gray-600 dark:text-gray-300">Arena: Cyber Nexus</p>
             <div className="mt-4">
               <div className="combat-badge">Live Match</div>
             </div>
           </motion.div>
 
-          <motion.div
-            whileHover={{ y: -4 }}
-            className="card game-card p-6"
-          >
+          <motion.div whileHover={{ y: -4 }} className="card game-card p-6">
             <h3 className="text-xl font-semibold mb-2">Next Challenge</h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Opponent: Shadow Master
-            </p>
+            <p className="text-gray-600 dark:text-gray-300">Opponent: Shadow Master</p>
             <div className="mt-4">
               <div className="combat-badge">High Stakes</div>
             </div>
@@ -124,9 +114,7 @@ export const ThemePreview: React.FC = () => {
             className="card neon-border p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10"
           >
             <h3 className="text-xl font-semibold mb-2">Tournament</h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Quarter Finals
-            </p>
+            <p className="text-gray-600 dark:text-gray-300">Quarter Finals</p>
             <div className="mt-4">
               <div className="combat-badge">Elite Tier</div>
             </div>
@@ -138,10 +126,10 @@ export const ThemePreview: React.FC = () => {
       <section className="mt-8 p-4 card neon-border">
         <h2 className="text-xl font-semibold mb-2">Current Theme: {uiStyle}</h2>
         <p className="text-gray-600 dark:text-gray-300">
-          This preview shows how different game components look with the current theme settings.
-          Try changing the theme style, colors, and neon intensity to see how it affects the game UI.
+          This preview shows how different game components look with the current theme settings. Try
+          changing the theme style, colors, and neon intensity to see how it affects the game UI.
         </p>
       </section>
     </div>
   );
-}; 
+};

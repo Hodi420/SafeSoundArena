@@ -51,7 +51,7 @@ export class SelfDevelopmentEngine {
     successfulInteractions: 0,
     averageResponseTime: 0,
     userSatisfactionScore: 0,
-    learningProgressScore: 0
+    learningProgressScore: 0,
   };
 
   /**
@@ -78,7 +78,7 @@ export class SelfDevelopmentEngine {
       modelUsed: metadata.modelUsed,
       complexity: metadata.complexity,
       context: metadata.context,
-      success: true // נעדכן לאחר קבלת feedback
+      success: true, // נעדכן לאחר קבלת feedback
     };
 
     this.interactions.set(interactionId, interaction);
@@ -86,7 +86,7 @@ export class SelfDevelopmentEngine {
     await this.analyzeAndLearn(interaction);
     // עדכון מדדים מייד לאחר רישום אינטראקציה, כדי לשקף ב-/learning/stats
     await this.updateMetrics();
-    
+
     return interactionId;
   }
 
@@ -102,7 +102,7 @@ export class SelfDevelopmentEngine {
 
     interaction.userFeedback = feedback;
     interaction.success = feedback === 'positive';
-    
+
     await this.updateMetrics();
     await this.refinePatterns();
   }
@@ -123,9 +123,7 @@ export class SelfDevelopmentEngine {
     if (userId) {
       const profile = this.userProfiles.get(userId);
       if (profile) {
-        personalizedSuggestions.push(
-          ...this.generatePersonalizedSuggestions(profile)
-        );
+        personalizedSuggestions.push(...this.generatePersonalizedSuggestions(profile));
       }
     }
 
@@ -138,7 +136,7 @@ export class SelfDevelopmentEngine {
     return {
       personalizedSuggestions,
       generalImprovements,
-      modelOptimizations
+      modelOptimizations,
     };
   }
 
@@ -158,7 +156,7 @@ export class SelfDevelopmentEngine {
   }> {
     const inputPatterns = this.extractPatterns(userInput);
     const userProfile = userId ? this.userProfiles.get(userId) : null;
-    
+
     let expectedSuccessRate = 0.7; // ברירת מחדל
     let estimatedResponseTime = 2000;
     let recommendedModel = 'gpt-4o';
@@ -169,33 +167,43 @@ export class SelfDevelopmentEngine {
       const learningPattern = this.patterns.get(pattern);
       if (learningPattern) {
         expectedSuccessRate = Math.max(expectedSuccessRate, learningPattern.successRate);
-        estimatedResponseTime = Math.min(estimatedResponseTime, learningPattern.averageResponseTime);
+        estimatedResponseTime = Math.min(
+          estimatedResponseTime,
+          learningPattern.averageResponseTime
+        );
         if (learningPattern.preferredModel) {
           recommendedModel = learningPattern.preferredModel;
         }
-        reasoningPath.push(`מצאתי דפוס דומה: ${pattern} (הצלחה: ${(learningPattern.successRate * 100).toFixed(1)}%)`);
+        reasoningPath.push(
+          `מצאתי דפוס דומה: ${pattern} (הצלחה: ${(learningPattern.successRate * 100).toFixed(1)}%)`
+        );
       }
     }
 
     // התאמה אישית
     if (userProfile) {
       reasoningPath.push(`התאמה לפרופיל משתמש: ${userProfile.communicationStyle} style`);
-      if (userProfile.topicsOfInterest.some(topic => 
-        userInput.toLowerCase().includes(topic.toLowerCase())
-      )) {
+      if (
+        userProfile.topicsOfInterest.some((topic) =>
+          userInput.toLowerCase().includes(topic.toLowerCase())
+        )
+      ) {
         expectedSuccessRate += 0.1;
         reasoningPath.push('נושא מעניין את המשתמש - הגברת רמת הצלחה');
       }
     }
 
-    const confidenceScore = this.calculateConfidenceScore(inputPatterns.length, userProfile !== null);
+    const confidenceScore = this.calculateConfidenceScore(
+      inputPatterns.length,
+      userProfile !== null
+    );
 
     return {
       expectedSuccessRate: Math.min(expectedSuccessRate, 1.0),
       estimatedResponseTime,
       recommendedModel,
       confidenceScore,
-      reasoningPath
+      reasoningPath,
     };
   }
 
@@ -204,7 +212,7 @@ export class SelfDevelopmentEngine {
    */
   private async updateUserProfile(userId: string, interaction: InteractionData): Promise<void> {
     let profile = this.userProfiles.get(userId);
-    
+
     if (!profile) {
       profile = {
         userId,
@@ -213,12 +221,12 @@ export class SelfDevelopmentEngine {
         responseLength: 'medium',
         topicsOfInterest: [],
         learningGoals: [],
-        interactionHistory: []
+        interactionHistory: [],
       };
     }
 
     profile.interactionHistory.push(interaction);
-    
+
     // ניתוח העדפות על בסיס היסטוריה
     if (profile.interactionHistory.length >= 5) {
       profile.preferredComplexity = this.analyzePreferredComplexity(profile.interactionHistory);
@@ -231,10 +239,10 @@ export class SelfDevelopmentEngine {
 
   private async analyzeAndLearn(interaction: InteractionData): Promise<void> {
     const patterns = this.extractPatterns(interaction.userInput);
-    
+
     for (const pattern of patterns) {
       let learningPattern = this.patterns.get(pattern);
-      
+
       if (!learningPattern) {
         learningPattern = {
           pattern,
@@ -243,13 +251,14 @@ export class SelfDevelopmentEngine {
           averageResponseTime: 0,
           preferredModel: interaction.modelUsed,
           contextualTriggers: [],
-          improvementSuggestions: []
+          improvementSuggestions: [],
         };
       }
 
       learningPattern.occurrences++;
-      learningPattern.averageResponseTime = 
-        (learningPattern.averageResponseTime * (learningPattern.occurrences - 1) + interaction.responseTime) / 
+      learningPattern.averageResponseTime =
+        (learningPattern.averageResponseTime * (learningPattern.occurrences - 1) +
+          interaction.responseTime) /
         learningPattern.occurrences;
 
       // עדכון rate הצלחה (נעדכן כאשר נקבל feedback)
@@ -260,10 +269,10 @@ export class SelfDevelopmentEngine {
   private extractPatterns(text: string): string[] {
     const patterns: string[] = [];
     const words = text.toLowerCase().split(/\s+/);
-    
+
     // דפוסי מילות מפתח
     const keywords = ['explain', 'how', 'what', 'why', 'create', 'build', 'fix', 'optimize'];
-    keywords.forEach(keyword => {
+    keywords.forEach((keyword) => {
       if (words.includes(keyword)) {
         patterns.push(`keyword:${keyword}`);
       }
@@ -276,7 +285,7 @@ export class SelfDevelopmentEngine {
 
     // דפוסי שפה טכנית
     const technicalTerms = ['code', 'function', 'api', 'database', 'server', 'frontend', 'backend'];
-    if (technicalTerms.some(term => text.toLowerCase().includes(term))) {
+    if (technicalTerms.some((term) => text.toLowerCase().includes(term))) {
       patterns.push('domain:technical');
     }
 
@@ -285,17 +294,19 @@ export class SelfDevelopmentEngine {
 
   private generatePersonalizedSuggestions(profile: PersonalizationProfile): string[] {
     const suggestions: string[] = [];
-    
+
     if (profile.interactionHistory.length > 0) {
-      const avgResponseTime = profile.interactionHistory.reduce((sum, i) => sum + i.responseTime, 0) / profile.interactionHistory.length;
-      
+      const avgResponseTime =
+        profile.interactionHistory.reduce((sum, i) => sum + i.responseTime, 0) /
+        profile.interactionHistory.length;
+
       if (avgResponseTime > 3000) {
         suggestions.push('להעדיף מודלים מקומיים מהירים יותר למשתמש זה');
       }
-      
-      const successfulInteractions = profile.interactionHistory.filter(i => i.success).length;
+
+      const successfulInteractions = profile.interactionHistory.filter((i) => i.success).length;
       const successRate = successfulInteractions / profile.interactionHistory.length;
-      
+
       if (successRate < 0.8) {
         suggestions.push('לשפר התאמת מורכבות התשובות לסגנון המשתמש');
       }
@@ -306,11 +317,11 @@ export class SelfDevelopmentEngine {
 
   private analyzeGeneralPatterns(): string[] {
     const improvements: string[] = [];
-    
+
     if (this.improvementMetrics.averageResponseTime > 2500) {
       improvements.push('לבחון שימוש במודלים מקומיים יותר לשיפור זמני תגובה');
     }
-    
+
     if (this.improvementMetrics.userSatisfactionScore < 0.8) {
       improvements.push('לשפר איכות התשובות על ידי הוספת הקשר רלוונטי');
     }
@@ -320,15 +331,15 @@ export class SelfDevelopmentEngine {
 
   private analyzeModelPerformance(): { model: string; suggestion: string }[] {
     const optimizations: { model: string; suggestion: string }[] = [];
-    
+
     // ניתוח ביצועי מודלים
     const modelStats = new Map<string, { total: number; successful: number; avgTime: number }>();
-    
-    this.interactions.forEach(interaction => {
+
+    this.interactions.forEach((interaction) => {
       if (!modelStats.has(interaction.modelUsed)) {
         modelStats.set(interaction.modelUsed, { total: 0, successful: 0, avgTime: 0 });
       }
-      
+
       const stats = modelStats.get(interaction.modelUsed)!;
       stats.total++;
       if (interaction.success) stats.successful++;
@@ -340,7 +351,7 @@ export class SelfDevelopmentEngine {
       if (successRate < 0.7) {
         optimizations.push({
           model,
-          suggestion: `שיפור הנחיות עבור ${model} - רמת הצלחה נמוכה (${(successRate * 100).toFixed(1)}%)`
+          suggestion: `שיפור הנחיות עבור ${model} - רמת הצלחה נמוכה (${(successRate * 100).toFixed(1)}%)`,
         });
       }
     });
@@ -350,22 +361,30 @@ export class SelfDevelopmentEngine {
 
   private analyzePreferredComplexity(history: InteractionData[]): 'low' | 'medium' | 'high' {
     const complexityMap = { low: 0, medium: 0, high: 0 };
-    history.forEach(i => complexityMap[i.complexity]++);
-    
-    return Object.entries(complexityMap).reduce((a, b) => 
-      complexityMap[a[0] as keyof typeof complexityMap] > complexityMap[b[0] as keyof typeof complexityMap] ? a : b
+    history.forEach((i) => complexityMap[i.complexity]++);
+
+    return Object.entries(complexityMap).reduce((a, b) =>
+      complexityMap[a[0] as keyof typeof complexityMap] >
+      complexityMap[b[0] as keyof typeof complexityMap]
+        ? a
+        : b
     )[0] as 'low' | 'medium' | 'high';
   }
 
   private analyzeCommunicationStyle(history: InteractionData[]): 'formal' | 'casual' | 'technical' {
     // ניתוח פשוט על בסיס מילות מפתח בבקשות המשתמש
-    let formalCount = 0, casualCount = 0, technicalCount = 0;
-    
-    history.forEach(interaction => {
+    let formalCount = 0,
+      casualCount = 0,
+      technicalCount = 0;
+
+    history.forEach((interaction) => {
       const input = interaction.userInput.toLowerCase();
-      if (input.includes('please') || input.includes('kindly') || input.includes('would you')) formalCount++;
-      if (input.includes('hey') || input.includes('what\'s up') || input.includes('cool')) casualCount++;
-      if (input.includes('implement') || input.includes('optimize') || input.includes('algorithm')) technicalCount++;
+      if (input.includes('please') || input.includes('kindly') || input.includes('would you'))
+        formalCount++;
+      if (input.includes('hey') || input.includes("what's up") || input.includes('cool'))
+        casualCount++;
+      if (input.includes('implement') || input.includes('optimize') || input.includes('algorithm'))
+        technicalCount++;
     });
 
     if (technicalCount > Math.max(formalCount, casualCount)) return 'technical';
@@ -375,11 +394,19 @@ export class SelfDevelopmentEngine {
 
   private extractTopicsOfInterest(history: InteractionData[]): string[] {
     const topicCounts = new Map<string, number>();
-    const topics = ['programming', 'web development', 'machine learning', 'databases', 'api', 'frontend', 'backend'];
-    
-    history.forEach(interaction => {
+    const topics = [
+      'programming',
+      'web development',
+      'machine learning',
+      'databases',
+      'api',
+      'frontend',
+      'backend',
+    ];
+
+    history.forEach((interaction) => {
       const input = interaction.userInput.toLowerCase();
-      topics.forEach(topic => {
+      topics.forEach((topic) => {
         if (input.includes(topic.replace(' ', ''))) {
           topicCounts.set(topic, (topicCounts.get(topic) || 0) + 1);
         }
@@ -402,25 +429,29 @@ export class SelfDevelopmentEngine {
 
   private async updateMetrics(): Promise<void> {
     this.improvementMetrics.totalInteractions = this.interactions.size;
-    this.improvementMetrics.successfulInteractions = 
-      Array.from(this.interactions.values()).filter(i => i.success).length;
-    
-    const totalResponseTime = Array.from(this.interactions.values())
-      .reduce((sum, i) => sum + i.responseTime, 0);
+    this.improvementMetrics.successfulInteractions = Array.from(this.interactions.values()).filter(
+      (i) => i.success
+    ).length;
+
+    const totalResponseTime = Array.from(this.interactions.values()).reduce(
+      (sum, i) => sum + i.responseTime,
+      0
+    );
     this.improvementMetrics.averageResponseTime = totalResponseTime / this.interactions.size;
-    
-    this.improvementMetrics.userSatisfactionScore = 
+
+    this.improvementMetrics.userSatisfactionScore =
       this.improvementMetrics.successfulInteractions / this.improvementMetrics.totalInteractions;
   }
 
   private async refinePatterns(): Promise<void> {
     // עדכון דפוסים על בסיס feedback חדש
     this.patterns.forEach((pattern, key) => {
-      const relevantInteractions = Array.from(this.interactions.values())
-        .filter(i => this.extractPatterns(i.userInput).includes(key));
-      
+      const relevantInteractions = Array.from(this.interactions.values()).filter((i) =>
+        this.extractPatterns(i.userInput).includes(key)
+      );
+
       if (relevantInteractions.length > 0) {
-        const successfulCount = relevantInteractions.filter(i => i.success).length;
+        const successfulCount = relevantInteractions.filter((i) => i.success).length;
         pattern.successRate = successfulCount / relevantInteractions.length;
       }
     });
@@ -438,8 +469,13 @@ export class SelfDevelopmentEngine {
       ...this.improvementMetrics,
       totalPatterns: this.patterns.size,
       totalUsers: this.userProfiles.size,
-      averageInteractionsPerUser: this.userProfiles.size > 0 ? 
-        Array.from(this.userProfiles.values()).reduce((sum, profile) => sum + profile.interactionHistory.length, 0) / this.userProfiles.size : 0
+      averageInteractionsPerUser:
+        this.userProfiles.size > 0
+          ? Array.from(this.userProfiles.values()).reduce(
+              (sum, profile) => sum + profile.interactionHistory.length,
+              0
+            ) / this.userProfiles.size
+          : 0,
     };
   }
 
@@ -474,9 +510,10 @@ export class SelfDevelopmentEngine {
   /**
    * קבלת פרופיל משתמש (עם אפשרות לכלול היסטוריה מוגבלת)
    */
-  public getUserProfile(userId: string, options?: { includeHistory?: boolean; historyLimit?: number }):
-    | (PersonalizationProfile & { interactionCount: number })
-    | null {
+  public getUserProfile(
+    userId: string,
+    options?: { includeHistory?: boolean; historyLimit?: number }
+  ): (PersonalizationProfile & { interactionCount: number }) | null {
     const includeHistory = options?.includeHistory === true;
     const historyLimit = Math.max(0, Math.min(200, options?.historyLimit ?? 20));
 
@@ -493,7 +530,7 @@ export class SelfDevelopmentEngine {
     return {
       ...profile,
       interactionHistory,
-      interactionCount
+      interactionCount,
     } as PersonalizationProfile & { interactionCount: number };
   }
 
@@ -505,14 +542,14 @@ export class SelfDevelopmentEngine {
     const minOccurrences = Math.max(0, params?.minOccurrences ?? 0);
 
     const all = Array.from(this.patterns.values())
-      .filter(p => p.occurrences >= minOccurrences)
+      .filter((p) => p.occurrences >= minOccurrences)
       .sort((a, b) => b.occurrences - a.occurrences)
       .slice(0, limit);
 
     return {
       total: this.patterns.size,
       returned: all.length,
-      items: all
+      items: all,
     };
   }
 }

@@ -17,7 +17,7 @@ export default function QueryProvider({ children }) {
             retry: 1,
           },
         },
-      })
+      }),
   );
 
   return (

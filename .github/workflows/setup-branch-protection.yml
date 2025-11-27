@@ -2,7 +2,7 @@ name: Setup Branch Protection
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
     inputs:
       branch:
@@ -23,56 +23,56 @@ jobs:
   setup-protection:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-  uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        
-    - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4.3.0
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4.4.0
         with:
           node-version: '20'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm install @octokit/rest @actions/core
-      
-    - name: Run branch protection setup
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_REPOSITORY: ${{ github.repository }}
-      run: node scripts/setup-branch-rules.js
-      
-    - name: Create branch protection rule
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const { owner, repo } = context.repo;
-          const branches = '${{ github.event.inputs.branch || 'main,develop' }}'.split(',');
-          
-          for (const branch of branches) {
-            try {
-              await github.rest.repos.updateBranchProtection({
-                owner,
-                repo,
-                branch: branch.trim(),
-                required_status_checks: {
-                  strict: true,
-                  contexts: ['test', 'lint', 'build']
-                },
-                enforce_admins: true,
-                required_pull_request_reviews: {
-                  required_approving_review_count: branch === 'main' ? 2 : 1,
-                  dismiss_stale_reviews: true,
-                  require_code_owner_reviews: true
-                },
-                restrictions: null,
-                required_linear_history: true,
-                allow_force_pushes: false,
-                allow_deletions: false
-              });
-              console.log(`Branch protection enabled for ${branch}`);
-            } catch (error) {
-              console.error(`Error protecting ${branch}:`, error.message);
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install @octokit/rest @actions/core
+
+      - name: Run branch protection setup
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/setup-branch-rules.js
+
+      - name: Create branch protection rule
+        uses: actions/github-script@v6.1.0
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const branches = '${{ github.event.inputs.branch || 'main,develop' }}'.split(',');
+
+            for (const branch of branches) {
+              try {
+                await github.rest.repos.updateBranchProtection({
+                  owner,
+                  repo,
+                  branch: branch.trim(),
+                  required_status_checks: {
+                    strict: true,
+                    contexts: ['test', 'lint', 'build']
+                  },
+                  enforce_admins: true,
+                  required_pull_request_reviews: {
+                    required_approving_review_count: branch === 'main' ? 2 : 1,
+                    dismiss_stale_reviews: true,
+                    require_code_owner_reviews: true
+                  },
+                  restrictions: null,
+                  required_linear_history: true,
+                  allow_force_pushes: false,
+                  allow_deletions: false
+                });
+                console.log(`Branch protection enabled for ${branch}`);
+              } catch (error) {
+                console.error(`Error protecting ${branch}:`, error.message);
+              }
             }
-          }

@@ -12,8 +12,8 @@ let db = {
       scores: {
         overall: 1000,
         scamDetection: 400,
-        communityImpact: 600
-      }
+        communityImpact: 600,
+      },
     },
     {
       _id: '2',
@@ -22,8 +22,8 @@ let db = {
       scores: {
         overall: 800,
         scamDetection: 600,
-        communityImpact: 200
-      }
+        communityImpact: 200,
+      },
     },
     {
       _id: '3',
@@ -32,10 +32,10 @@ let db = {
       scores: {
         overall: 1200,
         scamDetection: 200,
-        communityImpact: 1000
-      }
-    }
-  ]
+        communityImpact: 1000,
+      },
+    },
+  ],
 };
 
 const LEADERBOARD_TYPES = ['overall', 'scam_detection', 'community_impact'];
@@ -50,32 +50,32 @@ const getUsersCollection = () => {
             toArray: async () => {
               // Apply query filter
               let results = [...db.users];
-              
+
               // Apply sorting
               const [field, direction] = Object.entries(sortCriteria)[0];
               const sortField = field.replace('scores.', '');
-              
+
               results.sort((a, b) => {
                 const aScore = sortField in a.scores ? a.scores[sortField] : 0;
                 const bScore = sortField in b.scores ? b.scores[sortField] : 0;
                 return direction === 1 ? aScore - bScore : bScore - aScore;
               });
-              
+
               // Apply limit
               if (limit) {
                 results = results.slice(0, limit);
               }
-              
+
               // Apply projection
               if (projection) {
                 const includeFields = Object.entries(projection)
                   .filter(([_, value]) => value === 1)
                   .map(([key]) => key);
-                
+
                 if (includeFields.length > 0) {
-                  results = results.map(user => {
+                  results = results.map((user) => {
                     const filtered = {};
-                    includeFields.forEach(field => {
+                    includeFields.forEach((field) => {
                       if (field.includes('.')) {
                         // Handle nested fields (e.g., 'scores.overall')
                         const [parent, child] = field.split('.');
@@ -90,31 +90,31 @@ const getUsersCollection = () => {
                   });
                 }
               }
-              
+
               return results;
-            }
-          })
-        })
-      })
+            },
+          }),
+        }),
+      }),
     }),
-    
+
     findOne: async (query) => {
-      return db.users.find(user => {
+      return db.users.find((user) => {
         return Object.entries(query).every(([key, value]) => {
           if (key === '_id') return user._id === value;
           return user[key] === value;
         });
       });
     },
-    
+
     updateOne: async (filter, update, options) => {
-      const userIndex = db.users.findIndex(user => {
+      const userIndex = db.users.findIndex((user) => {
         return Object.entries(filter).every(([key, value]) => {
           if (key === '_id') return user._id === value;
           return user[key] === value;
         });
       });
-      
+
       if (userIndex === -1) {
         if (options?.upsert) {
           // Create new user
@@ -125,10 +125,10 @@ const getUsersCollection = () => {
               overall: 0,
               scamDetection: 0,
               communityImpact: 0,
-              ...(update.$setOnInsert?.scores || {})
-            }
+              ...(update.$setOnInsert?.scores || {}),
+            },
           };
-          
+
           if (update.$inc) {
             Object.entries(update.$inc).forEach(([key, value]) => {
               if (key.startsWith('scores.')) {
@@ -139,16 +139,16 @@ const getUsersCollection = () => {
               }
             });
           }
-          
+
           db.users.push(newUser);
           return { result: { n: 1, ok: 1 } };
         }
         return { result: { n: 0, ok: 1 } };
       }
-      
+
       // Update existing user
       const user = { ...db.users[userIndex] };
-      
+
       if (update.$set) {
         Object.entries(update.$set).forEach(([key, value]) => {
           if (key.startsWith('scores.')) {
@@ -160,7 +160,7 @@ const getUsersCollection = () => {
           }
         });
       }
-      
+
       if (update.$inc) {
         Object.entries(update.$inc).forEach(([key, value]) => {
           if (key.startsWith('scores.')) {
@@ -172,15 +172,15 @@ const getUsersCollection = () => {
           }
         });
       }
-      
+
       // Update overall score if it's not being set directly
       if (!update.$set?.['scores.overall'] && !update.$inc?.['scores.overall']) {
         user.scores.overall = (user.scores.scamDetection || 0) + (user.scores.communityImpact || 0);
       }
-      
+
       db.users[userIndex] = user;
       return { result: { n: 1, nModified: 1, ok: 1 } };
-    }
+    },
   };
 };
 
@@ -188,16 +188,16 @@ const getUsersCollection = () => {
 router.get('/:type?', async (req, res) => {
   try {
     const type = req.params.type || 'overall';
-    
+
     if (!LEADERBOARD_TYPES.includes(type)) {
       return res.status(400).json({ error: 'Invalid leaderboard type' });
     }
 
     const collection = getUsersCollection();
     let sortField = 'scores.overall';
-    
+
     // Determine sort field based on leaderboard type
-    switch(type) {
+    switch (type) {
       case 'scam_detection':
         sortField = 'scores.scamDetection';
         break;
@@ -215,7 +215,7 @@ router.get('/:type?', async (req, res) => {
       .project({
         username: 1,
         avatar: 1,
-        [sortField]: 1
+        [sortField]: 1,
       })
       .toArray();
 
@@ -223,12 +223,12 @@ router.get('/:type?', async (req, res) => {
     const rankedLeaderboard = leaderboard.map((user, index) => {
       const scoreField = sortField.replace('scores.', '');
       const score = user.scores ? user.scores[scoreField] || 0 : 0;
-      
+
       return {
         rank: index + 1,
         username: user.username,
         avatar: user.avatar,
-        score: score
+        score: score,
       };
     });
 
@@ -243,23 +243,23 @@ router.get('/:type?', async (req, res) => {
 router.post('/update-score', async (req, res) => {
   try {
     const { userId, type, score, action } = req.body;
-    
+
     if (!userId || !type || (score === undefined && !action)) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    
+
     if (!LEADERBOARD_TYPES.includes(type) && type !== 'all') {
       return res.status(400).json({ error: 'Invalid score type' });
     }
 
     const collection = getUsersCollection();
     const updateQuery = {};
-    
+
     if (action) {
       // For actions like 'increment'
       updateQuery.$inc = {};
       const scoreValue = score || 1; // Default increment by 1 if no score provided
-      
+
       if (type === 'all') {
         updateQuery.$inc['scores.overall'] = scoreValue;
         updateQuery.$inc['scores.scamDetection'] = scoreValue;
@@ -270,7 +270,7 @@ router.post('/update-score', async (req, res) => {
     } else {
       // For absolute score updates
       updateQuery.$set = updateQuery.$set || {};
-      
+
       if (type === 'all') {
         updateQuery.$set['scores.overall'] = score;
         updateQuery.$set['scores.scamDetection'] = score;
@@ -285,15 +285,11 @@ router.post('/update-score', async (req, res) => {
       scores: {
         overall: 0,
         scamDetection: 0,
-        communityImpact: 0
-      }
+        communityImpact: 0,
+      },
     };
 
-    const result = await collection.updateOne(
-      { _id: userId },
-      updateQuery,
-      { upsert: true }
-    );
+    const result = await collection.updateOne({ _id: userId }, updateQuery, { upsert: true });
 
     res.json({ success: true, result });
   } catch (error) {

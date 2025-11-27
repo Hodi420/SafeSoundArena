@@ -9,7 +9,7 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 3
@@ -34,7 +34,7 @@ services:
     networks:
       - sa-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:4000/api/health']
       interval: 10s
       timeout: 5s
       retries: 3
@@ -46,7 +46,7 @@ services:
     build: ./server
     image: safesoundarena/mcp:local
     ports:
-      - "3005:3005"
+      - '3005:3005'
     environment:
       - PORT=3005
       - MCP_ENABLE_SHELL=false
@@ -54,7 +54,7 @@ services:
       - MCP_ENABLE_HTTP=false
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3005/healthz"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3005/healthz']
       interval: 10s
       timeout: 5s
       retries: 3
@@ -122,7 +122,6 @@ services:
       - ipfs_data:/data/ipfs
     networks:
       - sa-network
-
 
 networks:
   sa-network:

@@ -12,7 +12,7 @@ export default function Marketplace({ items }: { items: Item[] }) {
     <div>
       <h1>Marketplace</h1>
       <ul>
-        {items.map(item => (
+        {items.map((item) => (
           <li key={item.id}>
             {item.name} — ${item.price}
           </li>
@@ -27,7 +27,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   const items = [
     { id: '1', name: 'Sword', price: 100 },
     { id: '2', name: 'Shield', price: 150 },
-    { id: '3', name: 'Potion', price: 50 }
+    { id: '3', name: 'Potion', price: 50 },
   ];
   return { props: { items } };
 };

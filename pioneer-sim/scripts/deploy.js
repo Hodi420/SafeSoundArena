@@ -7,4 +7,7 @@ async function main() {
   console.log('PioneerPoH deployed to:', ctr.target || ctr.address);
 }
 
-main().catch((err) => { console.error(err); process.exitCode = 1; });
+main().catch((err) => {
+  console.error(err);
+  process.exitCode = 1;
+});

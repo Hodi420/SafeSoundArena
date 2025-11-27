@@ -68,7 +68,7 @@ export const useRecipes = () => {
 
 export const useCraftItem = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (recipeId: string) => {
       const { data } = await apiClient.post(`/inventory/craft/${recipeId}`);

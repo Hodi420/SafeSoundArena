@@ -12,7 +12,14 @@ export default function GoogleAuthButton() {
           setUser(null);
           localStorage.removeItem('auth_user');
         }}
-        style={{ background: '#db4437', color: 'white', border: 'none', borderRadius: 6, padding: '7px 20px', fontWeight: 600 }}
+        style={{
+          background: '#db4437',
+          color: 'white',
+          border: 'none',
+          borderRadius: 6,
+          padding: '7px 20px',
+          fontWeight: 600,
+        }}
       >
         Sign out ({user.name || user.email || 'Google'})
       </button>
@@ -21,7 +28,7 @@ export default function GoogleAuthButton() {
 
   return (
     <GoogleLogin
-      onSuccess={credentialResponse => {
+      onSuccess={(credentialResponse) => {
         // Parse credential and save user info (demo)
         const { credential } = credentialResponse;
         if (credential) {

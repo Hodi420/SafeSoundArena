@@ -2,12 +2,7 @@ import { useEffect } from 'react';
 import { useThemeStore } from '../store/useThemeStore';
 
 export function useThemeSync() {
-  const {
-    isDarkMode,
-    primaryColor,
-    secondaryColor,
-    neonIntensity
-  } = useThemeStore();
+  const { isDarkMode, primaryColor, secondaryColor, neonIntensity } = useThemeStore();
 
   useEffect(() => {
     // Convert hex to RGB for CSS variables
@@ -24,4 +19,4 @@ export function useThemeSync() {
     document.documentElement.style.setProperty('--secondary-color-rgb', hexToRgb(secondaryColor));
     document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode, primaryColor, secondaryColor, neonIntensity]);
-} 
+}

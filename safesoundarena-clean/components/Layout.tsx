@@ -3,7 +3,10 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import dynamic from 'next/dynamic';
 
-const ThemeCustomizer = dynamic(() => import('../safesoundarena-clean/components/ThemeCustomizer'), { ssr: false });
+const ThemeCustomizer = dynamic(
+  () => import('../safesoundarena-clean/components/ThemeCustomizer'),
+  { ssr: false }
+);
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -16,5 +19,3 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
-

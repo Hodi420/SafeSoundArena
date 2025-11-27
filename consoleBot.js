@@ -30,7 +30,7 @@ const aiRouter = new HybridAIRouter();
 
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
+  output: process.stdout,
 });
 
 console.log('🤖 SafeSoundArena Console Bot מוכן!');
@@ -56,7 +56,9 @@ function askUser() {
         const stats = aiRouter.getStats();
         console.log('\n📊 סטטיסטיקות הבוט:');
         console.log(`בקשות כולל: ${stats.totalRequests}`);
-        console.log(`בקשות מקומיות: ${stats.localRequests} (${stats.localPercentage?.toFixed(1) || 0}%)`);
+        console.log(
+          `בקשות מקומיות: ${stats.localRequests} (${stats.localPercentage?.toFixed(1) || 0}%)`
+        );
         console.log(`בקשות API: ${stats.apiRequests}`);
         console.log(`עלות כוללת: $${stats.totalCost?.toFixed(4) || 0}`);
         console.log(`ממוצע עלות לבקשה: $${stats.avgCostPerRequest?.toFixed(4) || 0}`);
@@ -72,30 +74,31 @@ function askUser() {
 
       // שמירת ה-prompt האחרון לשימוש בפקודת /candidates
       currentPrompt = input;
-      
+
       // Create AI request
       const request = {
         prompt: input,
-        userPreference: 'cost' // מעדיף מודלים זולים/מקומיים
+        userPreference: 'cost', // מעדיף מודלים זולים/מקומיים
       };
 
       // Route the request
       const decision = await aiRouter.route(request);
-      console.log(`\n🎯 נבחר מודל: ${decision.selectedModel.name} (${decision.selectedModel.provider})`);
+      console.log(
+        `\n🎯 נבחר מודל: ${decision.selectedModel.name} (${decision.selectedModel.provider})`
+      );
       console.log(`💭 סיבה: ${decision.reasoning}`);
-      
+
       if (decision.estimatedCost > 0) {
         console.log(`💰 עלות משוערת: $${decision.estimatedCost.toFixed(4)}`);
       }
 
       // Execute the request
       const response = await aiRouter.execute(decision, request);
-      
-      console.log('\n🤖 בוט:', response);
 
+      console.log('\n🤖 בוט:', response);
     } catch (error) {
       console.error('\n❌ שגיאה:', error.message);
-      
+
       if (error.message.includes('OPENAI_API_KEY')) {
         console.log('💡 הגדר OPENAI_API_KEY ב-.env לשימוש במודלי OpenAI');
       }
@@ -117,7 +120,9 @@ console.log('\n🔍 בודק מודלים זמינים...');
 askUser();
 
 // Add command: /candidates to fetch multiple options in parallel
-console.log("\nפקודות חדשות: /candidates - קבל מספר הצעות במקביל, /feedback <id> <positive|neutral|negative> - עדכון למידה על אינטראקציה\n");
+console.log(
+  '\nפקודות חדשות: /candidates - קבל מספר הצעות במקביל, /feedback <id> <positive|neutral|negative> - עדכון למידה על אינטראקציה\n'
+);
 
 rl.on('line', async (line) => {
   const input = line.trim();
@@ -127,20 +132,24 @@ rl.on('line', async (line) => {
       const body = {
         prompt: currentPrompt || 'תן דוגמה לפונקציית sum בג׳אווהסקריפט עם בדיקות',
         userPreference: 'quality',
-        maxTokens: 200
+        maxTokens: 200,
       };
       const res = await fetch(`${serverBaseUrl}/api/ai/chat/candidates`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (data.candidates) {
         console.log(`קיבלתי ${data.candidates.length} מועמדים (סה"כ ${data.totalTime}ms):`);
         data.candidates.forEach((c, i) => {
-          console.log(`\n[${i+1}] מודל: ${c.metadata.model} (${c.metadata.provider}) העדפה: ${c.metadata.preference}`);
+          console.log(
+            `\n[${i + 1}] מודל: ${c.metadata.model} (${c.metadata.provider}) העדפה: ${c.metadata.preference}`
+          );
           if (c.interactionId) {
-            console.log(`interactionId: ${c.interactionId} (אפשר להשתמש ב-/feedback ${c.interactionId} positive)`);
+            console.log(
+              `interactionId: ${c.interactionId} (אפשר להשתמש ב-/feedback ${c.interactionId} positive)`
+            );
           }
           if (c.error) {
             console.log(`שגיאה: ${c.error}`);
@@ -171,7 +180,7 @@ rl.on('line', async (line) => {
       const res = await fetch(`${serverBaseUrl}/api/ai/chat/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ interactionId, feedback })
+        body: JSON.stringify({ interactionId, feedback }),
       });
       const data = await res.json();
       if (data.success) console.log('feedback עודכן בהצלחה ✅');

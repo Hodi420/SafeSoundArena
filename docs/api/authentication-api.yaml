@@ -53,7 +53,7 @@ components:
           type: string
           format: date-time
           example: 2023-01-01T00:00:00Z
-    
+
     AuthTokens:
       type: object
       properties:
@@ -69,7 +69,7 @@ components:
           type: integer
           description: Access token expiration in seconds
           example: 900
-    
+
     Error:
       type: object
       properties:
@@ -84,7 +84,7 @@ components:
         details:
           type: object
           description: Additional error details
-          example: { "field": "email", "message": "Invalid email format" }
+          example: { 'field': 'email', 'message': 'Invalid email format' }
 
 paths:
   /auth/register:
@@ -131,7 +131,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  
+
   /auth/login:
     post:
       tags: [Authentication]
@@ -170,7 +170,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  
+
   /auth/refresh-token:
     post:
       tags: [Authentication]
@@ -195,7 +195,7 @@ paths:
                 $ref: '#/components/schemas/AuthTokens'
         '401':
           description: Invalid or expired refresh token
-  
+
   /auth/logout:
     post:
       tags: [Authentication]
@@ -217,7 +217,7 @@ paths:
           description: Successfully logged out
         '401':
           description: Unauthorized
-  
+
   /pi/auth:
     post:
       tags: [Pi Network]
@@ -238,7 +238,7 @@ paths:
                     $ref: '#/components/schemas/AuthTokens'
         '401':
           description: Invalid Pi Network token
-  
+
   /me:
     get:
       tags: [User]

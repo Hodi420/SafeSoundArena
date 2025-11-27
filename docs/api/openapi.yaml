@@ -37,7 +37,7 @@ components:
         details:
           type: string
           description: Additional error details
-    
+
     User:
       type: object
       properties:

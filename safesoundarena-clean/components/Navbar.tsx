@@ -15,14 +15,24 @@ export default function Navbar({ onOpenCustomizer }: { onOpenCustomizer: () => v
             <Link href="/leaderboard">Leaderboard</Link>
             <Link href="/jail">Jail</Link>
             <Link href="/license">License</Link>
-            <a href="https://github.com/" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="https://github.com/" target="_blank" rel="noreferrer">
+              GitHub
+            </a>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button className="px-3 py-1.5 rounded-md border text-sm hover:bg-gray-50 dark:hover:bg-gray-900" onClick={onOpenCustomizer}>
+          <button
+            className="px-3 py-1.5 rounded-md border text-sm hover:bg-gray-50 dark:hover:bg-gray-900"
+            onClick={onOpenCustomizer}
+          >
             Theme
           </button>
-          <button className="md:hidden px-3 py-1.5 rounded-md border text-sm" onClick={() => setOpen(!open)}>Menu</button>
+          <button
+            className="md:hidden px-3 py-1.5 rounded-md border text-sm"
+            onClick={() => setOpen(!open)}
+          >
+            Menu
+          </button>
         </div>
       </div>
       {open && (
@@ -35,5 +45,3 @@ export default function Navbar({ onOpenCustomizer }: { onOpenCustomizer: () => v
     </nav>
   );
 }
-
-

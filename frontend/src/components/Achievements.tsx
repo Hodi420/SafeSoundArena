@@ -16,8 +16,8 @@ export default function Achievements({ userId }: { userId: string }) {
 
   useEffect(() => {
     fetch(`/api/achievements/${userId}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setAchievements(data);
         setLoading(false);
       });
@@ -27,14 +27,18 @@ export default function Achievements({ userId }: { userId: string }) {
     <Card sx={{ maxWidth: 600, margin: '40px auto', borderRadius: 3, boxShadow: 3 }}>
       <CardContent>
         <Typography variant="h4" gutterBottom align="center">
-          <EmojiEventsIcon fontSize="large" color="success" sx={{ verticalAlign: 'middle', mr: 1 }} />
+          <EmojiEventsIcon
+            fontSize="large"
+            color="success"
+            sx={{ verticalAlign: 'middle', mr: 1 }}
+          />
           ההישגים שלי
         </Typography>
         {loading ? (
           <Typography align="center">טוען...</Typography>
         ) : (
           <Grid container spacing={2} justifyContent="center" sx={{ mt: 2 }}>
-            {achievements.map(ach => (
+            {achievements.map((ach) => (
               <div key={ach.id} style={{ margin: 4, display: 'inline-block' }}>
                 <Chip
                   avatar={<Avatar src={ach.icon} />}

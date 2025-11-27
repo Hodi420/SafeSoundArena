@@ -1,11 +1,6 @@
 {
   "defaultAction": "SCMP_ACT_ERRNO",
-  "architectures": [
-    "SCMP_ARCH_X86_64",
-    "SCMP_ARCH_X86",
-    "SCMP_ARCH_ARM",
-    "SCMP_ARCH_AARCH64"
-  ],
+  "architectures": ["SCMP_ARCH_X86_64", "SCMP_ARCH_X86", "SCMP_ARCH_ARM", "SCMP_ARCH_AARCH64"],
   "listenerMetadata": {
     "author": "SafeSoundArena Security Team",
     "version": "2.0.0",
@@ -173,9 +168,7 @@
       "excludes": {}
     },
     {
-      "names": [
-        "personality"
-      ],
+      "names": ["personality"],
       "action": "SCMP_ACT_ALLOW",
       "args": [
         {
@@ -190,9 +183,7 @@
       "excludes": {}
     },
     {
-      "names": [
-        "ptrace"
-      ],
+      "names": ["ptrace"],
       "action": "SCMP_ACT_ERRNO",
       "args": [],
       "comment": "Block process tracing for security",
@@ -200,11 +191,7 @@
       "excludes": {}
     },
     {
-      "names": [
-        "mount",
-        "umount",
-        "umount2"
-      ],
+      "names": ["mount", "umount", "umount2"],
       "action": "SCMP_ACT_ERRNO",
       "args": [],
       "comment": "Block mount operations",
@@ -212,11 +199,7 @@
       "excludes": {}
     },
     {
-      "names": [
-        "reboot",
-        "kexec_load",
-        "kexec_file_load"
-      ],
+      "names": ["reboot", "kexec_load", "kexec_file_load"],
       "action": "SCMP_ACT_ERRNO",
       "args": [],
       "comment": "Block system reboot and kexec",
@@ -224,10 +207,7 @@
       "excludes": {}
     },
     {
-      "names": [
-        "name_to_handle_at",
-        "open_by_handle_at"
-      ],
+      "names": ["name_to_handle_at", "open_by_handle_at"],
       "action": "SCMP_ACT_ERRNO",
       "args": [],
       "comment": "Block file handle operations that can bypass path resolution",
@@ -235,11 +215,7 @@
       "excludes": {}
     },
     {
-      "names": [
-        "init_module",
-        "finit_module",
-        "delete_module"
-      ],
+      "names": ["init_module", "finit_module", "delete_module"],
       "action": "SCMP_ACT_ERRNO",
       "args": [],
       "comment": "Block kernel module operations",
@@ -247,9 +223,7 @@
       "excludes": {}
     },
     {
-      "names": [
-        "acct"
-      ],
+      "names": ["acct"],
       "action": "SCMP_ACT_ERRNO",
       "args": [],
       "comment": "Block process accounting",
@@ -257,11 +231,7 @@
       "excludes": {}
     },
     {
-      "names": [
-        "add_key",
-        "keyctl",
-        "request_key"
-      ],
+      "names": ["add_key", "keyctl", "request_key"],
       "action": "SCMP_ACT_ERRNO",
       "args": [],
       "comment": "Block kernel keyring operations",
@@ -269,10 +239,7 @@
       "excludes": {}
     },
     {
-      "names": [
-        "pivot_root",
-        "chroot"
-      ],
+      "names": ["pivot_root", "chroot"],
       "action": "SCMP_ACT_ERRNO",
       "args": [],
       "comment": "Block changing root directory",
@@ -280,11 +247,7 @@
       "excludes": {}
     },
     {
-      "names": [
-        "process_vm_readv",
-        "process_vm_writev",
-        "ptrace"
-      ],
+      "names": ["process_vm_readv", "process_vm_writev", "ptrace"],
       "action": "SCMP_ACT_ERRNO",
       "args": [],
       "comment": "Block process memory access",
@@ -292,10 +255,7 @@
       "excludes": {}
     },
     {
-      "names": [
-        "kcmp",
-        "lookup_dcookie"
-      ],
+      "names": ["kcmp", "lookup_dcookie"],
       "action": "SCMP_ACT_ERRNO",
       "args": [],
       "comment": "Block kernel comparison and cookie operations",
@@ -303,12 +263,7 @@
       "excludes": {}
     },
     {
-      "names": [
-        "bpf",
-        "clone3",
-        "seccomp",
-        "userfaultfd"
-      ],
+      "names": ["bpf", "clone3", "seccomp", "userfaultfd"],
       "action": "SCMP_ACT_ERRNO",
       "args": [],
       "comment": "Block newer syscalls that can be used for container escapes",

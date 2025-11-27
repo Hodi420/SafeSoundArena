@@ -7,10 +7,10 @@ describe('CommunityBot', () => {
   it('should respond to Telegram messages using LLM', async () => {
     // יצירת mocks ל-Telegram ול-LLM
     const fakeTg = {
-      getUpdates: sinon.stub().resolves([
-        { update_id: 1, message: { chat: { id: 123 }, text: 'Hello bot!' } }
-      ]),
-      sendMessage: sinon.stub().resolves()
+      getUpdates: sinon
+        .stub()
+        .resolves([{ update_id: 1, message: { chat: { id: 123 }, text: 'Hello bot!' } }]),
+      sendMessage: sinon.stub().resolves(),
     };
     const fakeLlm = { ask: sinon.stub().resolves('Hi community!') };
     const bot = new CommunityBot({ tgConnector: fakeTg, llmConnector: fakeLlm });

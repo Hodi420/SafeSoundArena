@@ -1,6 +1,14 @@
 {
   "annotations": {
-    "list": [{"builtIn": 1, "datasource": "-- Grafana --", "enable": true, "hide": true, "name": "Annotations & Alerts"}]
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "name": "Annotations & Alerts"
+      }
+    ]
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
@@ -8,108 +16,174 @@
   "id": 1,
   "panels": [
     {
-      "datasource": {"type": "influxdb", "uid": "${DS_INFLUXDB}"},
+      "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"axisCenteredZero": false, "drawStyle": "line", "lineWidth": 2, "pointSize": 3},
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "pointSize": 3
+          },
           "unit": "reqps"
         }
       },
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
       "id": 1,
-      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
-      "targets": [{"query": "SELECT mean(\"value\") FROM \"http_reqs\" WHERE $timeFilter GROUP BY time($__interval) fill(null)", "refId": "A"}],
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "targets": [
+        {
+          "query": "SELECT mean(\"value\") FROM \"http_reqs\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A"
+        }
+      ],
       "title": "Requests per Second",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "influxdb", "uid": "${DS_INFLUXDB}"},
+      "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"axisCenteredZero": false, "drawStyle": "line", "lineWidth": 2, "pointSize": 3},
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "pointSize": 3
+          },
           "unit": "ms"
         }
       },
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
       "id": 2,
-      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
       "targets": [
-        {"query": "SELECT mean(\"value\") FROM \"http_req_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)", "refId": "A"},
-        {"query": "SELECT mean(\"p95\") FROM \"http_req_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)", "refId": "B"},
-        {"query": "SELECT mean(\"p99\") FROM \"http_req_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)", "refId": "C"}
+        {
+          "query": "SELECT mean(\"value\") FROM \"http_req_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A"
+        },
+        {
+          "query": "SELECT mean(\"p95\") FROM \"http_req_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "B"
+        },
+        {
+          "query": "SELECT mean(\"p99\") FROM \"http_req_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "C"
+        }
       ],
       "title": "Response Time (ms)",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "influxdb", "uid": "${DS_INFLUXDB}"},
+      "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"axisCenteredZero": false, "drawStyle": "line", "lineWidth": 2, "pointSize": 3},
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "pointSize": 3
+          },
           "unit": "percent"
         }
       },
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
       "id": 3,
-      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
-      "targets": [{"query": "SELECT 100 * (1 - sum(\"value\") / count(\"value\")) FROM \"http_req_failed\" WHERE $timeFilter GROUP BY time($__interval) fill(null)", "refId": "A"}],
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "targets": [
+        {
+          "query": "SELECT 100 * (1 - sum(\"value\") / count(\"value\")) FROM \"http_req_failed\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A"
+        }
+      ],
       "title": "Success Rate (%)",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "influxdb", "uid": "${DS_INFLUXDB}"},
+      "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"axisCenteredZero": false, "drawStyle": "line", "lineWidth": 2, "pointSize": 3},
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "pointSize": 3
+          },
           "unit": "short"
         }
       },
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
       "id": 4,
-      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
       "targets": [
-        {"query": "SELECT mean(\"vus\") FROM \"vus\" WHERE $timeFilter GROUP BY time($__interval) fill(null)", "refId": "A"},
-        {"query": "SELECT mean(\"vus_max\") FROM \"vus\" WHERE $timeFilter GROUP BY time($__interval) fill(null)", "refId": "B"}
+        {
+          "query": "SELECT mean(\"vus\") FROM \"vus\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A"
+        },
+        {
+          "query": "SELECT mean(\"vus_max\") FROM \"vus\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "B"
+        }
       ],
       "title": "Virtual Users",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "influxdb", "uid": "${DS_INFLUXDB}"},
+      "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"axisCenteredZero": false, "drawStyle": "line", "lineWidth": 2, "pointSize": 3},
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "pointSize": 3
+          },
           "unit": "Bps"
         }
       },
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
       "id": 5,
-      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
       "targets": [
-        {"query": "SELECT mean(\"value\") FROM \"data_received\" WHERE $timeFilter GROUP BY time($__interval) fill(null)", "refId": "A"},
-        {"query": "SELECT mean(\"value\") FROM \"data_sent\" WHERE $timeFilter GROUP BY time($__interval) fill(null)", "refId": "B"}
+        {
+          "query": "SELECT mean(\"value\") FROM \"data_received\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A"
+        },
+        {
+          "query": "SELECT mean(\"value\") FROM \"data_sent\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "B"
+        }
       ],
       "title": "Data Transfer",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "influxdb", "uid": "${DS_INFLUXDB}"},
+      "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"axisCenteredZero": false, "drawStyle": "line", "lineWidth": 2, "pointSize": 3},
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "pointSize": 3
+          },
           "unit": "reqps"
         }
       },
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
       "id": 6,
-      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
-      "targets": [{"query": "SELECT mean(\"value\") FROM \"http_reqs\" WHERE (\"name\" =~ /.*login.*/ OR \"name\" =~ /.*auth.*/) AND $timeFilter GROUP BY time($__interval), \"name\" fill(null)", "refId": "A"}],
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "targets": [
+        {
+          "query": "SELECT mean(\"value\") FROM \"http_reqs\" WHERE (\"name\" =~ /.*login.*/ OR \"name\" =~ /.*auth.*/) AND $timeFilter GROUP BY time($__interval), \"name\" fill(null)",
+          "refId": "A"
+        }
+      ],
       "title": "Authentication Endpoint Load",
       "type": "timeseries"
     }
@@ -121,7 +195,7 @@
   "templating": {
     "list": [
       {
-        "current": {"selected": false, "text": "Prometheus", "value": "Prometheus"},
+        "current": { "selected": false, "text": "Prometheus", "value": "Prometheus" },
         "hide": 0,
         "includeAll": false,
         "label": "Data Source",
@@ -136,8 +210,11 @@
       }
     ]
   },
-  "time": {"from": "now-15m", "to": "now"},
-  "timepicker": {"refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"], "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]},
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": {
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"],
+    "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]
+  },
   "timezone": "browser",
   "title": "Load Test Dashboard",
   "version": 1

@@ -31,7 +31,9 @@ const api = axios.create({
   },
 });
 
-export const getLeaderboard = async (type: LeaderboardType = 'overall'): Promise<LeaderboardUser[]> => {
+export const getLeaderboard = async (
+  type: LeaderboardType = 'overall',
+): Promise<LeaderboardUser[]> => {
   try {
     const response: AxiosResponse<LeaderboardUser[]> = await api.get(`/leaderboard/${type}`);
     return response.data;
@@ -55,12 +57,15 @@ export const updateScore = async ({
   action,
 }: UpdateScoreParams): Promise<UpdateScoreResponse> => {
   try {
-    const response: AxiosResponse<UpdateScoreResponse> = await api.post('/leaderboard/update-score', {
-      userId,
-      type,
-      score,
-      action,
-    });
+    const response: AxiosResponse<UpdateScoreResponse> = await api.post(
+      '/leaderboard/update-score',
+      {
+        userId,
+        type,
+        score,
+        action,
+      },
+    );
     return response.data;
   } catch (error) {
     console.error('Error updating score:', error);
@@ -89,7 +94,10 @@ export const awardScamDetectionPoints = async (userId: string, points: number) =
 };
 
 // Helper to get user's position in a specific leaderboard
-export const getUserRank = async (userId: string, type: LeaderboardType = 'overall'): Promise<number> => {
+export const getUserRank = async (
+  userId: string,
+  type: LeaderboardType = 'overall',
+): Promise<number> => {
   try {
     const leaderboard = await getLeaderboard(type);
     const user = leaderboard.find((u) => u.username === userId);
@@ -101,7 +109,10 @@ export const getUserRank = async (userId: string, type: LeaderboardType = 'overa
 };
 
 // Helper to get user's score in a specific leaderboard
-export const getUserScore = async (userId: string, type: LeaderboardType = 'overall'): Promise<number> => {
+export const getUserScore = async (
+  userId: string,
+  type: LeaderboardType = 'overall',
+): Promise<number> => {
   try {
     const leaderboard = await getLeaderboard(type);
     const user = leaderboard.find((u) => u.username === userId);

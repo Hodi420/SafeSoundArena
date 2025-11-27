@@ -5,8 +5,9 @@ console.log('Node version:', process.version);
 // Try to create a simple HTTP server
 const http = require('http');
 const server = http.createServer((req, res) => {
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.end('Hello from Node.js!');});
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Hello from Node.js!');
+});
 
 const PORT = 3001;
 server.listen(PORT, '127.0.0.1', () => {

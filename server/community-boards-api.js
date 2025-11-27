@@ -39,7 +39,7 @@ app.post('/api/boards/report', piAuth, (req, res) => {
     description,
     evidence: evidence || [],
     ai_score: 0.5,
-    date: Math.floor(Date.now() / 1000)
+    date: Math.floor(Date.now() / 1000),
   };
   if (type === 'scam') {
     let shame = load(shameFile);
@@ -49,7 +49,7 @@ app.post('/api/boards/report', piAuth, (req, res) => {
       reports: [report],
       ai_summary: 'Under review',
       community_score: -1,
-      badges: ['User Reported']
+      badges: ['User Reported'],
     });
     save(shameFile, shame);
     res.json({ status: 'ok', board: 'shame' });
@@ -61,7 +61,7 @@ app.post('/api/boards/report', piAuth, (req, res) => {
       reports: [report],
       ai_summary: 'Under review',
       community_score: 1,
-      badges: ['User Commended']
+      badges: ['User Commended'],
     });
     save(fameFile, fame);
     res.json({ status: 'ok', board: 'fame' });
@@ -84,11 +84,11 @@ app.post('/api/boards/site', piAuth, (req, res) => {
         description: description || '',
         evidence: evidence || [],
         ai_score: 0.5,
-        date: Math.floor(Date.now() / 1000)
-      }
+        date: Math.floor(Date.now() / 1000),
+      },
     ],
     ai_summary: 'Under review',
-    community_score: 0
+    community_score: 0,
   });
   save(sitesFile, sites);
   res.json({ status: 'ok', board: 'sites' });

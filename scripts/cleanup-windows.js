@@ -3,19 +3,19 @@ const path = require('path');
 const { execSync } = require('child_process');
 // Simple color implementation that works in all environments
 const colorsEnabled = process.stdout.isTTY;
-const colorize = (text, colorCode) => colorsEnabled ? `\x1b[${colorCode}m${text}\x1b[0m` : text;
+const colorize = (text, colorCode) => (colorsEnabled ? `\x1b[${colorCode}m${text}\x1b[0m` : text);
 
 // Project root directory
 const PROJECT_ROOT = path.join(__dirname, '..');
 
 // Colors for output (ANSI color codes)
 const colors = {
-  error: (text) => colorize(text, '31'),    // Red
-  warning: (text) => colorize(text, '33'),  // Yellow
-  success: (text) => colorize(text, '32'),  // Green
-  info: (text) => colorize(text, '34'),     // Blue
-  highlight: (text) => `\x1b[36;1m${text}\x1b[0m`,  // Cyan + Bold
-  section: (text) => `\x1b[4;1m${text}\x1b[0m`     // Underline + Bold
+  error: (text) => colorize(text, '31'), // Red
+  warning: (text) => colorize(text, '33'), // Yellow
+  success: (text) => colorize(text, '32'), // Green
+  info: (text) => colorize(text, '34'), // Blue
+  highlight: (text) => `\x1b[36;1m${text}\x1b[0m`, // Cyan + Bold
+  section: (text) => `\x1b[4;1m${text}\x1b[0m`, // Underline + Bold
 };
 
 // Directories and files to clean up
@@ -45,7 +45,7 @@ const CLEANUP_PATTERNS = [
   '**/.serverless',
   '**/.serverless_nextjs',
   '**/.vercel',
-  '**/.netlify'
+  '**/.netlify',
 ];
 
 // Files to keep (won't be deleted)
@@ -60,12 +60,12 @@ const KEEP_FILES = [
   '.env.example',
   '.env.local.example',
   'docker-compose.yml',
-  'deploy/docker-compose.yml'
+  'deploy/docker-compose.yml',
 ];
 
 // Check if a file should be kept
 function shouldKeepFile(filePath) {
-  return KEEP_FILES.some(keepFile => filePath.includes(keepFile));
+  return KEEP_FILES.some((keepFile) => filePath.includes(keepFile));
 }
 
 // Delete a file or directory
@@ -92,18 +92,18 @@ function cleanUp() {
   let deletedCount = 0;
   let skippedCount = 0;
 
-  CLEANUP_PATTERNS.forEach(pattern => {
+  CLEANUP_PATTERNS.forEach((pattern) => {
     const fullPattern = path.join(PROJECT_ROOT, pattern);
     const dir = path.dirname(fullPattern);
     const base = path.basename(fullPattern);
-    
+
     try {
       // Handle wildcards in the pattern
       if (base.includes('*')) {
         const files = fs.readdirSync(dir, { withFileTypes: true });
         const regex = new RegExp('^' + base.replace(/\*/g, '.*') + '$');
-        
-        files.forEach(file => {
+
+        files.forEach((file) => {
           if (regex.test(file.name)) {
             const fullPath = path.join(dir, file.name);
             if (!shouldKeepFile(fullPath)) {
@@ -112,7 +112,9 @@ function cleanUp() {
                 deletedCount++;
               }
             } else {
-              console.log(colors.warning(`Skipped (protected): ${path.relative(PROJECT_ROOT, fullPath)}`));
+              console.log(
+                colors.warning(`Skipped (protected): ${path.relative(PROJECT_ROOT, fullPath)}`)
+              );
               skippedCount++;
             }
           }
@@ -125,7 +127,9 @@ function cleanUp() {
             deletedCount++;
           }
         } else {
-          console.log(colors.warning(`Skipped (protected): ${path.relative(PROJECT_ROOT, fullPattern)}`));
+          console.log(
+            colors.warning(`Skipped (protected): ${path.relative(PROJECT_ROOT, fullPattern)}`)
+          );
           skippedCount++;
         }
       }
@@ -144,12 +148,12 @@ function cleanUp() {
 // Check project configuration
 function checkConfiguration() {
   console.log(colors.section('\n🔍 Checking project configuration...'));
-  
+
   try {
     // Check Node.js version
     console.log('\nNode.js version:');
     execSync('node -v', { stdio: 'inherit' });
-    
+
     // Check package manager
     const useYarn = fs.existsSync(path.join(PROJECT_ROOT, 'yarn.lock'));
     console.log('\nPackage manager:');
@@ -158,7 +162,7 @@ function checkConfiguration() {
     } else {
       execSync('npm -v', { stdio: 'inherit' });
     }
-    
+
     // Check TypeScript if used
     if (fs.existsSync(path.join(PROJECT_ROOT, 'tsconfig.json'))) {
       console.log('\nTypeScript:');
@@ -168,7 +172,7 @@ function checkConfiguration() {
         console.log(colors.warning('TypeScript not installed. Run: npm install -g typescript'));
       }
     }
-    
+
     // Check Next.js if used
     if (fs.existsSync(path.join(PROJECT_ROOT, 'next.config.js'))) {
       console.log('\nNext.js:');
@@ -178,7 +182,7 @@ function checkConfiguration() {
         console.log(colors.warning('Next.js not installed. Run: npm install next'));
       }
     }
-    
+
     console.log(colors.success('\n✅ Configuration check complete!'));
   } catch (error) {
     console.error(colors.error('Error checking configuration:'), error.message);
@@ -188,10 +192,10 @@ function checkConfiguration() {
 // Check for compatibility issues
 function checkCompatibility() {
   console.log(colors.section('\n🔍 Checking for compatibility issues...'));
-  
+
   try {
     const useYarn = fs.existsSync(path.join(PROJECT_ROOT, 'yarn.lock'));
-    
+
     // Check for vulnerable packages
     console.log('\nChecking for vulnerable packages:');
     try {
@@ -203,7 +207,7 @@ function checkCompatibility() {
     } catch (error) {
       console.log(colors.warning('Vulnerabilities found. Run `npm audit fix` to fix them.'));
     }
-    
+
     // Check for outdated packages
     console.log('\nChecking for outdated packages:');
     try {
@@ -215,7 +219,7 @@ function checkCompatibility() {
     } catch (error) {
       console.log(colors.warning('Some packages are outdated. Consider updating them.'));
     }
-    
+
     console.log(colors.success('\n✅ Compatibility check complete!'));
   } catch (error) {
     console.error(colors.error('Error checking compatibility:'), error.message);
@@ -225,13 +229,13 @@ function checkCompatibility() {
 // Main function
 async function main() {
   console.log(colors.highlight('\n🔍 SafeSoundArena Project Cleanup'));
-  
+
   // Show menu
   const readline = require('readline').createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
   });
-  
+
   const showMenu = () => {
     console.log('\n' + colors.section('Main Menu'));
     console.log('1. Clean up project (remove node_modules, caches, etc.)');
@@ -239,7 +243,7 @@ async function main() {
     console.log('3. Check for compatibility issues');
     console.log('4. Run full cleanup and checks');
     console.log('0. Exit');
-    
+
     readline.question('\nChoose an option (0-4): ', async (choice) => {
       switch (choice) {
         case '1':
@@ -271,7 +275,7 @@ async function main() {
       }
     });
   };
-  
+
   // Handle command line arguments
   const args = process.argv.slice(2);
   if (args.length > 0) {
@@ -300,7 +304,7 @@ async function main() {
 }
 
 // Run the script
-main().catch(error => {
+main().catch((error) => {
   console.error(colors.error('Unhandled error:'), error);
   process.exit(1);
 });

@@ -102,13 +102,7 @@ export const useEndGame = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      sessionId,
-      score,
-    }: {
-      sessionId: string;
-      score: number;
-    }) => {
+    mutationFn: async ({ sessionId, score }: { sessionId: string; score: number }) => {
       const { data } = await apiClient.post(`/mini-games/sessions/${sessionId}/end`, { score });
       return data;
     },

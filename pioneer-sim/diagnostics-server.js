@@ -16,7 +16,11 @@ const agentsFile = path.join(outDir, 'agents.json');
 // load or init agents registry
 let agents = {};
 if (fs.existsSync(agentsFile)) {
-  try { agents = JSON.parse(fs.readFileSync(agentsFile, 'utf8') || '{}'); } catch (e) { agents = {}; }
+  try {
+    agents = JSON.parse(fs.readFileSync(agentsFile, 'utf8') || '{}');
+  } catch (e) {
+    agents = {};
+  }
 }
 
 function saveAgents() {
@@ -28,7 +32,8 @@ app.get('/health', (req, res) => res.json({ ok: true }));
 // register agent public key
 app.post('/api/register-agent', (req, res) => {
   const { agentKeyId, publicKeyPem } = req.body || {};
-  if (!agentKeyId || !publicKeyPem) return res.status(400).json({ error: 'agentKeyId and publicKeyPem required' });
+  if (!agentKeyId || !publicKeyPem)
+    return res.status(400).json({ error: 'agentKeyId and publicKeyPem required' });
   agents[agentKeyId] = { publicKeyPem, registeredAt: new Date().toISOString() };
   saveAgents();
   res.json({ registered: true, agentKeyId });

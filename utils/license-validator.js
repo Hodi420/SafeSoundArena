@@ -30,7 +30,7 @@ const calculateFileSignature = (filePath) => {
     if (!fs.existsSync(filePath)) {
       throw new Error(`File not found: ${filePath}`);
     }
-    
+
     const fileContent = fs.readFileSync(filePath);
     return crypto.createHash('sha256').update(fileContent).digest('hex');
   } catch (error) {
@@ -50,15 +50,15 @@ const verifyCodeIntegrity = () => {
     { path: path.join(__dirname, '..', 'server', 'agent.js'), expectedHash: null },
     { path: path.join(__dirname, '..', 'middleware', 'authMiddleware.js'), expectedHash: null },
     { path: path.join(__dirname, '..', 'SECURITY.md'), expectedHash: null },
-    { path: path.join(__dirname, '..', 'LICENSE.md'), expectedHash: null }
+    { path: path.join(__dirname, '..', 'LICENSE.md'), expectedHash: null },
   ];
-  
+
   const results = {
     success: true,
     verifiedFiles: [],
-    failedFiles: []
+    failedFiles: [],
   };
-  
+
   // בדיקת כל הקבצים הקריטיים
   for (const file of criticalFiles) {
     try {
@@ -66,36 +66,36 @@ const verifyCodeIntegrity = () => {
         results.success = false;
         results.failedFiles.push({
           path: file.path,
-          error: 'File not found'
+          error: 'File not found',
         });
         continue;
       }
-      
+
       const actualHash = calculateFileSignature(file.path);
-      
+
       // במערכת אמיתית, ה-expectedHash יהיה מאוחסן במקום בטוח או יתקבל משרת אימות
       // כאן אנחנו פשוט בודקים שהקובץ קיים ושניתן לחשב את החתימה שלו
       if (actualHash) {
         results.verifiedFiles.push({
           path: file.path,
-          hash: actualHash
+          hash: actualHash,
         });
       } else {
         results.success = false;
         results.failedFiles.push({
           path: file.path,
-          error: 'Failed to calculate hash'
+          error: 'Failed to calculate hash',
         });
       }
     } catch (error) {
       results.success = false;
       results.failedFiles.push({
         path: file.path,
-        error: error.message
+        error: error.message,
       });
     }
   }
-  
+
   return results;
 };
 
@@ -108,10 +108,10 @@ const verifyLicense = async (licenseKey) => {
   if (!licenseKey) {
     return {
       valid: false,
-      error: 'License key is required'
+      error: 'License key is required',
     };
   }
-  
+
   try {
     // איסוף מידע על המערכת לצורך אימות
     const systemInfo = {
@@ -121,15 +121,15 @@ const verifyLicense = async (licenseKey) => {
       cpus: require('os').cpus().length,
       totalMem: require('os').totalmem(),
       nodeVersion: process.version,
-      instanceId: process.env.INSTANCE_ID || 'development'
+      instanceId: process.env.INSTANCE_ID || 'development',
     };
-    
+
     // חתימת המידע למניעת זיוף
     const signature = crypto
       .createHmac('sha256', SIGNING_KEY)
       .update(JSON.stringify(systemInfo))
       .digest('hex');
-    
+
     // במערכת אמיתית, כאן תהיה קריאה לשרת אימות חיצוני
     // לצורך הדוגמה, נדמה תשובה חיובית
     /* 
@@ -141,7 +141,7 @@ const verifyLicense = async (licenseKey) => {
     
     return response.data;
     */
-    
+
     // דוגמה לתשובה חיובית
     return {
       valid: true,
@@ -152,14 +152,14 @@ const verifyLicense = async (licenseKey) => {
       maxInstances: 5,
       customer: {
         id: 'cust_123456',
-        name: 'Example Organization'
-      }
+        name: 'Example Organization',
+      },
     };
   } catch (error) {
     console.error('License verification error:', error);
     return {
       valid: false,
-      error: 'Failed to verify license: ' + error.message
+      error: 'Failed to verify license: ' + error.message,
     };
   }
 };
@@ -172,26 +172,26 @@ const verifyLicense = async (licenseKey) => {
  */
 const addDigitalWatermark = (content, metadata = {}) => {
   if (!content) return content;
-  
+
   try {
     // הוספת מידע נוסף למטא-דאטה
     const watermarkData = {
       timestamp: new Date().toISOString(),
       instanceId: process.env.INSTANCE_ID || 'development',
       licenseId: process.env.LICENSE_ID || 'development',
-      ...metadata
+      ...metadata,
     };
-    
+
     // הצפנת מידע סימן המים
     const watermarkString = JSON.stringify(watermarkData);
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
     let encrypted = cipher.update(watermarkString, 'utf8', 'hex');
     encrypted += cipher.final('hex');
-    
+
     // שילוב ה-IV עם הטקסט המוצפן
     const watermark = iv.toString('hex') + ':' + encrypted;
-    
+
     // הוספת סימן המים בצורה נסתרת
     if (typeof content === 'string') {
       if (content.includes('</body>')) {
@@ -210,7 +210,7 @@ const addDigitalWatermark = (content, metadata = {}) => {
         return `${content}\n<!-- SSA-WM:${watermark} -->`;
       }
     }
-    
+
     return content;
   } catch (error) {
     console.error('Error adding digital watermark:', error);
@@ -225,20 +225,20 @@ const addDigitalWatermark = (content, metadata = {}) => {
  */
 const extractDigitalWatermark = (content) => {
   if (!content || typeof content !== 'string') return null;
-  
+
   try {
     // חיפוש סימן המים בתוכן
     const watermarkRegex = /<!-- SSA-WM:([a-f0-9]+:[a-f0-9]+) -->/;
     const jsonWatermarkRegex = /"_wm":"([a-f0-9]+:[a-f0-9]+)"/;
-    
+
     let watermark = null;
-    
+
     // חיפוש בתגובה HTML
     const htmlMatch = content.match(watermarkRegex);
     if (htmlMatch && htmlMatch[1]) {
       watermark = htmlMatch[1];
     }
-    
+
     // חיפוש ב-JSON
     if (!watermark) {
       const jsonMatch = content.match(jsonWatermarkRegex);
@@ -246,19 +246,19 @@ const extractDigitalWatermark = (content) => {
         watermark = jsonMatch[1];
       }
     }
-    
+
     if (!watermark) return null;
-    
+
     // פיצול ה-IV והטקסט המוצפן
     const [ivHex, encrypted] = watermark.split(':');
     if (!ivHex || !encrypted) return null;
-    
+
     // פענוח סימן המים
     const iv = Buffer.from(ivHex, 'hex');
     const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
     let decrypted = decipher.update(encrypted, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
-    
+
     return JSON.parse(decrypted);
   } catch (error) {
     console.error('Error extracting digital watermark:', error);
@@ -274,15 +274,15 @@ const extractDigitalWatermark = (content) => {
 const validateEnvironment = async (licenseKey) => {
   // בדיקת אותנטיות הקוד
   const integrityResults = verifyCodeIntegrity();
-  
+
   // בדיקת תוקף הרישיון
   const licenseResults = await verifyLicense(licenseKey);
-  
+
   return {
     valid: integrityResults.success && licenseResults.valid,
     codeIntegrity: integrityResults,
     license: licenseResults,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 };
 
@@ -292,5 +292,5 @@ module.exports = {
   validateEnvironment,
   addDigitalWatermark,
   extractDigitalWatermark,
-  calculateFileSignature
+  calculateFileSignature,
 };

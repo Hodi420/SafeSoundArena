@@ -39,7 +39,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!backendRes.ok) {
       console.error(`[API] /api/ai/ask proxy error ${backendRes.status}:`, data);
-      return res.status(backendRes.status).json({ error: data?.error || 'Upstream error', duration });
+      return res
+        .status(backendRes.status)
+        .json({ error: data?.error || 'Upstream error', duration });
     }
 
     // Normalize response shape for existing components (expects { result, bot? })

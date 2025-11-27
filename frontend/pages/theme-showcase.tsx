@@ -52,12 +52,9 @@ const ThemeShowcase: React.FC = () => {
       </main>
 
       {/* Theme Customizer Dialog */}
-      <ThemeCustomizer
-        isOpen={isCustomizerOpen}
-        onClose={() => setIsCustomizerOpen(false)}
-      />
+      <ThemeCustomizer isOpen={isCustomizerOpen} onClose={() => setIsCustomizerOpen(false)} />
     </div>
   );
 };
 
-export default ThemeShowcase; 
+export default ThemeShowcase;

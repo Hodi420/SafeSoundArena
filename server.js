@@ -13,7 +13,9 @@ let jailStartTime = null;
 let jailEndTime = null;
 
 const app = express();
-app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || ['*'], optionsSuccessStatus: 200 }));
+app.use(
+  cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || ['*'], optionsSuccessStatus: 200 })
+);
 app.use(express.json());
 app.use(helmet());
 
@@ -73,20 +75,23 @@ function scheduleJail() {
       console.log('Jail started');
       io.emit('jailStatus', { active: true, startTime: jailStartTime, endTime: jailEndTime });
       // End jail after 10 min
-      setTimeout(() => {
-        jailActive = false;
-        console.log('Jail ended');
-        io.emit('jailStatus', { active: false });
-        // 1 min after jail ends, send rewards
-        setTimeout(() => {
-          const userCount = Object.keys(usersInJail).length;
-          const reward = calculateReward(userCount);
-          console.log(`Sending rewards: ${reward} for ${userCount} users`);
-          io.emit('jailReward', { reward, userCount });
-        }, 60 * 1000);
-        // Schedule next jail session
-        scheduleJail();
-      }, 10 * 60 * 1000);
+      setTimeout(
+        () => {
+          jailActive = false;
+          console.log('Jail ended');
+          io.emit('jailStatus', { active: false });
+          // 1 min after jail ends, send rewards
+          setTimeout(() => {
+            const userCount = Object.keys(usersInJail).length;
+            const reward = calculateReward(userCount);
+            console.log(`Sending rewards: ${reward} for ${userCount} users`);
+            io.emit('jailReward', { reward, userCount });
+          }, 60 * 1000);
+          // Schedule next jail session
+          scheduleJail();
+        },
+        10 * 60 * 1000
+      );
     }, 60 * 1000);
   }, msToNextJail);
 }

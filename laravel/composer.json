@@ -1,5 +1,5 @@
 {
-    "require": {
-        "laravel/horizon": "*"
-    }
+  "require": {
+    "laravel/horizon": "*"
+  }
 }

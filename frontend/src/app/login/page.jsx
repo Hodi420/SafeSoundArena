@@ -14,9 +14,9 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     const result = await login({ email, password });
-    
+
     if (result.success) {
       router.push('/dashboard');
     } else {

@@ -10,17 +10,19 @@ app.get('/docs', (req, res) => {
   res.json({
     endpoints: [
       {
-        path: '/api/mcp/overview', method: 'GET',
+        path: '/api/mcp/overview',
+        method: 'GET',
         description: 'Get status of all agents for this Mini-MCP (requires userId)',
         example_request: '/api/mcp/overview?userId=USER123',
-        example_response: [{ agentId: '...', status: 'online', ... }]
+        example_response: [{ agentId: 'AGENT1', status: 'online', lastSeen: Date.now() }],
       },
       {
-        path: '/api/mcp/assign', method: 'POST',
+        path: '/api/mcp/assign',
+        method: 'POST',
         description: 'Assign a task to an agent (requires userId, command, agentId optional)',
         example_request: { userId: 'USER123', command: 'open_game', agentId: 'AGENT1' },
-        example_response: { ok: true, agent: 'AGENT1', response: { ... } }
-      }
-    ]
+        example_response: { ok: true, agent: 'AGENT1', response: { text: 'example response' } },
+      },
+    ],
   });
-}); 
+});

@@ -82,11 +82,14 @@ export function AIBotAskPanel({ userId }: { userId: string }) {
           {toastMsg}
         </div>
       )}
-      <form onSubmit={handleAsk} style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 16 }}>
+      <form
+        onSubmit={handleAsk}
+        style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 16 }}
+      >
         <input
           type="text"
           value={input}
-          onChange={e => setInput(e.target.value)}
+          onChange={(e) => setInput(e.target.value)}
           placeholder={COMMON_STRINGS.search + ' or ask anything...'}
           style={{
             flex: 1,
@@ -122,7 +125,18 @@ export function AIBotAskPanel({ userId }: { userId: string }) {
         >
           {loading ? (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <span className="ai-ask-spinner" style={{ width: 18, height: 18, border: '2.5px solid #fff', borderTop: '2.5px solid #0070f3', borderRadius: '50%', display: 'inline-block', animation: 'ai-spin 1s linear infinite' }} />
+              <span
+                className="ai-ask-spinner"
+                style={{
+                  width: 18,
+                  height: 18,
+                  border: '2.5px solid #fff',
+                  borderTop: '2.5px solid #0070f3',
+                  borderRadius: '50%',
+                  display: 'inline-block',
+                  animation: 'ai-spin 1s linear infinite',
+                }}
+              />
               {COMMON_STRINGS.loading}
             </span>
           ) : (
@@ -132,7 +146,15 @@ export function AIBotAskPanel({ userId }: { userId: string }) {
       </form>
       {error && <div style={{ color: '#e00', marginTop: 10, fontWeight: 500 }}>{error}</div>}
       {output && (
-        <div style={{ marginTop: 28, background: '#f7fafd', borderRadius: 10, padding: 20, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+        <div
+          style={{
+            marginTop: 28,
+            background: '#f7fafd',
+            borderRadius: 10,
+            padding: 20,
+            boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
             {bot && <span style={{ fontSize: 28 }}>{BOT_AVATARS[bot] || '🤖'}</span>}
             <span style={{ fontWeight: 700, color: '#0070f3', fontSize: 18 }}>

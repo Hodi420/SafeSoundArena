@@ -14,7 +14,7 @@ export const WebSocketProvider = ({ children }) => {
   useEffect(() => {
     if (isAuthenticated && user?.token) {
       webSocketService.connect(user.token);
-      
+
       return () => {
         webSocketService.disconnect();
       };
@@ -38,10 +38,10 @@ export const WebSocketProvider = ({ children }) => {
     if (eventHandlers.current.has(event)) {
       webSocketService.off(event, eventHandlers.current.get(event));
     }
-    
+
     // Store the handler
     eventHandlers.current.set(event, callback);
-    
+
     // Subscribe to the event
     return webSocketService.on(event, callback);
   }, []);
@@ -52,9 +52,12 @@ export const WebSocketProvider = ({ children }) => {
   }, []);
 
   // Join a game room
-  const joinGame = useCallback((gameId) => {
-    send('game:join', { gameId });
-  }, [send]);
+  const joinGame = useCallback(
+    (gameId) => {
+      send('game:join', { gameId });
+    },
+    [send],
+  );
 
   // Leave current game room
   const leaveGame = useCallback(() => {
@@ -62,14 +65,20 @@ export const WebSocketProvider = ({ children }) => {
   }, [send]);
 
   // Send game action
-  const sendGameAction = useCallback((action) => {
-    send('game:action', action);
-  }, [send]);
+  const sendGameAction = useCallback(
+    (action) => {
+      send('game:action', action);
+    },
+    [send],
+  );
 
   // Send chat message
-  const sendChatMessage = useCallback((message) => {
-    send('game:chat', { message });
-  }, [send]);
+  const sendChatMessage = useCallback(
+    (message) => {
+      send('game:chat', { message });
+    },
+    [send],
+  );
 
   const value = {
     isConnected: webSocketService.socket?.readyState === WebSocket.OPEN,
@@ -82,11 +91,7 @@ export const WebSocketProvider = ({ children }) => {
     sendChatMessage,
   };
 
-  return (
-    <WebSocketContext.Provider value={value}>
-      {children}
-    </WebSocketContext.Provider>
-  );
+  return <WebSocketContext.Provider value={value}>{children}</WebSocketContext.Provider>;
 };
 
 export const useWebSocket = () => {

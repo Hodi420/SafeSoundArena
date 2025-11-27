@@ -27,7 +27,7 @@ services:
     image: influxdb:1.8
     container_name: safesoundarena-influxdb
     ports:
-      - "8086:8086"
+      - '8086:8086'
     environment:
       - INFLUXDB_DB=k6
       - INFLUXDB_USER=k6
@@ -37,7 +37,7 @@ services:
     networks:
       - k6-network
     healthcheck:
-      test: ["CMD", "influx", "ping"]
+      test: ['CMD', 'influx', 'ping']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -46,7 +46,7 @@ services:
     image: grafana/grafana:latest
     container_name: safesoundarena-grafana
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
@@ -59,7 +59,7 @@ services:
     depends_on:
       - influxdb
     healthcheck:
-      test: ["CMD", "wget", "--spider", "http://admin:admin@localhost:3000/api/health"]
+      test: ['CMD', 'wget', '--spider', 'http://admin:admin@localhost:3000/api/health']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -68,7 +68,7 @@ services:
     image: grafana/loki:latest
     container_name: safesoundarena-loki
     ports:
-      - "3100:3100"
+      - '3100:3100'
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - loki-storage:/loki

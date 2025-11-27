@@ -28,7 +28,7 @@ function LlamaChat() {
       <button onClick={connectWallet}>
         {account ? `Connected: ${account}` : 'Connect Pi Wallet'}
       </button>
-      <textarea value={prompt} onChange={e => setPrompt(e.target.value)} />
+      <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} />
       <button onClick={sendPrompt}>Ask Llama</button>
       <div>
         <strong>Response:</strong>

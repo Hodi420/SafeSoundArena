@@ -50,7 +50,7 @@ export const GameLeaderboard: React.FC<GameLeaderboardProps> = ({
   return (
     <div className="card neon-border p-6">
       <h2 className="text-2xl font-bold text-blue-400 neon-text mb-6">{title}</h2>
-      
+
       <div className="space-y-2">
         {displayEntries.map((entry, index) => (
           <motion.div
@@ -60,9 +60,10 @@ export const GameLeaderboard: React.FC<GameLeaderboardProps> = ({
             transition={{ delay: index * 0.1 }}
             className={`
               relative p-4 rounded-lg
-              ${entry.isCurrentUser 
-                ? 'bg-blue-500/10 border border-blue-500/50'
-                : 'bg-gray-100 dark:bg-gray-800'
+              ${
+                entry.isCurrentUser
+                  ? 'bg-blue-500/10 border border-blue-500/50'
+                  : 'bg-gray-100 dark:bg-gray-800'
               }
               hover:transform hover:scale-[1.02] transition-transform
             `}
@@ -71,9 +72,7 @@ export const GameLeaderboard: React.FC<GameLeaderboardProps> = ({
               {/* Rank */}
               <div className="flex-shrink-0 w-8 text-center">
                 {getRankIcon(entry.rank) || (
-                  <span className="text-lg font-bold text-gray-500">
-                    {entry.rank}
-                  </span>
+                  <span className="text-lg font-bold text-gray-500">{entry.rank}</span>
                 )}
               </div>
 
@@ -91,10 +90,12 @@ export const GameLeaderboard: React.FC<GameLeaderboardProps> = ({
 
               {/* Username */}
               <div className="flex-1">
-                <span className={`
+                <span
+                  className={`
                   font-medium
                   ${entry.isCurrentUser ? 'text-blue-500' : 'text-gray-900 dark:text-gray-100'}
-                `}>
+                `}
+                >
                   {entry.username}
                 </span>
               </div>
@@ -104,10 +105,12 @@ export const GameLeaderboard: React.FC<GameLeaderboardProps> = ({
                 <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
                   {entry.score.toLocaleString()}
                 </span>
-                <span className={`
+                <span
+                  className={`
                   text-sm font-medium w-8 text-right
                   ${getChangeColor(entry.change)}
-                `}>
+                `}
+                >
                   {getChangeText(entry.change)}
                 </span>
               </div>
@@ -142,4 +145,4 @@ export const GameLeaderboard: React.FC<GameLeaderboardProps> = ({
       )}
     </div>
   );
-}; 
+};

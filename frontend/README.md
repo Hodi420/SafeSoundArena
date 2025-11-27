@@ -34,6 +34,7 @@ frontend/
 ## 🚀 Getting Started
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    # or
@@ -41,6 +42,7 @@ frontend/
    ```
 
 2. **Run the app:**
+
    ```bash
    npm start
    # or
@@ -56,7 +58,7 @@ frontend/
 
 ## 🛠️ Linting & Formatting
 
-- **Lint:** `npm run lint`  
+- **Lint:** `npm run lint`
 - **Format:** `npm run format`
 
 ## 🧪 Testing

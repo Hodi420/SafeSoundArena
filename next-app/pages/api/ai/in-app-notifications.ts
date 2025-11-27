@@ -15,6 +15,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (typeof userId !== 'string') return res.status(400).json({ notifications: [] });
   const sinceTs = since ? Number(since) : 0;
   const userNotifs = notifications[userId] || [];
-  const newNotifs = userNotifs.filter(n => n.timestamp > sinceTs).map(n => n.message);
+  const newNotifs = userNotifs.filter((n) => n.timestamp > sinceTs).map((n) => n.message);
   res.status(200).json({ notifications: newNotifs });
 }

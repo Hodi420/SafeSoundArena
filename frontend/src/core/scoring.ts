@@ -2,7 +2,11 @@
 // Core functions for XP, level, and reputation calculations.
 
 import { XP_TABLE } from '../parameters/gameConfig';
-import { awardCommunityPoints, awardScamDetectionPoints, LeaderboardType } from '../services/leaderboardService';
+import {
+  awardCommunityPoints,
+  awardScamDetectionPoints,
+  LeaderboardType,
+} from '../services/leaderboardService';
 
 // Points configuration for different actions
 export const POINTS = {
@@ -10,18 +14,18 @@ export const POINTS = {
   REPORT_SCAM: 50,
   CONFIRM_SCAM: 25,
   PREVENT_SCAM: 100,
-  
+
   // Community Impact
   HELP_OTHER: 10,
   COMPLETE_TUTORIAL: 50,
   COMPLETE_DAILY_QUEST: 30,
   COMPLETE_WEEKLY_QUEST: 100,
   REFER_FRIEND: 75,
-  
+
   // Moderation
   CONTENT_REVIEW: 20,
   CONTENT_FLAG_REVIEW: 15,
-  
+
   // Engagement
   DAILY_LOGIN: 5,
   WEEKLY_STREAK: 25,
@@ -35,18 +39,18 @@ const ACTION_TO_LEADERBOARD: Record<ActionType, LeaderboardType | 'all'> = {
   REPORT_SCAM: 'scam_detection',
   CONFIRM_SCAM: 'scam_detection',
   PREVENT_SCAM: 'scam_detection',
-  
+
   // Community Impact
   HELP_OTHER: 'community_impact',
   COMPLETE_TUTORIAL: 'community_impact',
   COMPLETE_DAILY_QUEST: 'community_impact',
   COMPLETE_WEEKLY_QUEST: 'community_impact',
   REFER_FRIEND: 'community_impact',
-  
+
   // Moderation
   CONTENT_REVIEW: 'community_impact',
   CONTENT_FLAG_REVIEW: 'community_impact',
-  
+
   // Engagement
   DAILY_LOGIN: 'all',
   WEEKLY_STREAK: 'all',
@@ -73,11 +77,11 @@ export function getXPForNextLevel(level: number): number {
 export async function awardPoints(
   userId: string,
   action: ActionType,
-  multiplier: number = 1
+  multiplier: number = 1,
 ): Promise<{ success: boolean }> {
   const points = Math.floor(POINTS[action] * multiplier);
   const leaderboardType = ACTION_TO_LEADERBOARD[action];
-  
+
   try {
     // Update the specific leaderboard
     const leaderboardResponse = await fetch('/api/leaderboard/update-score', {
@@ -90,16 +94,16 @@ export async function awardPoints(
         action: 'increment',
       }),
     });
-    
+
     if (!leaderboardResponse.ok) {
       throw new Error('Failed to update leaderboard');
     }
-    
+
     // If the action contributes to overall score (all), no need to update again
     if (leaderboardType === 'all') {
       return { success: true };
     }
-    
+
     // Also update the overall leaderboard
     const overallResponse = await fetch('/api/leaderboard/update-score', {
       method: 'POST',
@@ -111,11 +115,11 @@ export async function awardPoints(
         action: 'increment',
       }),
     });
-    
+
     if (!overallResponse.ok) {
       throw new Error('Failed to update overall leaderboard');
     }
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error awarding points:', error);
@@ -132,23 +136,23 @@ export async function awardPoints(
 export function calculateRank(score: number, leaderboardType: LeaderboardType = 'overall'): string {
   // This is a simplified version - in a real app, you'd fetch the actual rank from the server
   if (score <= 0) return 'Unranked';
-  
+
   // These thresholds would typically come from the server
   const thresholds: Record<LeaderboardType, number[]> = {
     overall: [10000, 5000, 1000, 500, 100],
     scam_detection: [5000, 2500, 1000, 500, 100],
     community_impact: [5000, 2500, 1000, 500, 100],
   };
-  
+
   const rankNames = ['Elite', 'Expert', 'Veteran', 'Member', 'Newcomer'];
   const scoreThresholds = thresholds[leaderboardType] || thresholds.overall;
-  
+
   for (let i = 0; i < scoreThresholds.length; i++) {
     if (score >= scoreThresholds[i]) {
       return rankNames[i];
     }
   }
-  
+
   return 'Newcomer';
 }
 
@@ -160,27 +164,31 @@ export function calculateRank(score: number, leaderboardType: LeaderboardType = 
  */
 export function getRankProgress(
   score: number,
-  leaderboardType: LeaderboardType = 'overall'
+  leaderboardType: LeaderboardType = 'overall',
 ): { currentRank: string; nextRank: string; progress: number } {
   const thresholds: Record<LeaderboardType, number[]> = {
     overall: [10000, 5000, 1000, 500, 100],
     scam_detection: [5000, 2500, 1000, 500, 100],
     community_impact: [5000, 2500, 1000, 500, 100],
   };
-  
+
   const rankNames = ['Elite', 'Expert', 'Veteran', 'Member', 'Newcomer'];
   const scoreThresholds = thresholds[leaderboardType] || thresholds.overall;
-  
+
   for (let i = 0; i < scoreThresholds.length; i++) {
     if (score >= scoreThresholds[i]) {
       return {
         currentRank: rankNames[i],
         nextRank: i > 0 ? rankNames[i - 1] : '',
-        progress: i === 0 ? 100 : 100 - ((score - scoreThresholds[i]) / (scoreThresholds[i - 1] - scoreThresholds[i])) * 100,
+        progress:
+          i === 0
+            ? 100
+            : 100 -
+              ((score - scoreThresholds[i]) / (scoreThresholds[i - 1] - scoreThresholds[i])) * 100,
       };
     }
   }
-  
+
   return {
     currentRank: 'Newcomer',
     nextRank: 'Member',

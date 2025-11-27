@@ -13,7 +13,8 @@ export default function Toast({ message, onClose, duration = 2500, color = 'blue
     return () => clearTimeout(timer);
   }, [onClose, duration]);
 
-  const bgColor = color === 'red' ? 'bg-red-600' : color === 'green' ? 'bg-green-600' : 'bg-blue-700';
+  const bgColor =
+    color === 'red' ? 'bg-red-600' : color === 'green' ? 'bg-green-600' : 'bg-blue-700';
   const icon = color === 'red' ? '❌' : color === 'green' ? '✅' : '🔔';
 
   return (

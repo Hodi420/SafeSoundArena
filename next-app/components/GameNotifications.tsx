@@ -85,4 +85,4 @@ export const GameNotifications: React.FC<GameNotificationsProps> = ({
       </AnimatePresence>
     </div>
   );
-}; 
+};

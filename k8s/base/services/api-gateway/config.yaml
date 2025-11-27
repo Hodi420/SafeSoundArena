@@ -88,4 +88,4 @@ data:
         enabled: true
         cpu_profile: true
         memory_profile: true
-        goroutine_profile: true 
+        goroutine_profile: true

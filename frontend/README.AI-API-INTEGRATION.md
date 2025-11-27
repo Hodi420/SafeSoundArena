@@ -40,9 +40,9 @@ export async function fetchAICompletion(prompt: string): Promise<string> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`
+      Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
     },
-    body: JSON.stringify({ prompt })
+    body: JSON.stringify({ prompt }),
   });
   if (!res.ok) throw new Error('AI API error');
   const data = await res.json();
@@ -96,11 +96,7 @@ export default function AiPromptBox() {
 
   return (
     <div>
-      <input
-        value={input}
-        onChange={e => setInput(e.target.value)}
-        placeholder="Ask AI..."
-      />
+      <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask AI..." />
       <button onClick={() => getCompletion(input)} disabled={loading}>
         {loading ? 'Loading...' : 'Ask'}
       </button>

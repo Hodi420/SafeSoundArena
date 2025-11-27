@@ -15,7 +15,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     // Optional: filter by roomId
     const { roomId } = req.query;
     if (roomId) {
-      return res.status(200).json(logs.filter(l => l.roomId === roomId));
+      return res.status(200).json(logs.filter((l) => l.roomId === roomId));
     }
     return res.status(200).json(logs);
   }

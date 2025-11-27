@@ -11,18 +11,18 @@ const WS_URL = `ws://localhost:${TEST_PORT}`;
 const testUser = {
   id: 'test-user-123',
   address: '0x1234567890123456789012345678901234567890',
-  username: 'testuser'
+  username: 'testuser',
 };
 
 // Generate JWT token for testing
 const token = createToken(testUser);
 
-describe('WebSocket Server', function() {
+describe('WebSocket Server', function () {
   // Increase timeout for WebSocket tests
   this.timeout(10000);
-  
+
   let wsClient;
-  
+
   // Setup test server before tests
   before((done) => {
     // Start the server on test port
@@ -31,7 +31,7 @@ describe('WebSocket Server', function() {
       done();
     });
   });
-  
+
   // Cleanup after tests
   after(() => {
     if (wsClient) {
@@ -39,28 +39,28 @@ describe('WebSocket Server', function() {
     }
     server.close();
   });
-  
+
   describe('Connection', () => {
     it('should connect with valid token', (done) => {
       wsClient = new WebSocket(WS_URL, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       wsClient.on('open', () => {
         expect(wsClient.readyState).to.equal(WebSocket.OPEN);
         done();
       });
-      
+
       wsClient.on('error', (error) => {
         done(error);
       });
     });
-    
+
     it('should reject connection without token', (done) => {
       const client = new WebSocket(WS_URL);
-      
+
       client.on('error', (error) => {
         expect(error.message).to.include('Unexpected server response: 401');
         client.terminate();
@@ -68,42 +68,42 @@ describe('WebSocket Server', function() {
       });
     });
   });
-  
+
   describe('Game Events', () => {
     let gameId;
-    
+
     beforeEach((done) => {
       wsClient = new WebSocket(WS_URL, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       wsClient.on('open', () => {
         done();
       });
     });
-    
+
     afterEach(() => {
       if (wsClient) {
         wsClient.terminate();
       }
     });
-    
+
     it('should create a new game', (done) => {
       const testGame = {
         type: 'CREATE_GAME',
         payload: {
           betAmount: '1.0',
-          gameType: 'tic-tac-toe'
-        }
+          gameType: 'tic-tac-toe',
+        },
       };
-      
+
       wsClient.send(JSON.stringify(testGame));
-      
+
       wsClient.on('message', (data) => {
         const message = JSON.parse(data);
-        
+
         if (message.type === 'GAME_CREATED') {
           expect(message.payload).to.have.property('gameId');
           expect(message.payload.players).to.include(testUser.id);
@@ -112,43 +112,43 @@ describe('WebSocket Server', function() {
         }
       });
     });
-    
+
     it('should handle game moves', (done) => {
       const move = {
         type: 'MAKE_MOVE',
         payload: {
           gameId,
-          move: { x: 0, y: 0, player: testUser.id }
-        }
+          move: { x: 0, y: 0, player: testUser.id },
+        },
       };
-      
+
       wsClient.send(JSON.stringify(move));
-      
+
       wsClient.on('message', (data) => {
         const message = JSON.parse(data);
-        
+
         if (message.type === 'MOVE_MADE' && message.payload.gameId === gameId) {
           expect(message.payload.move).to.deep.equal(move.payload.move);
           done();
         }
       });
     });
-    
+
     it('should handle chat messages', (done) => {
       const chatMessage = {
         type: 'CHAT_MESSAGE',
         payload: {
           gameId,
           message: 'Hello, world!',
-          sender: testUser.username
-        }
+          sender: testUser.username,
+        },
       };
-      
+
       wsClient.send(JSON.stringify(chatMessage));
-      
+
       wsClient.on('message', (data) => {
         const message = JSON.parse(data);
-        
+
         if (message.type === 'CHAT_MESSAGE' && message.payload.gameId === gameId) {
           expect(message.payload.message).to.equal(chatMessage.payload.message);
           expect(message.payload.sender).to.equal(testUser.username);

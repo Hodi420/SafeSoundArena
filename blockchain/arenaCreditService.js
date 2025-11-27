@@ -23,11 +23,16 @@ class ArenaCreditService {
         community: 500000,
         team: 200000,
         development: 200000,
-        reserve: 100000
+        reserve: 100000,
       },
       vesting: {
-        team: { total: 200000, released: 0, start: Date.now(), duration: 2 * 365 * 24 * 3600 * 1000 } // 2 years
-      }
+        team: {
+          total: 200000,
+          released: 0,
+          start: Date.now(),
+          duration: 2 * 365 * 24 * 3600 * 1000,
+        }, // 2 years
+      },
     };
     // Initial allocations
     this.balances['community'] = 500000;
@@ -49,10 +54,13 @@ class ArenaCreditService {
   _logTx(type, fromUser, toUser, amount, meta = {}) {
     const txId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
     this.transactions.push({
-      type, fromUser, toUser, amount,
+      type,
+      fromUser,
+      toUser,
+      amount,
       date: new Date().toISOString(),
       txId,
-      meta
+      meta,
     });
   }
 
@@ -62,7 +70,8 @@ class ArenaCreditService {
     if (this.totalSupply + amount > this.tokenomics.maxSupply)
       throw new Error('Max supply exceeded');
     if (this.frozenAccounts.has(to)) throw new Error('Recipient account is frozen');
-    if (this.whitelist.size && !this.whitelist.has(to)) throw new Error('Recipient not whitelisted');
+    if (this.whitelist.size && !this.whitelist.has(to))
+      throw new Error('Recipient not whitelisted');
     this.balances[to] = (this.balances[to] || 0) + amount;
     this.totalSupply += amount;
     this._logTx('mint', null, to, amount, meta);
@@ -88,16 +97,20 @@ class ArenaCreditService {
   async transfer(from, to, amount, meta = {}) {
     const percentFee = Math.ceil(amount * 0.005); // 0.5% מהסכום, מעוגל למעלה
     const fee = Math.max(2, percentFee);
-    if ((this.balances[from] || 0) < amount + fee) throw new Error('Insufficient balance (with fee)');
-    if (this.frozenAccounts.has(from) || this.frozenAccounts.has(to)) throw new Error('Account is frozen');
-    if (this.whitelist.size && (!this.whitelist.has(from) || !this.whitelist.has(to))) throw new Error('Account not whitelisted');
-    this.balances[from] -= (amount + fee);
+    if ((this.balances[from] || 0) < amount + fee)
+      throw new Error('Insufficient balance (with fee)');
+    if (this.frozenAccounts.has(from) || this.frozenAccounts.has(to))
+      throw new Error('Account is frozen');
+    if (this.whitelist.size && (!this.whitelist.has(from) || !this.whitelist.has(to)))
+      throw new Error('Account not whitelisted');
+    this.balances[from] -= amount + fee;
     this.balances[to] = (this.balances[to] || 0) + amount;
     // העמלה נשלחת ל-burn address (כתובת שריפה פנימית)
     const burnAddress = this.BURN_ADDRESS;
     this.balances[burnAddress] = (this.balances[burnAddress] || 0) + fee;
     this._logTx('transfer', from, to, amount, { ...meta, fee, burnAddress });
-    if (typeof this.onTransfer === 'function') this.onTransfer(from, to, amount, { ...meta, fee, burnAddress });
+    if (typeof this.onTransfer === 'function')
+      this.onTransfer(from, to, amount, { ...meta, fee, burnAddress });
   }
 
   // Get user balance
@@ -135,15 +148,13 @@ class ArenaCreditService {
   }
 
   async getIntermediateCount() {
-    return Array.from(this.admins.values()).filter(type => type === 'intermediate').length;
+    return Array.from(this.admins.values()).filter((type) => type === 'intermediate').length;
   }
 
   // Get transaction log
   async getTransactions(userId = null) {
     if (!userId) return this.transactions;
-    return this.transactions.filter(
-      tx => tx.fromUser === userId || tx.toUser === userId
-    );
+    return this.transactions.filter((tx) => tx.fromUser === userId || tx.toUser === userId);
   }
 
   async getStats() {
@@ -152,7 +163,7 @@ class ArenaCreditService {
       holders: Object.keys(this.balances).length,
       frozen: this.frozenAccounts.size,
       admins: this.admins.size,
-      txCount: this.transactions.length
+      txCount: this.transactions.length,
     };
   }
 
@@ -220,12 +231,6 @@ class ArenaCreditService {
     if (!this.admins.has(caller)) throw new Error('Unauthorized');
     this.whitelist.delete(userId);
     this._logTx('removeFromWhitelist', caller, userId, 0, {});
-      fromUser,
-      toUser,
-      amount,
-      date: new Date().toISOString(),
-      meta
-    });
   }
 }
 

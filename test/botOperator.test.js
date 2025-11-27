@@ -28,7 +28,9 @@ describe('BotOperator', () => {
   it('should not operate when inactive', () => {
     const bot = new BotOperator({ active: false });
     let operated = false;
-    bot.operate = () => { operated = true; };
+    bot.operate = () => {
+      operated = true;
+    };
     bot.active = false;
     bot.operate();
     assert.strictEqual(operated, false);

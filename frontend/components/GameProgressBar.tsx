@@ -101,15 +101,17 @@ export const GameProgressBar: React.FC<GameProgressBarProps> = ({
 
       {showText && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`
+          <span
+            className={`
             font-medium
             ${size === 'sm' ? 'text-xs' : size === 'md' ? 'text-sm' : 'text-base'}
             ${percentage > 50 ? 'text-white' : 'text-gray-700 dark:text-gray-300'}
-          `}>
+          `}
+          >
             {value}/{maxValue}
           </span>
         </div>
       )}
     </div>
   );
-}; 
+};

@@ -10,15 +10,15 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - port: 80
-    targetPort: 3000
-    protocol: TCP
-    name: http
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+      name: http
   selector:
     app: safesoundarena
     environment: production
     tier: frontend
-    color: blue  # This will be updated by the deployment script
+    color: blue # This will be updated by the deployment script
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -27,33 +27,33 @@ metadata:
   namespace: safesoundarena-prod
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    cert-manager.io/cluster-issuer: 'letsencrypt-prod'
 spec:
   ingressClassName: nginx
   tls:
-  - hosts:
-    - safesoundarena.com
-    - www.safesoundarena.com
-    secretName: safesoundarena-tls
+    - hosts:
+        - safesoundarena.com
+        - www.safesoundarena.com
+      secretName: safesoundarena-tls
   rules:
-  - host: safesoundarena.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: safesoundarena-prod
-            port:
-              number: 80
-  - host: www.safesoundarena.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: safesoundarena-prod
-            port:
-              number: 80
+    - host: safesoundarena.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: safesoundarena-prod
+                port:
+                  number: 80
+    - host: www.safesoundarena.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: safesoundarena-prod
+                port:
+                  number: 80

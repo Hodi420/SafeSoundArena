@@ -17,7 +17,7 @@ if (!fs.existsSync(testDataDir)) {
 async function generateTestUsers(count) {
   const users = [];
   const passwordHash = await bcrypt.hash('TestPass123!', 10);
-  
+
   // Generate admin user
   users.push({
     id: '000000000000000000000001',
@@ -28,13 +28,13 @@ async function generateTestUsers(count) {
     isEmailVerified: true,
     name: 'Load Test Admin',
   });
-  
+
   // Generate regular users
   for (let i = 1; i < count; i++) {
     const firstName = faker.person.firstName();
     const lastName = faker.person.lastName();
     const email = `loadtest.user${i}@example.com`;
-    
+
     users.push({
       id: faker.database.mongodbObjectId(),
       email,
@@ -62,7 +62,7 @@ async function generateTestUsers(count) {
       },
     });
   }
-  
+
   return users;
 }
 
@@ -71,13 +71,12 @@ async function main() {
   try {
     console.log(`Generating ${NUM_USERS} test users...`);
     const users = await generateTestUsers(NUM_USERS);
-    
+
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify(users, null, 2));
     console.log(`Test data saved to ${OUTPUT_FILE}`);
-    
+
     console.log('\nSample user:');
     console.log(JSON.stringify(users[0], null, 2));
-    
   } catch (error) {
     console.error('Error generating test data:', error);
     process.exit(1);

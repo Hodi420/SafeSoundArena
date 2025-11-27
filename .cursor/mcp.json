@@ -6,9 +6,7 @@
       "servers": {
         "safesoundarena": {
           "command": "node",
-          "args": [
-            "server/mcp.js"
-          ],
+          "args": ["server/mcp.js"],
           "env": {
             "PORT": "3005",
             "MCP_ENABLE_SHELL": "false",
@@ -19,5 +17,3 @@
     }
   }
 }
-
-

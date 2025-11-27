@@ -68,42 +68,42 @@ spec:
         app: game-server
     spec:
       containers:
-      - name: game-server
-        image: safesoundarena/game-server:latest
-        resources:
-          requests:
-            memory: "2Gi"
-            cpu: "1000m"
-          limits:
-            memory: "4Gi"
-            cpu: "2000m"
-        ports:
-        - containerPort: 7777
-          name: game
-        - containerPort: 7778
-          name: metrics
-        env:
-        - name: GAME_CONFIG
-          value: "/etc/game/config.yaml"
-        volumeMounts:
-        - name: game-config
-          mountPath: /etc/game
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: metrics
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: metrics
-          initialDelaySeconds: 15
-          periodSeconds: 5
+        - name: game-server
+          image: safesoundarena/game-server:latest
+          resources:
+            requests:
+              memory: '2Gi'
+              cpu: '1000m'
+            limits:
+              memory: '4Gi'
+              cpu: '2000m'
+          ports:
+            - containerPort: 7777
+              name: game
+            - containerPort: 7778
+              name: metrics
+          env:
+            - name: GAME_CONFIG
+              value: '/etc/game/config.yaml'
+          volumeMounts:
+            - name: game-config
+              mountPath: /etc/game
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: metrics
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: metrics
+            initialDelaySeconds: 15
+            periodSeconds: 5
       volumes:
-      - name: game-config
-        configMap:
-          name: mcp-game-config
+        - name: game-config
+          configMap:
+            name: mcp-game-config
 ---
 apiVersion: v1
 kind: Service
@@ -114,10 +114,10 @@ spec:
   selector:
     app: game-server
   ports:
-  - name: game
-    port: 7777
-    targetPort: game
-  - name: metrics
-    port: 7778
-    targetPort: metrics
-  type: LoadBalancer 
+    - name: game
+      port: 7777
+      targetPort: game
+    - name: metrics
+      port: 7778
+      targetPort: metrics
+  type: LoadBalancer

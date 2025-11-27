@@ -30,18 +30,38 @@ export default function DomainValidationHelper({ validationKey }: { validationKe
   };
 
   return (
-    <div style={{border: '1px solid #bbb', borderRadius: 8, padding: 20, margin: '32px auto', maxWidth: 500, background: '#fafafa'}}>
+    <div
+      style={{
+        border: '1px solid #bbb',
+        borderRadius: 8,
+        padding: 20,
+        margin: '32px auto',
+        maxWidth: 500,
+        background: '#fafafa',
+      }}
+    >
       <h2>Domain Ownership Validation</h2>
       <ol>
         <li>Copy the validation key below:</li>
-        <pre style={{background: '#eee', padding: 8, borderRadius: 4, userSelect: 'all'}}>{sampleKey}</pre>
-        <button onClick={handleCopy} style={{marginBottom: 12}}>{copied ? 'Copied!' : 'Copy to Clipboard'}</button>
-        <li>Create a file named <b>validation-key.txt</b> and paste the key inside.</li>
-        <li>Upload <b>validation-key.txt</b> to the root of your hosting domain (e.g., <code>https://yourdomain.com/validation-key.txt</code>).</li>
+        <pre style={{ background: '#eee', padding: 8, borderRadius: 4, userSelect: 'all' }}>
+          {sampleKey}
+        </pre>
+        <button onClick={handleCopy} style={{ marginBottom: 12 }}>
+          {copied ? 'Copied!' : 'Copy to Clipboard'}
+        </button>
+        <li>
+          Create a file named <b>validation-key.txt</b> and paste the key inside.
+        </li>
+        <li>
+          Upload <b>validation-key.txt</b> to the root of your hosting domain (e.g.,{' '}
+          <code>https://yourdomain.com/validation-key.txt</code>).
+        </li>
         <li>Click below to download a sample file:</li>
         <button onClick={handleDownload}>Download validation-key.txt</button>
       </ol>
-      <p style={{fontSize: 13, color: '#888'}}>Required for Pi Network and other platforms to verify domain ownership.</p>
+      <p style={{ fontSize: 13, color: '#888' }}>
+        Required for Pi Network and other platforms to verify domain ownership.
+      </p>
     </div>
   );
 }

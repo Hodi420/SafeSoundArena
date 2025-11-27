@@ -64,13 +64,13 @@ class GameEventHandler {
   async handleCreateGame(playerId, { opponentId, betAmount = '0' }) {
     const game = await gameService.createGame(playerId, opponentId, betAmount);
     this.sendToPlayer(playerId, 'game:created', { game });
-    
+
     // Notify the opponent if they're connected
     if (this.playerConnections.has(opponentId)) {
-      this.sendToPlayer(opponentId, 'game:invite', { 
+      this.sendToPlayer(opponentId, 'game:invite', {
         gameId: game.id,
         opponent: playerId,
-        betAmount 
+        betAmount,
       });
     }
   }
@@ -94,26 +94,26 @@ class GameEventHandler {
 
     // Send the current game state to the player
     this.sendToPlayer(playerId, 'game:state', { game });
-    
+
     // Notify the other player that someone joined
-    const opponentId = game.players.find(id => id !== playerId);
+    const opponentId = game.players.find((id) => id !== playerId);
     if (opponentId && this.playerConnections.has(opponentId)) {
-      this.sendToPlayer(opponentId, 'game:player_joined', { 
+      this.sendToPlayer(opponentId, 'game:player_joined', {
         gameId,
-        playerId 
+        playerId,
       });
     }
   }
 
   async handleMakeMove(playerId, { gameId, move }) {
     const game = await gameService.makeMove(gameId, playerId, move);
-    
+
     // Broadcast the move to all players in the game
     this.broadcastToGame(gameId, 'game:move_made', {
       gameId,
       playerId,
       move,
-      gameState: game
+      gameState: game,
     });
 
     // If the game is over, notify the players
@@ -121,7 +121,7 @@ class GameEventHandler {
       this.broadcastToGame(gameId, 'game:ended', {
         gameId,
         winner: game.winner,
-        finalState: game
+        finalState: game,
       });
     }
   }
@@ -131,11 +131,11 @@ class GameEventHandler {
     if (!game) return;
 
     // Notify the other player
-    const opponentId = game.players.find(id => id !== playerId);
+    const opponentId = game.players.find((id) => id !== playerId);
     if (opponentId && this.playerConnections.has(opponentId)) {
-      this.sendToPlayer(opponentId, 'game:player_left', { 
+      this.sendToPlayer(opponentId, 'game:player_left', {
         gameId,
-        playerId 
+        playerId,
       });
     }
 
@@ -155,22 +155,22 @@ class GameEventHandler {
       gameId,
       senderId,
       message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
   handleDisconnect(playerId) {
     logger.info(`Player ${playerId} disconnected`);
     this.playerConnections.delete(playerId);
-    
+
     // Notify any games this player was in
     const activeGames = [...gameService.activeGames.values()];
-    const playerGames = activeGames.filter(game => game.players.includes(playerId));
-    
-    playerGames.forEach(game => {
+    const playerGames = activeGames.filter((game) => game.players.includes(playerId));
+
+    playerGames.forEach((game) => {
       this.broadcastToGame(game.id, 'game:player_disconnected', {
         gameId: game.id,
-        playerId
+        playerId,
       });
     });
   }
@@ -192,7 +192,7 @@ class GameEventHandler {
     const game = gameService.getGame(gameId);
     if (!game) return;
 
-    game.players.forEach(playerId => {
+    game.players.forEach((playerId) => {
       this.sendToPlayer(playerId, event, data);
     });
   }

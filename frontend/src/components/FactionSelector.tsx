@@ -59,13 +59,17 @@ export default function FactionSelector() {
             aria-label="Dismiss error"
             className="ml-2 px-2 py-1 rounded bg-red-300 dark:bg-red-700 text-xs text-white hover:bg-red-400 dark:hover:bg-red-600 transition-colors"
             onClick={() => setError(null)}
-          >✕</button>
+          >
+            ✕
+          </button>
         </div>
       )}
       {factions.map((faction) => {
         // Find reputation data for this faction
-        const factionRep = factionsReputation.data?.find(rep => rep.id === faction.id);
-        const reputationText = factionRep ? `Reputation: ${factionRep.reputation}` : 'Reputation: N/A';
+        const factionRep = factionsReputation.data?.find((rep) => rep.id === faction.id);
+        const reputationText = factionRep
+          ? `Reputation: ${factionRep.reputation}`
+          : 'Reputation: N/A';
         return (
           <button
             key={faction.id}
@@ -74,12 +78,32 @@ export default function FactionSelector() {
             disabled={loading === faction.id}
           >
             <div className="flex items-center w-full">
-              <span className="text-lg font-semibold">{(EMOJIS as any)?.FACTIONS?.[String(faction.id)] ?? (EMOJIS as any)?.[faction.id] ?? ''} {faction.name}</span>
+              <span className="text-lg font-semibold">
+                {(EMOJIS as any)?.FACTIONS?.[String(faction.id)] ??
+                  (EMOJIS as any)?.[faction.id] ??
+                  ''}{' '}
+                {faction.name}
+              </span>
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">{reputationText}</div>
             {loading === faction.id && (
               <span className="ml-2 flex items-center gap-1">
-                <svg className="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+                <svg
+                  className="animate-spin h-5 w-5 text-blue-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
                 Loading...
               </span>
             )}

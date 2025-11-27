@@ -1,6 +1,7 @@
 # Authentication Incident Response Runbook
 
 ## Overview
+
 This runbook provides step-by-step instructions for identifying, diagnosing, and resolving common authentication-related incidents in the SafeSoundArena platform.
 
 ## Common Scenarios
@@ -8,11 +9,13 @@ This runbook provides step-by-step instructions for identifying, diagnosing, and
 ### 1. High Rate of Failed Login Attempts
 
 **Symptoms:**
+
 - Increased error rate in authentication logs
 - Multiple 401/403 responses from auth endpoints
 - Alerts for failed login attempts threshold exceeded
 
 **Investigation Steps:**
+
 1. Check authentication dashboard for patterns
    ```bash
    # Query failed login attempts in the last 15 minutes
@@ -35,6 +38,7 @@ This runbook provides step-by-step instructions for identifying, diagnosing, and
    ```
 
 **Resolution:**
+
 1. If under attack, block suspicious IPs at the load balancer
    ```bash
    # Add to deny list (example for nginx)
@@ -46,19 +50,21 @@ This runbook provides step-by-step instructions for identifying, diagnosing, and
    # auth-service deployment
    env:
      - name: RATE_LIMIT_WINDOW
-       value: "900"  # 15 minutes
+       value: '900' # 15 minutes
      - name: RATE_LIMIT_MAX_REQUESTS
-       value: "100"  # requests per window
+       value: '100' # requests per window
    ```
 
 ### 2. Token Validation Failures
 
 **Symptoms:**
+
 - Increased 401 Unauthorized responses
 - Users being logged out unexpectedly
 - Alerts for JWT validation errors
 
 **Investigation Steps:**
+
 1. Check JWT validation errors in logs
    ```bash
    kubectl logs -n safesoundarena -l app=auth-service | grep -i "jwt\|token" | grep -v health
@@ -73,13 +79,15 @@ This runbook provides step-by-step instructions for identifying, diagnosing, and
    ```
 
 **Resolution:**
+
 1. If JWT secret was rotated, ensure all services have the new secret
+
    ```bash
    # Update secret
    kubectl create secret generic auth-secrets -n safesoundarena \
      --from-literal=JWT_SECRET=new-secret-here \
      --dry-run=client -o yaml | kubectl apply -f -
-   
+
    # Restart auth services
    kubectl rollout restart deployment -n safesoundarena auth-service
    ```
@@ -87,11 +95,13 @@ This runbook provides step-by-step instructions for identifying, diagnosing, and
 ### 3. Database Connection Issues
 
 **Symptoms:**
+
 - Authentication service failing to start
 - Database connection timeouts
 - Increased 5xx errors on auth endpoints
 
 **Investigation Steps:**
+
 1. Check database connection status
    ```bash
    kubectl exec -it -n postgresql postgresql-0 -- pg_isready
@@ -108,6 +118,7 @@ This runbook provides step-by-step instructions for identifying, diagnosing, and
    ```
 
 **Resolution:**
+
 1. Scale database resources if needed
    ```bash
    # Scale PostgreSQL
@@ -118,14 +129,15 @@ This runbook provides step-by-step instructions for identifying, diagnosing, and
    # auth-service deployment
    env:
      - name: DB_MAX_POOL
-       value: "20"
+       value: '20'
      - name: DB_IDLE_TIMEOUT
-       value: "30000"  # 30 seconds
+       value: '30000' # 30 seconds
    ```
 
 ## Recovery Procedures
 
 ### Rollback Deployment
+
 ```bash
 # Check deployment history
 kubectl rollout history deployment/auth-service -n safesoundarena
@@ -138,6 +150,7 @@ kubectl rollout status deployment/auth-service -n safesoundarena
 ```
 
 ### Emergency Maintenance Mode
+
 1. Enable maintenance mode
    ```bash
    kubectl set env deployment/auth-service -n safesoundarena MAINTENANCE_MODE=true
@@ -148,6 +161,7 @@ kubectl rollout status deployment/auth-service -n safesoundarena
    ```
 
 ## Post-Incident Review
+
 1. Gather metrics and logs from the incident window
 2. Document timeline of events
 3. Conduct root cause analysis
@@ -155,6 +169,7 @@ kubectl rollout status deployment/auth-service -n safesoundarena
 5. Schedule follow-up actions and monitoring improvements
 
 ## Contact Information
+
 - Primary On-Call: #sre-oncall (Slack)
 - Escalation: #eng-leadership (Slack)
 - PagerDuty: safesoundarena-auth (Primary)

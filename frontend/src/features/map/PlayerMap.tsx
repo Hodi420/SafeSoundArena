@@ -8,7 +8,12 @@ interface PlayerMapProps {
   mapBackgroundUrl?: string;
 }
 
-const PlayerMap: React.FC<PlayerMapProps> = ({ players, mapWidth, mapHeight, mapBackgroundUrl }) => {
+const PlayerMap: React.FC<PlayerMapProps> = ({
+  players,
+  mapWidth,
+  mapHeight,
+  mapBackgroundUrl,
+}) => {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
 
   return (

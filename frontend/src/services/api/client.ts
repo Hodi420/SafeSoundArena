@@ -19,13 +19,19 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     if (process.env.NODE_ENV !== 'production') {
-      const devKey = typeof document !== 'undefined' ? document.cookie.split('; ').find(x=>x.startsWith('dev_access='))?.split('=')[1] : undefined;
+      const devKey =
+        typeof document !== 'undefined'
+          ? document.cookie
+              .split('; ')
+              .find((x) => x.startsWith('dev_access='))
+              ?.split('=')[1]
+          : undefined;
       if (!config.headers) config.headers = {};
       if (devKey) (config.headers as any)['X-Dev-Key'] = devKey;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Response interceptor
@@ -53,5 +59,5 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );

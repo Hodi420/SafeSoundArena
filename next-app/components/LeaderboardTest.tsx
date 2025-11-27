@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { Button, Card, CardContent, Typography, Box, TextField, MenuItem, Alert } from '@mui/material';
+import {
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  TextField,
+  MenuItem,
+  Alert,
+} from '@mui/material';
 import { awardPoints } from '../core/scoring';
 import { Leaderboard } from './Leaderboard';
 
@@ -18,14 +27,14 @@ const LeaderboardTest: React.FC = () => {
       const response = await awardPoints(userId, action, multiplier);
       setResult({
         success: response.success,
-        message: response.success 
+        message: response.success
           ? `Awarded ${POINTS[action] * multiplier} points for ${action}`
-          : 'Failed to award points'
+          : 'Failed to award points',
       });
     } catch (error) {
       setResult({
         success: false,
-        message: `Error: ${error instanceof Error ? error.message : String(error)}`
+        message: `Error: ${error instanceof Error ? error.message : String(error)}`,
       });
     }
   };
@@ -34,8 +43,10 @@ const LeaderboardTest: React.FC = () => {
     <Box sx={{ maxWidth: 800, margin: '40px auto', '& > * + *': { mt: 3 } }}>
       <Card>
         <CardContent>
-          <Typography variant="h5" gutterBottom>Test Leaderboard Integration</Typography>
-          
+          <Typography variant="h5" gutterBottom>
+            Test Leaderboard Integration
+          </Typography>
+
           <Box sx={{ '& > *': { mb: 2 }, '& > *:last-child': { mb: 0 } }}>
             <TextField
               fullWidth
@@ -44,7 +55,7 @@ const LeaderboardTest: React.FC = () => {
               onChange={(e) => setUserId(e.target.value)}
               margin="normal"
             />
-            
+
             <TextField
               select
               fullWidth
@@ -59,7 +70,7 @@ const LeaderboardTest: React.FC = () => {
                 </MenuItem>
               ))}
             </TextField>
-            
+
             <TextField
               fullWidth
               type="number"
@@ -69,17 +80,17 @@ const LeaderboardTest: React.FC = () => {
               margin="normal"
               inputProps={{ min: 1 }}
             />
-            
-            <Button 
-              variant="contained" 
-              color="primary" 
+
+            <Button
+              variant="contained"
+              color="primary"
               onClick={handleAwardPoints}
               fullWidth
               size="large"
             >
               Award Points
             </Button>
-            
+
             {result && (
               <Alert severity={result.success ? 'success' : 'error'} sx={{ mt: 2 }}>
                 {result.message}
@@ -88,10 +99,12 @@ const LeaderboardTest: React.FC = () => {
           </Box>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardContent>
-          <Typography variant="h6" gutterBottom>Leaderboard Preview</Typography>
+          <Typography variant="h6" gutterBottom>
+            Leaderboard Preview
+          </Typography>
           <Leaderboard />
         </CardContent>
       </Card>
@@ -105,18 +118,18 @@ const POINTS = {
   REPORT_SCAM: 50,
   CONFIRM_SCAM: 25,
   PREVENT_SCAM: 100,
-  
+
   // Community Impact
   HELP_OTHER: 10,
   COMPLETE_TUTORIAL: 50,
   COMPLETE_DAILY_QUEST: 30,
   COMPLETE_WEEKLY_QUEST: 100,
   REFER_FRIEND: 75,
-  
+
   // Moderation
   CONTENT_REVIEW: 20,
   CONTENT_FLAG_REVIEW: 15,
-  
+
   // Engagement
   DAILY_LOGIN: 5,
   WEEKLY_STREAK: 25,

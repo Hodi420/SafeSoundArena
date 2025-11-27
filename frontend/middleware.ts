@@ -5,7 +5,12 @@ import type { NextRequest } from 'next/server';
 export function middleware(req: NextRequest) {
   // Allow public assets and API routes to pass
   const { pathname } = req.nextUrl;
-  if (pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname.startsWith('/public') || pathname === '/dev-login') {
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/public') ||
+    pathname === '/dev-login'
+  ) {
     return NextResponse.next();
   }
 
@@ -25,5 +30,3 @@ export function middleware(req: NextRequest) {
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };
-
-

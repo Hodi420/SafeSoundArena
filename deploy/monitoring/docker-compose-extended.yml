@@ -16,7 +16,7 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
       - '--web.enable-lifecycle'
     ports:
-      - "9090:9090"
+      - '9090:9090'
     networks:
       - monitoring
     depends_on:
@@ -37,7 +37,7 @@ services:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
       - '--storage.path=/alertmanager'
     ports:
-      - "9093:9093"
+      - '9093:9093'
     networks:
       - monitoring
 
@@ -52,7 +52,7 @@ services:
       - '--path.rootfs=/host'
     pid: host
     ports:
-      - "9100:9100"
+      - '9100:9100'
     networks:
       - monitoring
 
@@ -70,7 +70,7 @@ services:
     devices:
       - /dev/kmsg:/dev/kmsg
     ports:
-      - "8080:8080"
+      - '8080:8080'
     networks:
       - monitoring
 
@@ -87,7 +87,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
       - GF_USERS_ALLOW_SIGN_UP=false
     ports:
-      - "3000:3000"
+      - '3000:3000'
     networks:
       - monitoring
     depends_on:
@@ -103,7 +103,7 @@ services:
     command:
       - '--config.file=/etc/blackbox_exporter/blackbox.yml'
     ports:
-      - "9115:9115"
+      - '9115:9115'
     networks:
       - monitoring
 
@@ -115,7 +115,7 @@ services:
     environment:
       - REDIS_ADDR=redis:6379
     ports:
-      - "9121:9121"
+      - '9121:9121'
     networks:
       - monitoring
     depends_on:
@@ -129,7 +129,7 @@ services:
     environment:
       - MONGODB_URI=mongodb://mongodb:27017
     ports:
-      - "9216:9216"
+      - '9216:9216'
     networks:
       - monitoring
     depends_on:
@@ -141,7 +141,7 @@ services:
     container_name: loki
     restart: unless-stopped
     ports:
-      - "3100:3100"
+      - '3100:3100'
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - loki_data:/loki
@@ -170,7 +170,7 @@ services:
     volumes:
       - uptime_kuma:/app/data
     ports:
-      - "3001:3001"
+      - '3001:3001'
     networks:
       - monitoring
 
@@ -184,7 +184,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     ports:
-      - "9000:9000"
+      - '9000:9000'
     networks:
       - monitoring
 
@@ -203,8 +203,8 @@ services:
       - --certificatesresolvers.myresolver.acme.email=${TRAEFIK_ACME_EMAIL:-admin@example.com}
       - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik_certs:/letsencrypt

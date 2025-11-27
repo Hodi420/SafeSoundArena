@@ -15,17 +15,19 @@ connectDB();
 
 // Middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000, // 15 minutes
-  max: process.env.RATE_LIMIT_MAX || 100 // limit each IP to 100 requests per windowMs
+  max: process.env.RATE_LIMIT_MAX || 100, // limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
 
@@ -47,7 +49,7 @@ app.get('/api/health', (req, res) => {
     status: 'ok',
     message: 'Server is running',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
+    environment: process.env.NODE_ENV,
   });
 });
 
@@ -65,44 +67,42 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   logger.error(`Error: ${err.message}`);
   logger.error(err.stack);
-  
+
   // Handle JWT authentication errors
   if (err.name === 'UnauthorizedError') {
-    return res.status(401).json({ 
-      success: false, 
-      error: 'Invalid or expired token' 
+    return res.status(401).json({
+      success: false,
+      error: 'Invalid or expired token',
     });
   }
-  
+
   // Handle validation errors
   if (err.name === 'ValidationError') {
-    return res.status(400).json({ 
-      success: false, 
-      error: err.message 
+    return res.status(400).json({
+      success: false,
+      error: err.message,
     });
   }
-  
+
   // Handle rate limiting
   if (err.status === 429) {
     return res.status(429).json({
       success: false,
-      error: 'Too many requests, please try again later.'
+      error: 'Too many requests, please try again later.',
     });
   }
-  
+
   // Default error response
-  const errorResponse = { 
-    success: false, 
-    error: process.env.NODE_ENV === 'production' 
-      ? 'Internal Server Error' 
-      : err.message 
+  const errorResponse = {
+    success: false,
+    error: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
   };
-  
+
   // Include error code if available
   if (err.code) {
     errorResponse.code = err.code;
   }
-  
+
   res.status(err.status || 500).json(errorResponse);
 });
 

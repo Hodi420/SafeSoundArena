@@ -4,7 +4,11 @@ const { getStats } = require('./analytics');
 const fs = require('fs');
 const path = require('path');
 let chalk = null;
-try { chalk = require('chalk'); } catch { chalk = null; }
+try {
+  chalk = require('chalk');
+} catch {
+  chalk = null;
+}
 function color(text, style) {
   if (!chalk) return text;
   // Only use basic color functions, no .bold for v5+
@@ -27,7 +31,10 @@ function printAdvancedAnalytics() {
   console.log(color('\n=== AI Consensus Analytics ===', 'header'));
   console.log(color('Total queries:', 'total'), stats.totalQueries);
   if (stats.mostCommonConsensus.consensus) {
-    console.log(color('Most common consensus:', 'consensus'), color(stats.mostCommonConsensus.consensus, 'count'));
+    console.log(
+      color('Most common consensus:', 'consensus'),
+      color(stats.mostCommonConsensus.consensus, 'count')
+    );
     console.log(color('Count:', 'consensus'), stats.mostCommonConsensus.count);
   } else {
     console.log(color('No consensus reached yet.', 'error'));
@@ -62,7 +69,7 @@ function printAdvancedAnalytics() {
     for (const [provider, count] of Object.entries(errorCounts)) {
       console.log(color(`- ${provider}:`, 'error'), count);
     }
-    const consensusRate = (consensusCount / (data.queries.length || 1) * 100).toFixed(2);
+    const consensusRate = ((consensusCount / (data.queries.length || 1)) * 100).toFixed(2);
     console.log(color(`\nConsensus Rate: ${consensusRate}%`, 'header'));
   }
 }

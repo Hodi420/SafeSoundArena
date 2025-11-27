@@ -7,28 +7,28 @@ const { withSentryConfig } = require('@sentry/nextjs');
 const nextConfig = {
   // Your existing Next.js config
   reactStrictMode: true,
-  
+
   // Enable source maps in production
   productionBrowserSourceMaps: true,
-  
+
   // Configure images if needed
   images: {
     domains: ['your-cdn-domain.com'],
   },
-  
+
   // Environment variables that should be available on the client side
   env: {
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
     NEXT_PUBLIC_ENV: process.env.NODE_ENV,
   },
-  
+
   // Webpack configuration for source maps
   webpack: (config, { isServer, webpack }) => {
     if (!isServer) {
       // Enable source maps in development for the client
       config.devtool = 'source-map';
     }
-    
+
     // Add custom webpack configurations if needed
     config.plugins.push(
       new webpack.DefinePlugin({
@@ -36,7 +36,7 @@ const nextConfig = {
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
       })
     );
-    
+
     return config;
   },
 };
@@ -54,7 +54,8 @@ const sentryWebpackPluginOptions = {
   // Set the current environment
   environment: process.env.NODE_ENV,
   // Release version (e.g., from git SHA or package.json version)
-  release: process.env.VERCEL_GIT_COMMIT_SHA || `safesoundarena@${require('./package.json').version}`,
+  release:
+    process.env.VERCEL_GIT_COMMIT_SHA || `safesoundarena@${require('./package.json').version}`,
   // Automatically capture performance monitoring
   tracesSampleRate: 0.1, // Adjust based on your needs (0.0 to 1.0)
   // Enable capturing of console logs
@@ -64,12 +65,12 @@ const sentryWebpackPluginOptions = {
   // Filter out specific errors if needed
   beforeSend(event, hint) {
     const error = hint.originalException;
-    
+
     // Ignore specific errors
     if (error && error.message && error.message.match(/network timeout|failed to fetch/i)) {
       return null;
     }
-    
+
     return event;
   },
 };

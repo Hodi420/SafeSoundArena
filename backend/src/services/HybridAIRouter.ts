@@ -41,16 +41,16 @@ export class HybridAIRouter {
       costPerToken: 0,
       avgLatency: 800,
       qualityScore: 7,
-      capabilities: ['general', 'coding', 'translation']
+      capabilities: ['general', 'coding', 'translation'],
     },
     {
       name: 'mistral-7b-local',
-      provider: 'local', 
+      provider: 'local',
       endpoint: 'http://localhost:8081',
       costPerToken: 0,
       avgLatency: 600,
       qualityScore: 6,
-      capabilities: ['general', 'simple-coding']
+      capabilities: ['general', 'simple-coding'],
     },
     {
       name: 'gpt-4o',
@@ -59,7 +59,7 @@ export class HybridAIRouter {
       costPerToken: 0.00003,
       avgLatency: 2000,
       qualityScore: 9.5,
-      capabilities: ['general', 'coding', 'complex-reasoning', 'agentic']
+      capabilities: ['general', 'coding', 'complex-reasoning', 'agentic'],
     },
     {
       name: 'claude-3-sonnet',
@@ -68,8 +68,8 @@ export class HybridAIRouter {
       costPerToken: 0.000015,
       avgLatency: 1800,
       qualityScore: 9,
-      capabilities: ['general', 'coding', 'analysis', 'safety']
-    }
+      capabilities: ['general', 'coding', 'analysis', 'safety'],
+    },
   ];
 
   private usageStats = {
@@ -77,7 +77,7 @@ export class HybridAIRouter {
     localRequests: 0,
     apiRequests: 0,
     totalCost: 0,
-    costSavings: 0
+    costSavings: 0,
   };
 
   /**
@@ -98,22 +98,22 @@ export class HybridAIRouter {
           costPerToken: 0,
           avgLatency: 50,
           qualityScore: 1,
-          capabilities: ['general']
+          capabilities: ['general'],
         };
         return {
           selectedModel: fallbackModel,
           reasoning: 'Dev fallback - no models available',
           estimatedCost: 0,
-          estimatedLatency: 50
+          estimatedLatency: 50,
         };
       }
       throw new Error('No AI models are currently available');
     }
-    
+
     // Score each model based on request requirements
-    const scores = availableModels.map(model => ({
+    const scores = availableModels.map((model) => ({
       model,
-      score: this.calculateModelScore(model, request, complexity)
+      score: this.calculateModelScore(model, request, complexity),
     }));
 
     // Sort by score and select best option
@@ -127,7 +127,7 @@ export class HybridAIRouter {
       selectedModel,
       reasoning: this.generateReasoning(selectedModel, request, complexity),
       estimatedCost,
-      estimatedLatency
+      estimatedLatency,
     };
   }
 
@@ -146,21 +146,38 @@ export class HybridAIRouter {
 
     // Keyword analysis
     const complexKeywords = [
-      'analyze', 'compare', 'explain', 'reasoning', 'complex', 'detailed',
-      'architectural', 'design pattern', 'algorithm', 'optimization',
-      'security', 'performance', 'scalability'
-    ];
-    
-    const simpleKeywords = [
-      'translate', 'format', 'convert', 'list', 'simple', 'basic',
-      'hello', 'what is', 'define'
+      'analyze',
+      'compare',
+      'explain',
+      'reasoning',
+      'complex',
+      'detailed',
+      'architectural',
+      'design pattern',
+      'algorithm',
+      'optimization',
+      'security',
+      'performance',
+      'scalability',
     ];
 
-    complexKeywords.forEach(keyword => {
+    const simpleKeywords = [
+      'translate',
+      'format',
+      'convert',
+      'list',
+      'simple',
+      'basic',
+      'hello',
+      'what is',
+      'define',
+    ];
+
+    complexKeywords.forEach((keyword) => {
       if (prompt.includes(keyword)) complexityScore += 1;
     });
 
-    simpleKeywords.forEach(keyword => {
+    simpleKeywords.forEach((keyword) => {
       if (prompt.includes(keyword)) complexityScore -= 1;
     });
 
@@ -202,7 +219,7 @@ export class HybridAIRouter {
 
     // Accuracy requirements
     if (request.requiresAccuracy && (model.qualityScore ?? 0) < 8) score -= 3;
-    
+
     // Latency requirements
     if (request.requiresLatency && (model.avgLatency ?? Number.MAX_SAFE_INTEGER) > 1500) score -= 2;
 
@@ -214,7 +231,7 @@ export class HybridAIRouter {
    */
   private async getAvailableModels(): Promise<ModelConfig[]> {
     const available: ModelConfig[] = [];
-    
+
     for (const model of this.models) {
       try {
         if (model.provider === 'local') {
@@ -222,9 +239,9 @@ export class HybridAIRouter {
           const controller = new AbortController();
           const timeout = setTimeout(() => controller.abort(), 2000);
           try {
-            const response = await fetch(`${model.endpoint}/api/tags`, { 
+            const response = await fetch(`${model.endpoint}/api/tags`, {
               method: 'GET',
-              signal: controller.signal
+              signal: controller.signal,
             });
             if (response.ok) available.push(model);
           } finally {
@@ -270,7 +287,7 @@ export class HybridAIRouter {
 
   private generateReasoning(model: ModelConfig, request: AIRequest, complexity: string): string {
     const reasons = [];
-    
+
     if (model.provider === 'local') {
       reasons.push('Selected local model for cost efficiency');
     } else {
@@ -295,10 +312,10 @@ export class HybridAIRouter {
    */
   public async execute(decision: RoutingDecision, request: AIRequest): Promise<string> {
     const startTime = performance.now();
-    
+
     try {
       let response: string;
-      
+
       if (decision.selectedModel.name === 'dev-fallback') {
         response = await this.executeFallback(request);
         this.usageStats.localRequests++;
@@ -313,9 +330,11 @@ export class HybridAIRouter {
 
       const actualLatency = performance.now() - startTime;
       this.usageStats.totalRequests++;
-      
-      console.log(`Request completed in ${actualLatency.toFixed(0)}ms using ${decision.selectedModel.name}`);
-      
+
+      console.log(
+        `Request completed in ${actualLatency.toFixed(0)}ms using ${decision.selectedModel.name}`
+      );
+
       return response;
     } catch (error) {
       console.error('Execution error:', error);
@@ -328,7 +347,7 @@ export class HybridAIRouter {
     const ollama = require('../../../aiClients/ollama');
     return await ollama.ask(request.prompt, {
       baseUrl: model.endpoint,
-      model: model.name.split('-')[0] // Extract model name
+      model: model.name.split('-')[0], // Extract model name
     });
   }
 
@@ -342,7 +361,7 @@ export class HybridAIRouter {
       const claude = require('../../../aiClients/claude');
       return await claude.ask(request.prompt);
     }
-    
+
     throw new Error(`Unsupported API model: ${model.name}`);
   }
 
@@ -357,11 +376,11 @@ export class HybridAIRouter {
   public getStats() {
     const total = this.usageStats.totalRequests || 0;
     const localPercentage = total ? (this.usageStats.localRequests / total) * 100 : 0;
-    const avgCostPerRequest = total ? (this.usageStats.totalCost / total) : 0;
+    const avgCostPerRequest = total ? this.usageStats.totalCost / total : 0;
     return {
       ...this.usageStats,
       localPercentage,
-      avgCostPerRequest
+      avgCostPerRequest,
     };
   }
 }

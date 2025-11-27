@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 
-const KEYWORDS = ['פאי', 'חלוץ', 'גלקסיה', 'בלוקצ\'יין', 'נתיב'];
+const KEYWORDS = ['פאי', 'חלוץ', 'גלקסיה', "בלוקצ'יין", 'נתיב'];
 function getRandomKeyword() {
   return KEYWORDS[Math.floor(Math.random() * KEYWORDS.length)];
 }
 
 export default function JailtimeVoiceAuth({ onSuccess }: { onSuccess: () => void }) {
   const [keyword] = useState(getRandomKeyword());
-  const [status, setStatus] = useState<'idle' | 'recording' | 'checking' | 'success' | 'fail'>('idle');
+  const [status, setStatus] = useState<'idle' | 'recording' | 'checking' | 'success' | 'fail'>(
+    'idle'
+  );
   const [error, setError] = useState<string | null>(null);
 
   const handleRecord = () => {
@@ -15,7 +17,8 @@ export default function JailtimeVoiceAuth({ onSuccess }: { onSuccess: () => void
     setError(null);
 
     // Web Speech API
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setError('דפדפן לא תומך בזיהוי קולי');
       setStatus('fail');

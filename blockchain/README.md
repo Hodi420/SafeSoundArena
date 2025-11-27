@@ -12,19 +12,21 @@ This directory contains the smart contracts and deployment scripts for the SafeS
 ## Setup
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
 
 2. Create a `.env` file in the root directory with the following variables:
+
    ```env
    # Local development
    PRIVATE_KEY=your_private_key_here
-   
+
    # Testnet (Goerli)
    GOERLI_RPC_URL=your_goerli_rpc_url
    ETHERSCAN_API_KEY=your_etherscan_api_key
-   
+
    # Mainnet
    MAINNET_RPC_URL=your_mainnet_rpc_url
    ```
@@ -38,6 +40,7 @@ npm run compile
 ## Testing
 
 Run tests:
+
 ```bash
 npm test
 ```
@@ -45,6 +48,7 @@ npm test
 ## Local Development
 
 1. Start a local blockchain node:
+
    ```bash
    npx hardhat node
    ```
@@ -57,11 +61,13 @@ npm test
 ## Deployment
 
 ### Testnet (Goerli)
+
 ```bash
 npm run deploy:testnet
 ```
 
 ### Mainnet
+
 ```bash
 npm run deploy:mainnet
 ```
@@ -69,6 +75,7 @@ npm run deploy:mainnet
 ## Contract Verification
 
 After deployment, verify your contracts on Etherscan:
+
 ```bash
 npx hardhat verify --network <network> <contract_address> [constructor_args]
 ```

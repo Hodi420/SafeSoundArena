@@ -11,7 +11,7 @@ export const EMOJIS = {
     MINING: '⛏️',
     MAGIC: '✨',
   },
-  
+
   DIFFICULTY: {
     NOVICE: '🌱',
     EASY: '🔰',

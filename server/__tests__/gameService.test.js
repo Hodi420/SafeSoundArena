@@ -11,26 +11,26 @@ describe('GameService', () => {
   const player1 = {
     id: 'player1',
     address: '0x1234567890123456789012345678901234567890',
-    username: 'testplayer1'
+    username: 'testplayer1',
   };
-  
+
   const player2 = {
     id: 'player2',
     address: '0x0987654321098765432109876543210987654321',
-    username: 'testplayer2'
+    username: 'testplayer2',
   };
 
   beforeEach(() => {
     // Reset mocks before each test
     jest.clearAllMocks();
-    
+
     // Create a new game service instance
     gameService = new GameService();
-    
+
     // Mock blockchain service responses
     blockchainService.executeGameResult.mockResolvedValue({
       transactionHash: '0x123...',
-      status: true
+      status: true,
     });
   });
 
@@ -40,14 +40,16 @@ describe('GameService', () => {
         gameId: testGameId,
         creator: player1,
         betAmount: '1.0',
-        gameType: 'tic-tac-toe'
+        gameType: 'tic-tac-toe',
       });
 
       expect(game).toHaveProperty('id', testGameId);
-      expect(game.players).toContainEqual(expect.objectContaining({
-        id: player1.id,
-        address: player1.address
-      }));
+      expect(game.players).toContainEqual(
+        expect.objectContaining({
+          id: player1.id,
+          address: player1.address,
+        })
+      );
       expect(game.status).toBe('waiting');
     });
   });
@@ -59,17 +61,19 @@ describe('GameService', () => {
         gameId: testGameId,
         creator: player1,
         betAmount: '1.0',
-        gameType: 'tic-tac-toe'
+        gameType: 'tic-tac-toe',
       });
 
       // Then join the game
       const game = gameService.joinGame(testGameId, player2);
 
       expect(game.players).toHaveLength(2);
-      expect(game.players).toContainEqual(expect.objectContaining({
-        id: player2.id,
-        address: player2.address
-      }));
+      expect(game.players).toContainEqual(
+        expect.objectContaining({
+          id: player2.id,
+          address: player2.address,
+        })
+      );
       expect(game.status).toBe('in_progress');
     });
   });
@@ -81,7 +85,7 @@ describe('GameService', () => {
         gameId: testGameId,
         creator: player1,
         betAmount: '1.0',
-        gameType: 'tic-tac-toe'
+        gameType: 'tic-tac-toe',
       });
       gameService.joinGame(testGameId, player2);
     });
@@ -101,11 +105,11 @@ describe('GameService', () => {
         { x: 1, y: 0, player: player2.id }, // O
         { x: 0, y: 1, player: player1.id }, // X
         { x: 1, y: 1, player: player2.id }, // O
-        { x: 0, y: 2, player: player1.id }  // X - wins
+        { x: 0, y: 2, player: player1.id }, // X - wins
       ];
 
       let result;
-      moves.forEach(move => {
+      moves.forEach((move) => {
         result = gameService.makeMove(testGameId, move);
       });
 
@@ -126,7 +130,7 @@ describe('GameService', () => {
         gameId: testGameId,
         creator: player1,
         betAmount: '1.0',
-        gameType: 'tic-tac-toe'
+        gameType: 'tic-tac-toe',
       });
       gameService.joinGame(testGameId, player2);
 
@@ -150,11 +154,11 @@ describe('GameService', () => {
         gameId: testGameId,
         creator: player1,
         betAmount: '1.0',
-        gameType: 'tic-tac-toe'
+        gameType: 'tic-tac-toe',
       });
 
       const gameState = gameService.getGameState(testGameId);
-      
+
       expect(gameState).toHaveProperty('id', testGameId);
       expect(gameState.players).toHaveLength(1);
       expect(gameState.status).toBe('waiting');

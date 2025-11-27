@@ -11,7 +11,7 @@ async function ask(prompt, options = {}) {
       model: options.model || 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: prompt }],
       temperature: options.temperature || 0.7,
-      ...options
+      ...options,
     });
     return response.choices[0].message.content.trim();
   } catch (error) {

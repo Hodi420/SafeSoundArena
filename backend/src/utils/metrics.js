@@ -12,7 +12,7 @@ const authRequests = new client.Counter({
   name: 'auth_requests_total',
   help: 'Total number of authentication requests',
   labelNames: ['method', 'endpoint', 'status'],
-  registers: [register]
+  registers: [register],
 });
 
 const authDurations = new client.Histogram({
@@ -20,49 +20,49 @@ const authDurations = new client.Histogram({
   help: 'Duration of authentication requests in seconds',
   labelNames: ['method', 'endpoint'],
   buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 10],
-  registers: [register]
+  registers: [register],
 });
 
 const activeSessions = new client.Gauge({
   name: 'auth_active_sessions',
   help: 'Number of active user sessions',
   labelNames: ['user_type'],
-  registers: [register]
+  registers: [register],
 });
 
 const failedLoginAttempts = new client.Counter({
   name: 'auth_failed_login_attempts_total',
   help: 'Total number of failed login attempts',
   labelNames: ['reason'],
-  registers: [register]
+  registers: [register],
 });
 
 const tokenRefreshes = new client.Counter({
   name: 'auth_token_refreshes_total',
   help: 'Total number of token refresh operations',
   labelNames: ['status'],
-  registers: [register]
+  registers: [register],
 });
 
 const passwordResets = new client.Counter({
   name: 'auth_password_resets_total',
   help: 'Total number of password reset requests',
   labelNames: ['status'],
-  registers: [register]
+  registers: [register],
 });
 
 const accountLocks = new client.Counter({
   name: 'auth_account_locks_total',
   help: 'Total number of account lock events',
   labelNames: ['reason'],
-  registers: [register]
+  registers: [register],
 });
 
 const securityEvents = new client.Counter({
   name: 'auth_security_events_total',
   help: 'Security-related events',
   labelNames: ['type'],
-  registers: [register]
+  registers: [register],
 });
 
 // Business metrics
@@ -70,21 +70,21 @@ const userRegistrations = new client.Counter({
   name: 'auth_user_registrations_total',
   help: 'Total number of user registrations',
   labelNames: ['registration_method'],
-  registers: [register]
+  registers: [register],
 });
 
 const userLogins = new client.Counter({
   name: 'auth_user_logins_total',
   help: 'Total number of user logins',
   labelNames: ['method'],
-  registers: [register]
+  registers: [register],
 });
 
 const mfaAttempts = new client.Counter({
   name: 'auth_mfa_attempts_total',
   help: 'Total number of MFA attempts',
   labelNames: ['type', 'status'],
-  registers: [register]
+  registers: [register],
 });
 
 // Rate limiting metrics
@@ -92,7 +92,7 @@ const rateLimitEvents = new client.Counter({
   name: 'auth_rate_limit_events_total',
   help: 'Rate limiting events',
   labelNames: ['type', 'key'],
-  registers: [register]
+  registers: [register],
 });
 
 // Token metrics
@@ -100,14 +100,14 @@ const tokenIssued = new client.Counter({
   name: 'auth_tokens_issued_total',
   help: 'Total number of tokens issued',
   labelNames: ['token_type'],
-  registers: [register]
+  registers: [register],
 });
 
 const tokenRevoked = new client.Counter({
   name: 'auth_tokens_revoked_total',
   help: 'Total number of tokens revoked',
   labelNames: ['token_type', 'reason'],
-  registers: [register]
+  registers: [register],
 });
 
 // Session metrics
@@ -116,7 +116,7 @@ const sessionDurations = new client.Histogram({
   help: 'Duration of user sessions in seconds',
   labelNames: ['user_type'],
   buckets: [60, 300, 900, 1800, 3600, 14400, 28800, 86400],
-  registers: [register]
+  registers: [register],
 });
 
 // Request metrics middleware
@@ -138,7 +138,7 @@ const requestMetrics = responseTime((req, res, time) => {
 // Track failed login attempts
 function trackFailedLogin(reason = 'invalid_credentials') {
   failedLoginAttempts.inc({ reason });
-  
+
   // If multiple failed attempts, trigger security event
   if (reason === 'invalid_credentials') {
     securityEvents.inc({ type: 'failed_login_attempt' });
@@ -153,9 +153,9 @@ function trackSuccessfulLogin(method = 'password') {
 
 // Track MFA attempt
 function trackMFAAttempt(type, success) {
-  mfaAttempts.inc({ 
-    type, 
-    status: success ? 'success' : 'failure' 
+  mfaAttempts.inc({
+    type,
+    status: success ? 'success' : 'failure',
   });
 }
 
@@ -175,11 +175,8 @@ function trackRateLimit(key, type = 'global') {
 
 // Track session duration
 function trackSessionDuration(user, durationInSeconds) {
-  sessionDurations.observe(
-    { user_type: user.role || 'user' },
-    durationInSeconds
-  );
-  
+  sessionDurations.observe({ user_type: user.role || 'user' }, durationInSeconds);
+
   if (activeSessions) {
     activeSessions.dec({ user_type: user.role || 'user' });
   }
@@ -225,7 +222,7 @@ module.exports = {
     rateLimitEvents,
     tokenIssued,
     tokenRevoked,
-    sessionDurations
+    sessionDurations,
   },
   trackers: {
     trackFailedLogin,
@@ -238,6 +235,6 @@ module.exports = {
     trackAccountLock,
     trackUserRegistration,
     trackPasswordReset,
-    trackTokenRefresh
-  }
+    trackTokenRefresh,
+  },
 };

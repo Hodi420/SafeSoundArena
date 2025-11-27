@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop, 'release/*', 'feature/*', 'bugfix/*' ]
+    branches: [main, develop, 'release/*', 'feature/*', 'bugfix/*']
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
   workflow_dispatch:
     inputs:
       environment:
@@ -23,7 +23,7 @@ env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
   DOCKER_IMAGE: ${{ github.repository }}
-  
+
 # Job dependencies and requirements
 job:
   needs: [test, lint, build]
@@ -46,7 +46,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      
+
       redis:
         image: redis:${{ env.REDIS_VERSION }}
         ports:
@@ -58,128 +58,130 @@ jobs:
           --health-retries 5
 
     steps:
-    - name: Checkout repository
-  uses: actions/checkout@v4
-    
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: |
-        cd backend/backend_tmp
-        npm ci
-    
-    - name: Install global dependencies
-      run: |
-        npm install -g jest mocha chai
-        
-    - name: Run backend tests
-      env:
-        NODE_ENV: test
-        JWT_SECRET: test-secret-123
-        REFRESH_TOKEN_SECRET: test-refresh-secret-123
-        MONGODB_URI: mongodb://test:test@localhost:27017/test?authSource=admin
-        REDIS_URL: redis://localhost:6379
-        BLOCKCHAIN_RPC_URL: http://localhost:8545
-        CONTRACT_ADDRESS: 0x5FbDB2315678afecb367f032d93F642f64180aa3
-        WALLET_PRIVATE_KEY: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-      run: |
-        cd server
-        npm install
-        npm test
-        
-    - name: Run blockchain service tests
-      env:
-        NODE_ENV: test
-        BLOCKCHAIN_RPC_URL: http://localhost:8545
-        CONTRACT_ADDRESS: 0x5FbDB2315678afecb367f032d93F642f64180aa3
-      run: |
-        cd server
-        npx mocha __tests__/blockchainService.test.js --exit
-        
-    - name: Run WebSocket tests
-      env:
-        NODE_ENV: test
-        JWT_SECRET: test-secret-123
-        PORT: 3001
-      run: |
-        cd server
-        npx mocha __tests__/websocket.test.js --exit
-        
-    - name: Run game service tests
-      env:
-        NODE_ENV: test
-      run: |
-        cd server
-        npx jest __tests__/gameService.test.js
-    
-    - name: Upload test coverage
-      uses: codecov/codecov-action@v3
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        directory: backend/backend_tmp/coverage
-        fail_ci_if_error: false
+      - name: Checkout repository
+        uses: actions/checkout@v4.3.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          # Install root deps and server deps (previously used backend/backend_tmp)
+          npm ci
+          if [ -d server ]; then (cd server && npm ci); fi
+
+      - name: Install global dependencies
+        run: |
+          npm install -g jest mocha chai
+
+      - name: Run backend tests
+        env:
+          NODE_ENV: test
+          JWT_SECRET: test-secret-123
+          REFRESH_TOKEN_SECRET: test-refresh-secret-123
+          MONGODB_URI: mongodb://test:test@localhost:27017/test?authSource=admin
+          REDIS_URL: redis://localhost:6379
+          BLOCKCHAIN_RPC_URL: http://localhost:8545
+          CONTRACT_ADDRESS: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+          WALLET_PRIVATE_KEY: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+        run: |
+          cd server
+          npm install
+          npm test
+
+      - name: Run blockchain service tests
+        env:
+          NODE_ENV: test
+          BLOCKCHAIN_RPC_URL: http://localhost:8545
+          CONTRACT_ADDRESS: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+        run: |
+          cd server
+          npx mocha __tests__/blockchainService.test.js --exit
+
+      - name: Run WebSocket tests
+        env:
+          NODE_ENV: test
+          JWT_SECRET: test-secret-123
+          PORT: 3001
+        run: |
+          cd server
+          npx mocha __tests__/websocket.test.js --exit
+
+      - name: Run game service tests
+        env:
+          NODE_ENV: test
+        run: |
+          cd server
+          npx jest __tests__/gameService.test.js
+
+      - name: Upload test coverage
+        uses: codecov/codecov-action@v5.5.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: server/coverage
+          fail_ci_if_error: false
 
   build-and-deploy:
     name: Build and Deploy
     needs: test
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
 
-    - name: Print Node/npm environment
-      run: |
-        node -v
-        npm -v
-    
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-    
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-    
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v4
-      with:
-        context: .
-        file: ./backend/backend_tmp/Dockerfile
-        push: true
-        tags: |
-          ${{ secrets.DOCKERHUB_USERNAME }}/safesoundarena-auth:${{ github.sha }}
-          ${{ secrets.DOCKERHUB_USERNAME }}/safesoundarena-auth:latest
-    
-    - name: Deploy to staging
-      if: github.ref == 'refs/heads/develop'
-  uses: appleboy/ssh-action@v0.1.8
-      with:
-        host: ${{ secrets.STAGING_HOST }}
-        username: ${{ secrets.STAGING_USER }}
-        key: ${{ secrets.STAGING_SSH_KEY }}
-        script: |
-          cd /opt/safesoundarena
-          docker-compose -f deploy/docker-compose.auth.yml pull
-          docker-compose -f deploy/docker-compose.auth.yml up -d
-    
-    - name: Deploy to production
-      if: github.ref == 'refs/heads/main'
-  uses: appleboy/ssh-action@v0.1.8
-      with:
-        host: ${{ secrets.PROD_HOST }}
-        username: ${{ secrets.PROD_USER }}
-        key: ${{ secrets.PROD_SSH_KEY }}
-        script: |
-          cd /opt/safesoundarena
-          docker-compose -f deploy/docker-compose.auth.yml pull
-          docker-compose -f deploy/docker-compose.auth.yml up -d --force-recreate
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.3.0
+
+      - name: Print Node/npm environment
+        run: |
+          node -v
+          npm -v
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.11.1
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3.5.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .
+          # point to server's Dockerfile instead of deprecated backend_tmp
+          file: ./server/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/safesoundarena-auth:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/safesoundarena-auth:latest
+
+      - name: Deploy to staging
+        if: github.ref == 'refs/heads/develop'
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /opt/safesoundarena
+            docker-compose -f deploy/docker-compose.auth.yml pull
+            docker-compose -f deploy/docker-compose.auth.yml up -d
+
+      - name: Deploy to production
+        if: github.ref == 'refs/heads/main'
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            cd /opt/safesoundarena
+            docker-compose -f deploy/docker-compose.auth.yml pull
+            docker-compose -f deploy/docker-compose.auth.yml up -d --force-recreate
 
   notify:
     name: Notify Status
@@ -187,12 +189,12 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-    - name: Send Slack notification
-      uses: rtCamp/action-slack-notify@v2
-      env:
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
-        SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
-        SLACK_TITLE: 'CI/CD Pipeline ${{ job.status }}'
-        SLACK_MESSAGE: 'Workflow ${{ github.workflow }} ${{ job.status }} for ${{ github.ref }}'
-        SLACK_USERNAME: GitHub Actions
-        SLACK_ICON: https://github.githubassets.com/favicon.ico
+      - name: Send Slack notification
+        uses: rtCamp/action-slack-notify@v2.3.3
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+          SLACK_TITLE: 'CI/CD Pipeline ${{ job.status }}'
+          SLACK_MESSAGE: 'Workflow ${{ github.workflow }} ${{ job.status }} for ${{ github.ref }}'
+          SLACK_USERNAME: GitHub Actions
+          SLACK_ICON: https://github.githubassets.com/favicon.ico

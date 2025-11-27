@@ -34,6 +34,6 @@ export const useThemeStore = create<ThemeState>()(
     }),
     {
       name: 'pioneer-pathways-theme',
-    }
-  )
+    },
+  ),
 );

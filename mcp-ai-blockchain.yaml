@@ -106,22 +106,22 @@ spec:
         app: blockchain-indexer
     spec:
       containers:
-      - name: indexer
-        image: safesoundarena/blockchain-indexer:latest
-        resources:
-          requests:
-            memory: "1Gi"
-            cpu: "500m"
-          limits:
-            memory: "2Gi"
-            cpu: "1000m"
-        env:
-        - name: BLOCKCHAIN_CONFIG
-          value: "/etc/blockchain/config.yaml"
-        volumeMounts:
-        - name: blockchain-config
-          mountPath: /etc/blockchain
+        - name: indexer
+          image: safesoundarena/blockchain-indexer:latest
+          resources:
+            requests:
+              memory: '1Gi'
+              cpu: '500m'
+            limits:
+              memory: '2Gi'
+              cpu: '1000m'
+          env:
+            - name: BLOCKCHAIN_CONFIG
+              value: '/etc/blockchain/config.yaml'
+          volumeMounts:
+            - name: blockchain-config
+              mountPath: /etc/blockchain
       volumes:
-      - name: blockchain-config
-        configMap:
-          name: mcp-blockchain-config 
+        - name: blockchain-config
+          configMap:
+            name: mcp-blockchain-config

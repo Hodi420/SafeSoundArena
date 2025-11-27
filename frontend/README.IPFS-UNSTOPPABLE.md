@@ -21,16 +21,19 @@ This will create a `build` or `dist` folder with your static site files.
 ## 2. Upload to IPFS
 
 ### Option A: Using [web3.storage](https://web3.storage/)
+
 1. Go to [web3.storage](https://web3.storage/) and sign up/log in.
 2. Click "Upload" and select your `build` or `dist` folder.
 3. Wait for the upload to finish and copy the **CID** (hash) you receive.
 
 ### Option B: Using IPFS Desktop
+
 1. Download and install [IPFS Desktop](https://docs.ipfs.tech/install/ipfs-desktop/).
 2. Open IPFS Desktop and drag your `build` or `dist` folder into the window.
 3. Copy the **CID** (hash) shown for your folder.
 
 ### Option C: Using IPFS CLI
+
 1. Install IPFS CLI: https://docs.ipfs.tech/install/command-line/
 2. In your project directory, run:
    ```bash

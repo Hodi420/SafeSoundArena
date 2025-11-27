@@ -12,4 +12,3 @@ const NoTransitionDemo: React.FC = () => (
 (NoTransitionDemo as any).disableTransition = true;
 
 export default NoTransitionDemo;
-

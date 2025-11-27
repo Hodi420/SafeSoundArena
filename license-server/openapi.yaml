@@ -3,7 +3,7 @@ info:
   title: SafeSoundArena License Server API
   description: |
     API לשרת רישיונות SafeSoundArena המאפשר ניהול ואימות רישיונות.
-    
+
     שרת זה מספק יכולות ליצירה, עדכון, מחיקה ואימות של רישיונות עבור מוצרי SafeSoundArena.
   version: 1.0.0
   contact:
@@ -380,7 +380,7 @@ components:
           type: array
           items:
             type: string
-          example: ["feature1", "feature2"]
+          example: ['feature1', 'feature2']
 
     UpdateLicenseRequest:
       type: object
@@ -411,7 +411,7 @@ components:
           type: array
           items:
             type: string
-          example: ["feature1", "feature2", "feature3"]
+          example: ['feature1', 'feature2', 'feature3']
         active:
           type: boolean
           example: true
@@ -613,7 +613,7 @@ components:
           type: array
           items:
             type: string
-          example: ["feature1", "feature2"]
+          example: ['feature1', 'feature2']
         maxUsers:
           type: integer
           example: 10

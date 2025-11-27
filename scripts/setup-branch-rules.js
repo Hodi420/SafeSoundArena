@@ -8,31 +8,31 @@ async function setupBranchRules() {
     });
 
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
-    
+
     // Branch protection configuration
     const protectionConfig = {
       owner,
       repo,
       required_status_checks: {
         strict: true,
-        contexts: ['test', 'lint', 'build']
+        contexts: ['test', 'lint', 'build'],
       },
       enforce_admins: true,
       required_pull_request_reviews: {
         required_approving_review_count: 1,
         dismiss_stale_reviews: true,
-        require_code_owner_reviews: true
+        require_code_owner_reviews: true,
       },
       restrictions: null,
       required_linear_history: true,
       allow_force_pushes: false,
-      allow_deletions: false
+      allow_deletions: false,
     };
 
     // Apply protection to main branch
     await octokit.repos.updateBranchProtection({
       ...protectionConfig,
-      branch: 'main'
+      branch: 'main',
     });
 
     // Apply protection to develop branch
@@ -41,9 +41,9 @@ async function setupBranchRules() {
       branch: 'develop',
       required_pull_request_reviews: {
         ...protectionConfig.required_pull_request_reviews,
-        required_approving_review_count: 1
+        required_approving_review_count: 1,
       },
-      allow_force_pushes: false
+      allow_force_pushes: false,
     });
 
     console.log('Branch protection rules applied successfully!');

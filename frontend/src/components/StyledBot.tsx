@@ -33,31 +33,57 @@ const StyledBot: React.FC = () => (
       <rect x="220" y="170" width="15" height="60" rx="8" fill="#818cf8" />
       {/* Left Hand - React icon */}
       <circle cx="92" cy="240" r="14" fill="#fff" stroke="#60dafc" strokeWidth="3" />
-      <text x="84" y="245" fontSize="15" fontFamily="Arial" fill="#60dafc">⚛️</text>
+      <text x="84" y="245" fontSize="15" fontFamily="Arial" fill="#60dafc">
+        ⚛️
+      </text>
       {/* Right Hand - Python icon */}
       <circle cx="228" cy="240" r="14" fill="#fff" stroke="#ffe066" strokeWidth="3" />
-      <text x="220" y="245" fontSize="15" fontFamily="Arial" fill="#ffe066">🐍</text>
+      <text x="220" y="245" fontSize="15" fontFamily="Arial" fill="#ffe066">
+        🐍
+      </text>
       {/* Data/Analytics Bubbles */}
       <ellipse cx="60" cy="100" rx="20" ry="12" fill="#fca5a5" />
-      <text x="48" y="105" fontSize="12" fontFamily="Arial" fill="#fff">GA</text>
+      <text x="48" y="105" fontSize="12" fontFamily="Arial" fill="#fff">
+        GA
+      </text>
       <ellipse cx="260" cy="80" rx="18" ry="10" fill="#fbbf24" />
-      <text x="250" y="85" fontSize="12" fontFamily="Arial" fill="#fff">FB</text>
+      <text x="250" y="85" fontSize="12" fontFamily="Arial" fill="#fff">
+        FB
+      </text>
       <ellipse cx="70" cy="60" rx="15" ry="9" fill="#60a5fa" />
-      <text x="62" y="65" fontSize="12" fontFamily="Arial" fill="#fff">TW</text>
+      <text x="62" y="65" fontSize="12" fontFamily="Arial" fill="#fff">
+        TW
+      </text>
       <ellipse cx="250" cy="40" rx="13" ry="8" fill="#8b5cf6" />
-      <text x="243" y="45" fontSize="11" fontFamily="Arial" fill="#fff">TT</text>
+      <text x="243" y="45" fontSize="11" fontFamily="Arial" fill="#fff">
+        TT
+      </text>
       {/* Web3/Blockchain icon */}
       <ellipse cx="160" cy="290" rx="18" ry="10" fill="#f472b6" />
-      <text x="150" y="295" fontSize="15" fontFamily="Arial" fill="#fff">⧫</text>
+      <text x="150" y="295" fontSize="15" fontFamily="Arial" fill="#fff">
+        ⧫
+      </text>
       {/* Notification bubble */}
       <ellipse cx="120" cy="65" rx="10" ry="7" fill="#34d399" />
-      <text x="115" y="70" fontSize="10" fontFamily="Arial" fill="#fff">🔔</text>
+      <text x="115" y="70" fontSize="10" fontFamily="Arial" fill="#fff">
+        🔔
+      </text>
       {/* Gaming icon bubble */}
       <ellipse cx="200" cy="55" rx="10" ry="7" fill="#fbbf24" />
-      <text x="194" y="60" fontSize="13" fontFamily="Arial" fill="#fff">🎮</text>
+      <text x="194" y="60" fontSize="13" fontFamily="Arial" fill="#fff">
+        🎮
+      </text>
     </svg>
     {/* Bot label - clear, professional English name, now in a semantic heading for accessibility */}
-    <h2 style={{ marginTop: 16, fontWeight: 600, fontSize: 18, color: '#6366f1', fontFamily: 'Arial' }}>
+    <h2
+      style={{
+        marginTop: 16,
+        fontWeight: 600,
+        fontSize: 18,
+        color: '#6366f1',
+        fontFamily: 'Arial',
+      }}
+    >
       The Integrated Bot – All Integrations, Data, Gaming & API in One Place
     </h2>
   </div>

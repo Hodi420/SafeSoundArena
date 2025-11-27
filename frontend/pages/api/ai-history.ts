@@ -5,9 +5,9 @@ import { fetchHistory } from '../../src/services/aiProfileService';
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const start = Date.now();
   try {
-  const user = (req as any).pioneer;
-  const history = fetchHistory(user.pi_uid);
-  res.status(200).json({ history });
+    const user = (req as any).pioneer;
+    const history = fetchHistory(user.pi_uid);
+    res.status(200).json({ history });
   } finally {
     const duration = Date.now() - start;
     // eslint-disable-next-line no-console

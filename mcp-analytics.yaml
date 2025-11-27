@@ -259,29 +259,29 @@ spec:
         app: analytics-processor
     spec:
       containers:
-      - name: processor
-        image: safesoundarena/analytics-processor:latest
-        resources:
-          requests:
-            memory: "4Gi"
-            cpu: "2000m"
-          limits:
-            memory: "8Gi"
-            cpu: "4000m"
-        env:
-        - name: ANALYTICS_CONFIG
-          value: "/etc/analytics/config.yaml"
-        - name: KAFKA_BROKERS
-          value: "kafka-service:9092"
-        - name: CLICKHOUSE_HOST
-          value: "clickhouse-service"
-        volumeMounts:
-        - name: analytics-config
-          mountPath: /etc/analytics
+        - name: processor
+          image: safesoundarena/analytics-processor:latest
+          resources:
+            requests:
+              memory: '4Gi'
+              cpu: '2000m'
+            limits:
+              memory: '8Gi'
+              cpu: '4000m'
+          env:
+            - name: ANALYTICS_CONFIG
+              value: '/etc/analytics/config.yaml'
+            - name: KAFKA_BROKERS
+              value: 'kafka-service:9092'
+            - name: CLICKHOUSE_HOST
+              value: 'clickhouse-service'
+          volumeMounts:
+            - name: analytics-config
+              mountPath: /etc/analytics
       volumes:
-      - name: analytics-config
-        configMap:
-          name: mcp-analytics-config
+        - name: analytics-config
+          configMap:
+            name: mcp-analytics-config
 ---
 apiVersion: v1
 kind: Service
@@ -292,10 +292,10 @@ spec:
   selector:
     app: analytics-processor
   ports:
-  - name: http
-    port: 8080
-    targetPort: 8080
-  - name: websocket
-    port: 8081
-    targetPort: 8081
-  type: ClusterIP 
+    - name: http
+      port: 8080
+      targetPort: 8080
+    - name: websocket
+      port: 8081
+      targetPort: 8081
+  type: ClusterIP

@@ -18,11 +18,11 @@ class GameService {
         status: 'waiting',
         betAmount,
         createdAt: new Date(),
-        moves: []
+        moves: [],
       };
 
       this.pendingGames.set(gameId, gameState);
-      
+
       // If bet amount is greater than 0, lock the funds
       if (parseFloat(betAmount) > 0) {
         // In a real implementation, you would lock the funds in the blockchain
@@ -38,7 +38,7 @@ class GameService {
 
   async makeMove(gameId, player, move) {
     const game = this.activeGames.get(gameId) || this.pendingGames.get(gameId);
-    
+
     if (!game) {
       throw new Error('Game not found');
     }
@@ -60,7 +60,7 @@ class GameService {
     game.moves.push({
       player,
       move,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     // Check for win condition
@@ -68,14 +68,14 @@ class GameService {
     if (winner) {
       game.winner = winner;
       game.status = 'completed';
-      
+
       // Process the bet if there is one
       if (parseFloat(game.betAmount) > 0) {
         await this.processGameResult(game);
       }
     } else {
       // Switch players
-      game.currentPlayer = game.players.find(p => p !== player);
+      game.currentPlayer = game.players.find((p) => p !== player);
     }
 
     // If this was the first move, start the game
@@ -91,14 +91,14 @@ class GameService {
   async processGameResult(game) {
     try {
       const { winner, players, betAmount } = game;
-      const loser = players.find(p => p !== winner);
-      
+      const loser = players.find((p) => p !== winner);
+
       if (parseFloat(betAmount) > 0) {
         // Record the game result on the blockchain
         await blockchainService.executeGameResult(winner, loser, betAmount);
         logger.info(`Processed game result: ${winner} won ${betAmount} from ${loser}`);
       }
-      
+
       return true;
     } catch (error) {
       logger.error('Error processing game result:', error);
@@ -113,9 +113,7 @@ class GameService {
 
   getPlayerGames(playerId) {
     const allGames = [...this.activeGames.values(), ...this.pendingGames.values()];
-    return allGames.filter(game => 
-      game.players.includes(playerId)
-    );
+    return allGames.filter((game) => game.players.includes(playerId));
   }
 
   // Helper methods
@@ -124,7 +122,7 @@ class GameService {
     return [
       [null, null, null],
       [null, null, null],
-      [null, null, null]
+      [null, null, null],
     ];
   }
 
@@ -140,43 +138,51 @@ class GameService {
 
   checkWinCondition(game) {
     const { board, currentPlayer } = game;
-    
+
     // Check rows
     for (let i = 0; i < 3; i++) {
-      if (board[i][0] === currentPlayer && 
-          board[i][1] === currentPlayer && 
-          board[i][2] === currentPlayer) {
+      if (
+        board[i][0] === currentPlayer &&
+        board[i][1] === currentPlayer &&
+        board[i][2] === currentPlayer
+      ) {
         return currentPlayer;
       }
     }
-    
+
     // Check columns
     for (let i = 0; i < 3; i++) {
-      if (board[0][i] === currentPlayer && 
-          board[1][i] === currentPlayer && 
-          board[2][i] === currentPlayer) {
+      if (
+        board[0][i] === currentPlayer &&
+        board[1][i] === currentPlayer &&
+        board[2][i] === currentPlayer
+      ) {
         return currentPlayer;
       }
     }
-    
+
     // Check diagonals
-    if (board[0][0] === currentPlayer && 
-        board[1][1] === currentPlayer && 
-        board[2][2] === currentPlayer) {
+    if (
+      board[0][0] === currentPlayer &&
+      board[1][1] === currentPlayer &&
+      board[2][2] === currentPlayer
+    ) {
       return currentPlayer;
     }
-    
-    if (board[0][2] === currentPlayer && 
-        board[1][1] === currentPlayer && 
-        board[2][0] === currentPlayer) {
+
+    if (
+      board[0][2] === currentPlayer &&
+      board[1][1] === currentPlayer &&
+      board[2][0] === currentPlayer
+    ) {
       return currentPlayer;
     }
-    
+
     // Check for draw
     if (game.moves.length === 9) {
       return 'draw';
     }
-    
+
     return null;
   }
 }

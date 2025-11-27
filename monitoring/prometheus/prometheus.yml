@@ -70,4 +70,4 @@ remote_write:
 
 remote_read:
   - url: 'http://victoria-metrics:8428/api/v1/read'
-    read_recent: true 
+    read_recent: true

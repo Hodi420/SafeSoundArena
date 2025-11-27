@@ -27,7 +27,7 @@ export const GameCountdown: React.FC<GameCountdownProps> = ({
   useEffect(() => {
     const calculateTimeLeft = () => {
       const difference = endTime.getTime() - new Date().getTime();
-      
+
       if (difference <= 0) {
         onComplete?.();
         return { hours: 0, minutes: 0, seconds: 0 };
@@ -43,13 +43,9 @@ export const GameCountdown: React.FC<GameCountdownProps> = ({
     const timer = setInterval(() => {
       const newTimeLeft = calculateTimeLeft();
       setTimeLeft(newTimeLeft);
-      
+
       // Set urgent state when less than 1 minute remains
-      setIsUrgent(
-        variant === 'default' && 
-        newTimeLeft.hours === 0 && 
-        newTimeLeft.minutes === 0
-      );
+      setIsUrgent(variant === 'default' && newTimeLeft.hours === 0 && newTimeLeft.minutes === 0);
     }, 1000);
 
     return () => clearInterval(timer);
@@ -89,9 +85,7 @@ export const GameCountdown: React.FC<GameCountdownProps> = ({
       >
         {value.toString().padStart(2, '0')}
       </motion.div>
-      <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-        {label}
-      </span>
+      <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">{label}</span>
     </div>
   );
 
@@ -110,4 +104,4 @@ export const GameCountdown: React.FC<GameCountdownProps> = ({
       </AnimatePresence>
     </div>
   );
-}; 
+};

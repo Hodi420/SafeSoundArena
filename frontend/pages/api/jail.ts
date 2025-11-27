@@ -18,9 +18,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': auth,
+        Authorization: auth,
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(req.body),
     });
     const data = await response.json();
     return res.status(response.status).json(data);

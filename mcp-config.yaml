@@ -95,4 +95,4 @@ data:
           kibana:
             enabled: true
           fluentd:
-            enabled: true 
+            enabled: true

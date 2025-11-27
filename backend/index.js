@@ -12,8 +12,8 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: process.env.CLIENT_URL || 'http://localhost:3000',
-    methods: ['GET', 'POST']
-  }
+    methods: ['GET', 'POST'],
+  },
 });
 
 // טעינת משתני סביבה
@@ -34,10 +34,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // Serve static files from the React app
@@ -62,7 +64,7 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
     environment: NODE_ENV,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -70,14 +72,14 @@ app.get('/api/health', (req, res) => {
 app.use((err, req, res, next) => {
   console.error(`[${new Date().toISOString()}] Error: ${err.message}`);
   res.status(500).json({
-    error: NODE_ENV === 'development' ? err.message : 'Internal Server Error'
+    error: NODE_ENV === 'development' ? err.message : 'Internal Server Error',
   });
 });
 
 // אתחול שרת Socket.io
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
-  
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
   });

@@ -53,9 +53,9 @@ describe('SafeSoundArena', function () {
 
     it('should prevent creating a game with invalid bet amount', async function () {
       const lowBet = ethers.utils.parseEther('0.5');
-      await expect(
-        safeSoundArena.connect(player1).createGame(lowBet)
-      ).to.be.revertedWith('Bet amount too low');
+      await expect(safeSoundArena.connect(player1).createGame(lowBet)).to.be.revertedWith(
+        'Bet amount too low'
+      );
     });
   });
 
@@ -75,16 +75,14 @@ describe('SafeSoundArena', function () {
     });
 
     it('should prevent joining a non-existent game', async function () {
-      await expect(
-        safeSoundArena.connect(player2).joinGame(999)
-      ).to.be.reverted;
+      await expect(safeSoundArena.connect(player2).joinGame(999)).to.be.reverted;
     });
 
     it('should prevent joining the same game twice', async function () {
       await safeSoundArena.connect(player2).joinGame(0);
-      await expect(
-        safeSoundArena.connect(player2).joinGame(0)
-      ).to.be.revertedWith('Already joined');
+      await expect(safeSoundArena.connect(player2).joinGame(0)).to.be.revertedWith(
+        'Already joined'
+      );
     });
   });
 
@@ -97,7 +95,7 @@ describe('SafeSoundArena', function () {
 
     it('should allow the owner to end the game', async function () {
       const initialBalance = await ssaToken.balanceOf(player1.address);
-      
+
       // End the game with player1 as the winner
       await expect(safeSoundArena.endGame(0, player1.address))
         .to.emit(safeSoundArena, 'GameEnded')
@@ -145,9 +143,9 @@ describe('SafeSoundArena', function () {
     });
 
     it('should prevent non-owners from calling admin functions', async function () {
-      await expect(
-        safeSoundArena.connect(player1).setPlatformFee(5)
-      ).to.be.revertedWith('Ownable: caller is not the owner');
+      await expect(safeSoundArena.connect(player1).setPlatformFee(5)).to.be.revertedWith(
+        'Ownable: caller is not the owner'
+      );
     });
   });
 });

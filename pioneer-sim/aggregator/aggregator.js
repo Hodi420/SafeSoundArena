@@ -6,11 +6,13 @@ function sha256(input) {
   return crypto.createHash('sha256').update(input).digest();
 }
 
-function toHex(buf) { return '0x' + Buffer.from(buf).toString('hex'); }
+function toHex(buf) {
+  return '0x' + Buffer.from(buf).toString('hex');
+}
 
 function hashLeaf(data) {
   // data is Buffer or string
-  const d = (typeof data === 'string') ? Buffer.from(data) : data;
+  const d = typeof data === 'string' ? Buffer.from(data) : data;
   return sha256(Buffer.concat([Buffer.from([0x00]), d]));
 }
 
@@ -23,8 +25,8 @@ function hashNode(a, b) {
 }
 
 function buildMerkleTree(leaves) {
-  if (!leaves || leaves.length === 0) return {layers: [], root: null};
-  let layer = leaves.map(l => hashLeaf(l));
+  if (!leaves || leaves.length === 0) return { layers: [], root: null };
+  let layer = leaves.map((l) => hashLeaf(l));
   const layers = [layer];
   while (layer.length > 1) {
     const next = [];
@@ -33,14 +35,14 @@ function buildMerkleTree(leaves) {
         // duplicate last
         next.push(hashNode(layer[i], layer[i]));
       } else {
-        next.push(hashNode(layer[i], layer[i+1]));
+        next.push(hashNode(layer[i], layer[i + 1]));
       }
     }
     layer = next;
     layers.push(layer);
   }
   const root = layers[layers.length - 1][0];
-  return {layers, root};
+  return { layers, root };
 }
 
 function merkleProofForIndex(layers, index) {
@@ -48,7 +50,7 @@ function merkleProofForIndex(layers, index) {
   let idx = index;
   for (let i = 0; i < layers.length - 1; i++) {
     const layer = layers[i];
-    const pairIndex = (idx % 2 === 0) ? idx + 1 : idx - 1;
+    const pairIndex = idx % 2 === 0 ? idx + 1 : idx - 1;
     if (pairIndex < layer.length) proof.push(layer[pairIndex]);
     else proof.push(layer[idx]);
     idx = Math.floor(idx / 2);
@@ -61,7 +63,7 @@ function generateSampleEvents(usersCount) {
   for (let i = 0; i < usersCount; i++) {
     const userId = `user-${i}`;
     // event: timestamp | userId | score | nonce
-    const ev = `${Date.now()}|${userId}|${Math.floor(Math.random()*100)}|${crypto.randomBytes(8).toString('hex')}`;
+    const ev = `${Date.now()}|${userId}|${Math.floor(Math.random() * 100)}|${crypto.randomBytes(8).toString('hex')}`;
     events.push(ev);
   }
   return events;
@@ -70,14 +72,14 @@ function generateSampleEvents(usersCount) {
 async function runExample() {
   const users = parseInt(process.env.SAMPLE_USERS || '32', 10); // small tree by default
   const events = generateSampleEvents(users);
-  const {layers, root} = buildMerkleTree(events);
+  const { layers, root } = buildMerkleTree(events);
   console.log('Merkle root:', toHex(root));
 
   // create proofs for first 3 users
   const proofs = {};
   for (let i = 0; i < 3; i++) {
     const proof = merkleProofForIndex(layers, i).map(toHex);
-    proofs[`user-${i}`] = {leaf: toHex(hashLeaf(events[i])), proof};
+    proofs[`user-${i}`] = { leaf: toHex(hashLeaf(events[i])), proof };
   }
 
   // write files
@@ -95,7 +97,11 @@ async function runExample() {
     const chunks = [];
     for (let i = 0; i < events.length; i += eventsPerChunk) {
       const slice = events.slice(i, i + eventsPerChunk);
-      const payload = JSON.stringify({ root: toHex(root), index: Math.floor(i / eventsPerChunk), events: slice });
+      const payload = JSON.stringify({
+        root: toHex(root),
+        index: Math.floor(i / eventsPerChunk),
+        events: slice,
+      });
       const result = await client.add(payload);
       const cid = result.cid.toString();
       chunks.push({ index: Math.floor(i / eventsPerChunk), cid, count: slice.length });
@@ -109,7 +115,7 @@ async function runExample() {
       totalEvents: events.length,
       eventsPerChunk,
       chunks,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
     const manifestRes = await client.add(JSON.stringify(manifest));
     const manifestCid = manifestRes.cid.toString();
@@ -121,7 +127,11 @@ async function runExample() {
   }
 }
 
-if (require.main === module) runExample().catch(e => { console.error('aggregator run error', e); process.exit(1); });
+if (require.main === module)
+  runExample().catch((e) => {
+    console.error('aggregator run error', e);
+    process.exit(1);
+  });
 
 function bufferEqHex(buf, hexStr) {
   return toHex(buf).toLowerCase() === hexStr.toLowerCase();

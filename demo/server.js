@@ -32,14 +32,14 @@ class TicTacToeGame {
       this.spectators.push(playerId);
       return false; // Player added as spectator
     }
-    
+
     this.players.push(playerId);
-    
+
     if (this.players.length === 2) {
       this.status = 'in_progress';
       this.broadcastGameState();
     }
-    
+
     return true; // Player added as player
   }
 
@@ -73,14 +73,17 @@ class TicTacToeGame {
 
   checkWin(symbol) {
     const winPatterns = [
-      [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-      [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
-      [0, 4, 8], [2, 4, 6]             // Diagonals
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8], // Rows
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8], // Columns
+      [0, 4, 8],
+      [2, 4, 6], // Diagonals
     ];
 
-    return winPatterns.some(pattern => 
-      pattern.every(index => this.board[index] === symbol)
-    );
+    return winPatterns.some((pattern) => pattern.every((index) => this.board[index] === symbol));
   }
 
   getState() {
@@ -91,7 +94,7 @@ class TicTacToeGame {
       currentPlayer: this.players[this.currentPlayer],
       status: this.status,
       winner: this.winner,
-      spectators: [...this.spectators]
+      spectators: [...this.spectators],
     };
   }
 
@@ -99,12 +102,12 @@ class TicTacToeGame {
     const state = this.getState();
     const message = JSON.stringify({
       type: 'game:state-update',
-      payload: state
+      payload: state,
     });
 
     // Send to all players and spectators
     const allClients = [...this.players, ...this.spectators];
-    allClients.forEach(playerId => {
+    allClients.forEach((playerId) => {
       const client = clients.get(playerId);
       if (client && client.readyState === WebSocket.OPEN) {
         client.send(message);
@@ -117,51 +120,55 @@ class TicTacToeGame {
 wss.on('connection', (ws, req) => {
   const playerId = `player_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
   let currentGame = null;
-  
+
   // Store the client
   clients.set(playerId, ws);
-  
+
   // Send welcome message
-  ws.send(JSON.stringify({
-    type: 'connection:connected',
-    payload: { playerId }
-  }));
+  ws.send(
+    JSON.stringify({
+      type: 'connection:connected',
+      payload: { playerId },
+    })
+  );
 
   // Handle incoming messages
   ws.on('message', (data) => {
     try {
       const message = JSON.parse(data);
-      
+
       switch (message.type) {
         case 'game:create':
           handleCreateGame(ws, playerId, message.payload);
           break;
-          
+
         case 'game:join':
           handleJoinGame(ws, playerId, message.payload);
           break;
-          
+
         case 'game:move':
           handleMakeMove(ws, playerId, message.payload);
           break;
-          
+
         case 'chat:message':
           handleChatMessage(ws, playerId, message.payload);
           break;
       }
     } catch (error) {
       console.error('Error processing message:', error);
-      ws.send(JSON.stringify({
-        type: 'error',
-        payload: { message: 'Invalid message format' }
-      }));
+      ws.send(
+        JSON.stringify({
+          type: 'error',
+          payload: { message: 'Invalid message format' },
+        })
+      );
     }
   });
 
   // Handle client disconnection
   ws.on('close', () => {
     clients.delete(playerId);
-    
+
     if (currentGame) {
       // Notify other players that this player left
       const game = games.get(currentGame);
@@ -169,16 +176,16 @@ wss.on('connection', (ws, req) => {
         const index = game.players.indexOf(playerId);
         if (index !== -1) {
           game.players.splice(index, 1);
-          
+
           // If the game was in progress, end it
           if (game.status === 'in_progress') {
             game.status = 'completed';
             game.winner = game.players[0]; // The other player wins by default
           }
-          
+
           game.broadcastGameState();
         }
-        
+
         // Clean up empty games
         if (game.players.length === 0) {
           games.delete(currentGame);
@@ -194,102 +201,124 @@ function handleCreateGame(ws, playerId, payload) {
   const game = new TicTacToeGame(gameId);
   game.addPlayer(playerId);
   games.set(gameId, game);
-  
-  ws.send(JSON.stringify({
-    type: 'game:created',
-    payload: { gameId, status: 'waiting' }
-  }));
-  
+
+  ws.send(
+    JSON.stringify({
+      type: 'game:created',
+      payload: { gameId, status: 'waiting' },
+    })
+  );
+
   // Send initial game state
-  ws.send(JSON.stringify({
-    type: 'game:state-update',
-    payload: game.getState()
-  }));
+  ws.send(
+    JSON.stringify({
+      type: 'game:state-update',
+      payload: game.getState(),
+    })
+  );
 }
 
 function handleJoinGame(ws, playerId, payload) {
   const game = games.get(payload.gameId);
-  
+
   if (!game) {
-    return ws.send(JSON.stringify({
-      type: 'error',
-      payload: { message: 'Game not found' }
-    }));
+    return ws.send(
+      JSON.stringify({
+        type: 'error',
+        payload: { message: 'Game not found' },
+      })
+    );
   }
-  
+
   const isPlayer = game.addPlayer(playerId);
-  
+
   if (isPlayer) {
     // Notify the joining player
-    ws.send(JSON.stringify({
-      type: 'game:joined',
-      payload: { gameId: game.id, status: game.status }
-    }));
-    
+    ws.send(
+      JSON.stringify({
+        type: 'game:joined',
+        payload: { gameId: game.id, status: game.status },
+      })
+    );
+
     // Send game state to the joining player
-    ws.send(JSON.stringify({
-      type: 'game:state-update',
-      payload: game.getState()
-    }));
-    
+    ws.send(
+      JSON.stringify({
+        type: 'game:state-update',
+        payload: game.getState(),
+      })
+    );
+
     // Notify other players
-    game.players.forEach(id => {
+    game.players.forEach((id) => {
       if (id !== playerId) {
         const client = clients.get(id);
         if (client && client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({
-            type: 'game:player-joined',
-            payload: { gameId: game.id, playerId }
-          }));
+          client.send(
+            JSON.stringify({
+              type: 'game:player-joined',
+              payload: { gameId: game.id, playerId },
+            })
+          );
         }
       }
     });
   } else {
     // Player joined as spectator
-    ws.send(JSON.stringify({
-      type: 'game:spectator-joined',
-      payload: { gameId: game.id }
-    }));
-    
+    ws.send(
+      JSON.stringify({
+        type: 'game:spectator-joined',
+        payload: { gameId: game.id },
+      })
+    );
+
     // Send current game state to the spectator
-    ws.send(JSON.stringify({
-      type: 'game:state-update',
-      payload: game.getState()
-    }));
+    ws.send(
+      JSON.stringify({
+        type: 'game:state-update',
+        payload: game.getState(),
+      })
+    );
   }
 }
 
 function handleMakeMove(ws, playerId, payload) {
   const game = games.get(payload.gameId);
-  
+
   if (!game) {
-    return ws.send(JSON.stringify({
-      type: 'error',
-      payload: { message: 'Game not found' }
-    }));
+    return ws.send(
+      JSON.stringify({
+        type: 'error',
+        payload: { message: 'Game not found' },
+      })
+    );
   }
-  
+
   const success = game.makeMove(playerId, payload.position);
-  
+
   if (!success) {
-    ws.send(JSON.stringify({
-      type: 'error',
-      payload: { message: 'Invalid move' }
-    }));
+    ws.send(
+      JSON.stringify({
+        type: 'error',
+        payload: { message: 'Invalid move' },
+      })
+    );
   }
   // Game state is broadcast by makeMove()
 }
 
 function handleChatMessage(ws, playerId, payload) {
   const game = games.get(payload.gameId);
-  
+
   if (!game) {
-    return ws.send(JSON.stringify({
-      type: 'error',
-      payload: { message: 'Game not found' }
-    }));
+    return ws.send(
+      JSON.stringify({
+        type: 'error',
+        payload: { message: 'Game not found' },
+      })
+    );
   }
-  
+
   // Broadcast the message to all players in the game
   const allClients = [...game.players, ...game.spectators];
   const message = JSON.stringify({
@@ -298,11 +327,11 @@ function handleChatMessage(ws, playerId, payload) {
       gameId: game.id,
       senderId: playerId,
       content: payload.message,
-      timestamp: new Date().toISOString()
-    }
+      timestamp: new Date().toISOString(),
+    },
   });
-  
-  allClients.forEach(id => {
+
+  allClients.forEach((id) => {
     const client = clients.get(id);
     if (client && client.readyState === WebSocket.OPEN) {
       client.send(message);

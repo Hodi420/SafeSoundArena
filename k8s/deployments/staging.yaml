@@ -27,31 +27,31 @@ spec:
         tier: frontend
     spec:
       containers:
-      - name: safesoundarena
-        image: $DOCKERHUB_USERNAME/safesoundarena:staging-latest
-        ports:
-        - containerPort: 3000
-        envFrom:
-        - configMapRef:
-            name: safesoundarena-config
-        - secretRef:
-            name: safesoundarena-secrets
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        resources:
-          requests:
-            cpu: "100m"
-            memory: "256Mi"
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
+        - name: safesoundarena
+          image: $DOCKERHUB_USERNAME/safesoundarena:staging-latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: safesoundarena-config
+            - secretRef:
+                name: safesoundarena-secrets
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: '100m'
+              memory: '256Mi'
+            limits:
+              cpu: '500m'
+              memory: '512Mi'

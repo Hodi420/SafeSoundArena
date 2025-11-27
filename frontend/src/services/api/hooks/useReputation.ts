@@ -34,7 +34,7 @@ export function useFactions() {
       options?: {
         query?: Record<string, string>;
         onComplete?: () => void;
-      }
+      },
     ) => {
       toast.showToast(`Navigating to Faction ${id}...`, 'info');
       const query = options?.query ? new URLSearchParams(options.query).toString() : '';
@@ -43,7 +43,7 @@ export function useFactions() {
         if (options?.onComplete) options.onComplete();
       });
     },
-    [router, toast]
+    [router, toast],
   );
 
   // Fetch faction reputation data

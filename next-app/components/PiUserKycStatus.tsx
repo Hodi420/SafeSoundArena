@@ -11,9 +11,12 @@ export default function PiUserKycStatus() {
   return (
     <div className="bg-white p-4 rounded shadow max-w-md mx-auto mt-8 text-center">
       <h2 className="text-xl font-bold mb-2">פרטי משתמש Pi</h2>
-      <div className="mb-2">שם משתמש: <span className="font-mono text-blue-700">{profile.username}</span></div>
       <div className="mb-2">
-        סטטוס KYC: {profile.kyc_verified ? (
+        שם משתמש: <span className="font-mono text-blue-700">{profile.username}</span>
+      </div>
+      <div className="mb-2">
+        סטטוס KYC:{' '}
+        {profile.kyc_verified ? (
           <span className="text-green-700 font-bold">מאומת ✔️</span>
         ) : (
           <span className="text-red-700 font-bold">לא מאומת ❌</span>

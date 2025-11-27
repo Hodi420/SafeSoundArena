@@ -10,10 +10,30 @@ const NAV_LINKS = [
 export function MainNav() {
   const router = useRouter();
   return (
-    <nav style={{ display: 'flex', gap: 28, padding: '18px 32px', background: '#f7fafd', borderBottom: '1.5px solid #e0e6ef', alignItems: 'center' }}>
-      <span style={{ fontWeight: 800, fontSize: 22, color: '#0070f3', letterSpacing: 1, cursor: 'pointer' }} onClick={() => router.push('/')}>SafeSoundArena</span>
+    <nav
+      style={{
+        display: 'flex',
+        gap: 28,
+        padding: '18px 32px',
+        background: '#f7fafd',
+        borderBottom: '1.5px solid #e0e6ef',
+        alignItems: 'center',
+      }}
+    >
+      <span
+        style={{
+          fontWeight: 800,
+          fontSize: 22,
+          color: '#0070f3',
+          letterSpacing: 1,
+          cursor: 'pointer',
+        }}
+        onClick={() => router.push('/')}
+      >
+        SafeSoundArena
+      </span>
       <div style={{ flex: 1 }} />
-      {NAV_LINKS.map(link => (
+      {NAV_LINKS.map((link) => (
         <a
           key={link.href}
           href={link.href}

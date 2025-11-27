@@ -11,14 +11,43 @@
     "dev": "cd frontend && npm run dev",
     "mcp": "npm run dev --workspace server",
     "verify-env": "node scripts/verify-env.js",
-    "setup": "node scripts/setup-dev.js"
+    "setup": "node scripts/setup-dev.js",
+    "check": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/check-code.ps1",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "format": "prettier --write .",
+    "prepare": "husky install"
+  },
+  "engines": {
+    "node": ">=20 <21",
+    "npm": ">=9"
   },
   "devDependencies": {
+    "@types/chai": "^5.2.2",
+    "@types/express": "^5.0.3",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^24.3.0",
+    "@types/socket.io": "^3.0.1",
     "dotenv": "^17.2.1",
+    "eslint": "^8.46.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.4.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^16.1.5",
     "mocha": "^11.7.1",
+    "prettier": "^3.6.2",
     "sinon": "^21.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

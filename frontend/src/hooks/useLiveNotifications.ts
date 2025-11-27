@@ -26,7 +26,9 @@ export function useLiveNotifications(userId: string) {
       if (isMounted) setTimeout(poll, 3000); // Poll every 3s
     }
     poll();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [userId]);
 
   return notifications;

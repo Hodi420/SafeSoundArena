@@ -13,7 +13,7 @@ export default function LeaderboardPage() {
   useEffect(() => {
     setLoading(true);
     fetch(`${API}/api/leaderboard/${type}`)
-      .then(r => r.json())
+      .then((r) => r.json())
       .then(setRows)
       .catch(() => setRows([]))
       .finally(() => setLoading(false));
@@ -23,7 +23,11 @@ export default function LeaderboardPage() {
     <Layout>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Leaderboard</h1>
-        <select value={type} onChange={e => setType(e.target.value as any)} className="border rounded px-2 py-1 text-sm">
+        <select
+          value={type}
+          onChange={(e) => setType(e.target.value as any)}
+          className="border rounded px-2 py-1 text-sm"
+        >
           <option value="overall">Overall</option>
           <option value="scam_detection">Scam Detection</option>
           <option value="community_impact">Community Impact</option>
@@ -40,12 +44,23 @@ export default function LeaderboardPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={3} className="p-3 text-center">Loading…</td></tr>
+              <tr>
+                <td colSpan={3} className="p-3 text-center">
+                  Loading…
+                </td>
+              </tr>
             ) : rows.length === 0 ? (
-              <tr><td colSpan={3} className="p-3 text-center">No data</td></tr>
+              <tr>
+                <td colSpan={3} className="p-3 text-center">
+                  No data
+                </td>
+              </tr>
             ) : (
               rows.map((r) => (
-                <tr key={`${r.rank}-${r.username}`} className="border-t border-gray-100 dark:border-gray-800">
+                <tr
+                  key={`${r.rank}-${r.username}`}
+                  className="border-t border-gray-100 dark:border-gray-800"
+                >
                   <td className="p-3">{r.rank}</td>
                   <td className="p-3 flex items-center gap-2">
                     <img src={r.avatar} className="w-6 h-6 rounded-full" alt="avatar" />
@@ -61,5 +76,3 @@ export default function LeaderboardPage() {
     </Layout>
   );
 }
-
-

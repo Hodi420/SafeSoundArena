@@ -22,7 +22,12 @@ export default function SitesBoardTable({ sites }: { sites: Site[] }) {
         </thead>
         <tbody>
           {sites.map((s, i) => (
-            <tr key={i} className={s.community_score < 0 ? 'bg-red-100' : s.community_score > 0 ? 'bg-green-100' : ''}>
+            <tr
+              key={i}
+              className={
+                s.community_score < 0 ? 'bg-red-100' : s.community_score > 0 ? 'bg-green-100' : ''
+              }
+            >
               <td>{s.site}</td>
               <td>{s.type}</td>
               <td>{s.community_score}</td>

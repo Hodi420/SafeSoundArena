@@ -42,5 +42,3 @@ export const useThemeStore = create<ThemeState>()(
     }
   )
 );
-
-

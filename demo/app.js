@@ -43,31 +43,35 @@ function updateBoard() {
   document.querySelectorAll('.cell').forEach((cell, index) => {
     cell.textContent = gameState.board[index] || '';
     cell.className = `cell ${gameState.board[index] ? gameState.board[index].toLowerCase() : ''}`;
-    
+
     // Disable cell if it's not the player's turn or the cell is already taken
-    cell.style.pointerEvents = 
-      gameState.gameStatus !== 'in_progress' || 
-      gameState.board[index] || 
-      gameState.currentPlayer !== gameState.playerId ? 'none' : 'auto';
+    cell.style.pointerEvents =
+      gameState.gameStatus !== 'in_progress' ||
+      gameState.board[index] ||
+      gameState.currentPlayer !== gameState.playerId
+        ? 'none'
+        : 'auto';
   });
 }
 
 // Handle cell click
 function handleCellClick(event) {
   const index = parseInt(event.target.dataset.index);
-  
+
   // Don't allow moves on occupied cells or when it's not the player's turn
   if (gameState.board[index] || gameState.currentPlayer !== gameState.playerId) {
     return;
   }
-  
+
   // Make the move
-  client.makeMove(gameState.gameId, { 
-    position: index,
-    symbol: gameState.playerSymbol 
-  }).catch(error => {
-    logError('Move failed:', error);
-  });
+  client
+    .makeMove(gameState.gameId, {
+      position: index,
+      symbol: gameState.playerSymbol,
+    })
+    .catch((error) => {
+      logError('Move failed:', error);
+    });
 }
 
 // Update game status display
@@ -79,21 +83,21 @@ function updateStatus(message) {
 function addChatMessage(message, type = 'system', sender = 'System') {
   const messageElement = document.createElement('div');
   messageElement.className = `message ${type === 'self' ? 'self' : type === 'system' ? 'system' : 'other'}`;
-  
+
   if (type === 'system') {
     messageElement.textContent = message;
   } else {
     const senderElement = document.createElement('div');
     senderElement.className = 'text-xs font-semibold';
     senderElement.textContent = sender;
-    
+
     const contentElement = document.createElement('div');
     contentElement.textContent = message;
-    
+
     messageElement.appendChild(senderElement);
     messageElement.appendChild(contentElement);
   }
-  
+
   elements.chatMessages.appendChild(messageElement);
   elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
 }
@@ -119,46 +123,47 @@ const client = new SafeSoundArenaClient({
     onConnected: () => {
       logDebug('Connected to game server');
       updateConnectionStatus(true);
-      
+
       // Generate a random player ID for demo purposes
       // In a real app, this would come from your authentication system
       gameState.playerId = `player_${Math.random().toString(36).substr(2, 9)}`;
       elements.playerId.textContent = gameState.playerId;
-      
+
       // Enable UI elements
       elements.newGameBtn.disabled = false;
-      
+
       // Join a game automatically for demo purposes
-      client.createGame({ type: 'standard' })
-        .then(game => {
+      client
+        .createGame({ type: 'standard' })
+        .then((game) => {
           gameState.gameId = game.gameId;
           elements.gameId.textContent = game.gameId;
           updateStatus('Waiting for opponent...');
         })
-        .catch(error => {
+        .catch((error) => {
           logError('Failed to create game:', error);
         });
     },
-    
+
     onDisconnected: (event) => {
       logDebug(`Disconnected: ${event.code} - ${event.reason || 'No reason provided'}`);
       updateConnectionStatus(false);
       updateStatus('Disconnected from server. Reconnecting...');
     },
-    
+
     onError: (error) => {
       logError('Connection error:', error);
       updateConnectionStatus(false);
     },
-    
+
     onGameState: (state) => {
       logDebug('Game state updated:', state);
-      
+
       // Update game state
       gameState.board = state.board || Array(9).fill('');
       gameState.currentPlayer = state.currentPlayer;
       gameState.gameStatus = state.status;
-      
+
       // Update player symbols if this is the first state update
       if (state.players) {
         const playerIndex = state.players.indexOf(gameState.playerId);
@@ -167,10 +172,10 @@ const client = new SafeSoundArenaClient({
           gameState.opponentId = state.players[playerIndex === 0 ? 1 : 0];
         }
       }
-      
+
       // Update UI
       updateBoard();
-      
+
       // Update status message
       if (state.status === 'waiting') {
         updateStatus('Waiting for opponent...');
@@ -190,30 +195,26 @@ const client = new SafeSoundArenaClient({
         }
       }
     },
-    
+
     onChatMessage: (message) => {
       const isSelf = message.senderId === gameState.playerId;
-      addChatMessage(
-        message.content,
-        isSelf ? 'self' : 'other',
-        isSelf ? 'You' : message.senderId
-      );
+      addChatMessage(message.content, isSelf ? 'self' : 'other', isSelf ? 'You' : message.senderId);
     },
-    
+
     onPlayerJoined: (player) => {
       logDebug(`Player joined: ${player.playerId}`);
       if (player.playerId !== gameState.playerId) {
         addChatMessage(`${player.playerId} has joined the game`, 'system');
       }
     },
-    
+
     onPlayerLeft: (player) => {
       logDebug(`Player left: ${player.playerId}`);
       if (player.playerId !== gameState.playerId) {
         addChatMessage(`${player.playerId} has left the game`, 'system');
       }
-    }
-  }
+    },
+  },
 });
 
 // Update connection status UI
@@ -231,48 +232,50 @@ function updateConnectionStatus(connected) {
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize the board
   initializeBoard();
-  
+
   // Connect to the server
   client.connect();
-  
+
   // New Game button
   elements.newGameBtn.addEventListener('click', () => {
-    client.createGame({ type: 'standard' })
-      .then(game => {
+    client
+      .createGame({ type: 'standard' })
+      .then((game) => {
         gameState.gameId = game.gameId;
         elements.gameId.textContent = game.gameId;
         updateStatus('Waiting for opponent...');
       })
-      .catch(error => {
+      .catch((error) => {
         logError('Failed to create game:', error);
       });
   });
-  
+
   // Send chat message
   function sendChatMessage() {
     const message = elements.chatInput.value.trim();
     if (!message) return;
-    
-    client.sendChatMessage(gameState.gameId, message)
+
+    client
+      .sendChatMessage(gameState.gameId, message)
       .then(() => {
         elements.chatInput.value = '';
       })
-      .catch(error => {
+      .catch((error) => {
         logError('Failed to send message:', error);
       });
   }
-  
+
   elements.sendBtn.addEventListener('click', sendChatMessage);
   elements.chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       sendChatMessage();
     }
   });
-  
+
   // Enable chat input when connected
   elements.chatInput.disabled = false;
   elements.sendBtn.disabled = false;
-  
+
   // Add some helpful debug info
   logDebug('Demo application initialized');
   logDebug(`Player ID: ${gameState.playerId || 'Not connected'}`);

@@ -9,13 +9,13 @@ const BASE_URL = `http://${HOST}:${PORT}`;
 
 // Start the server
 const serverProcess = spawn('node', ['server.js'], {
-  env: { 
-    ...process.env, 
+  env: {
+    ...process.env,
     PORT,
     NODE_ENV: 'test',
-    LOG_LEVEL: 'error' // Only show errors during tests
+    LOG_LEVEL: 'error', // Only show errors during tests
   },
-  stdio: ['ignore', 'pipe', 'pipe']
+  stdio: ['ignore', 'pipe', 'pipe'],
 });
 
 // Store server output
@@ -43,36 +43,39 @@ function waitForServer() {
 // Make HTTP request
 async function makeRequest(method, path, body = null) {
   const url = new URL(path, BASE_URL);
-  
+
   return new Promise((resolve, reject) => {
-    const req = createServer({
-      hostname: url.hostname,
-      port: url.port,
-      path: url.pathname,
-      method,
-      headers: {
-        'Content-Type': 'application/json',
+    const req = createServer(
+      {
+        hostname: url.hostname,
+        port: url.port,
+        path: url.pathname,
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-    }, (res) => {
-      let data = '';
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
-      res.on('end', () => {
-        try {
-          if (res.headers['content-type']?.includes('application/json')) {
-            data = JSON.parse(data);
+      (res) => {
+        let data = '';
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+        res.on('end', () => {
+          try {
+            if (res.headers['content-type']?.includes('application/json')) {
+              data = JSON.parse(data);
+            }
+            resolve({
+              statusCode: res.statusCode,
+              headers: res.headers,
+              body: data,
+            });
+          } catch (error) {
+            reject(error);
           }
-          resolve({
-            statusCode: res.statusCode,
-            headers: res.headers,
-            body: data
-          });
-        } catch (error) {
-          reject(error);
-        }
-      });
-    });
+        });
+      }
+    );
 
     req.on('error', (error) => {
       reject(error);
@@ -81,7 +84,7 @@ async function makeRequest(method, path, body = null) {
     if (body) {
       req.write(JSON.stringify(body));
     }
-    
+
     req.end();
   });
 }
@@ -89,7 +92,7 @@ async function makeRequest(method, path, body = null) {
 // Run tests
 async function runTests() {
   console.log('Starting server tests...');
-  
+
   try {
     // Wait for server to start
     await waitForServer();

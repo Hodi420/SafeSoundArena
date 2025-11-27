@@ -1,10 +1,20 @@
 import React from 'react';
 
 const PrivacyPolicy = () => (
-  <div style={{ maxWidth: 800, margin: '2rem auto', padding: '2rem', background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+  <div
+    style={{
+      maxWidth: 800,
+      margin: '2rem auto',
+      padding: '2rem',
+      background: '#fff',
+      borderRadius: 8,
+      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+    }}
+  >
     <h1>Privacy Policy</h1>
     <p>
-      Your privacy is important to us. This privacy policy explains what personal data we collect and how we use it.
+      Your privacy is important to us. This privacy policy explains what personal data we collect
+      and how we use it.
     </p>
     <h2>Information We Collect</h2>
     <ul>
@@ -19,9 +29,7 @@ const PrivacyPolicy = () => (
       <li>To comply with legal obligations.</li>
     </ul>
     <h2>Contact Us</h2>
-    <p>
-      If you have any questions about this Privacy Policy, please contact us.
-    </p>
+    <p>If you have any questions about this Privacy Policy, please contact us.</p>
   </div>
 );
 

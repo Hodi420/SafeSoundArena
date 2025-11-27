@@ -5,8 +5,8 @@ const GameEventHandler = require('./gameEventHandler');
 
 class WebSocketServer {
   constructor(server) {
-    this.wss = new WebSocket.Server({ 
-      server, 
+    this.wss = new WebSocket.Server({
+      server,
       path: '/api/ws',
       clientTracking: true,
       maxPayload: 1024 * 1024, // 1MB max payload
@@ -14,23 +14,23 @@ class WebSocketServer {
         zlibDeflateOptions: {
           chunkSize: 1024,
           memLevel: 7,
-          level: 3
+          level: 3,
         },
         zlibInflateOptions: {
-          chunkSize: 10 * 1024
+          chunkSize: 10 * 1024,
         },
         clientNoContextTakeover: true,
         serverNoContextTakeover: true,
         serverMaxWindowBits: 10,
         concurrencyLimit: 10,
-        threshold: 1024
-      }
+        threshold: 1024,
+      },
     });
-    
+
     this.clients = new Map(); // Map<clientId, {ws: WebSocket, userId: string, gameId: string|null}>
     this.games = new Map(); // Map<gameId, Set<clientId>>
     this.gameEventHandler = new GameEventHandler(this);
-    
+
     this.setupEventHandlers();
     this.initializeHeartbeat();
   }
@@ -65,7 +65,7 @@ class WebSocketServer {
 
       // Extract token from query parameters or headers
       const token = this.extractToken(req);
-      
+
       if (!token) {
         ws.close(1008, 'Authentication required');
         return;
@@ -79,7 +79,7 @@ class WebSocketServer {
 
         // Store client connection
         this.clients.set(clientId, { ws, userId, gameId: null });
-        
+
         logger.info(`Client connected: ${clientId} (User: ${userId})`);
 
         // Send connection confirmation
@@ -87,10 +87,9 @@ class WebSocketServer {
 
         // Handle messages from client
         ws.on('message', (message) => this.handleMessage(clientId, message));
-        
+
         // Handle client disconnection
         ws.on('close', () => this.handleDisconnect(clientId));
-        
       } catch (error) {
         logger.error('WebSocket authentication failed:', error);
         ws.close(1008, 'Invalid token');
@@ -105,26 +104,27 @@ class WebSocketServer {
       const token = url.searchParams.get('token');
       if (token) return token;
     }
-    
+
     // Then try to get from headers
     const authHeader = req.headers['authorization'];
     if (authHeader && authHeader.startsWith('Bearer ')) {
       return authHeader.split(' ')[1];
     }
-    
+
     return null;
   }
 
   generateClientId() {
-    return Math.random().toString(36).substring(2, 15) + 
-           Math.random().toString(36).substring(2, 15);
+    return (
+      Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+    );
   }
 
   handleMessage(clientId, message) {
     try {
       const { event, data } = JSON.parse(message);
       const client = this.clients.get(clientId);
-      
+
       if (!client) return;
 
       logger.debug(`Received ${event} from ${clientId} (User: ${client.userId})`, data);
@@ -134,23 +134,22 @@ class WebSocketServer {
         case 'game:join':
           this.handleGameJoin(clientId, data.gameId);
           break;
-          
+
         case 'game:leave':
           this.handleGameLeave(clientId);
           break;
-          
+
         case 'game:action':
           this.handleGameAction(clientId, data);
           break;
-          
+
         case 'game:chat':
           this.handleGameChat(clientId, data.message);
           break;
-          
+
         default:
           logger.warn(`Unknown event type: ${event}`);
       }
-      
     } catch (error) {
       logger.error('Error handling WebSocket message:', error);
     }
@@ -167,20 +166,20 @@ class WebSocketServer {
 
     // Add client to game
     client.gameId = gameId;
-    
+
     if (!this.games.has(gameId)) {
       this.games.set(gameId, new Set());
     }
-    
+
     this.games.get(gameId).add(clientId);
-    
+
     // Notify all players in the game about the new player
     this.broadcastToGame(gameId, 'game:player-joined', {
       playerId: client.userId,
       gameId,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
-    
+
     logger.info(`Client ${clientId} joined game ${gameId}`);
   }
 
@@ -189,12 +188,12 @@ class WebSocketServer {
     if (!client || !client.gameId) return;
 
     const { gameId, userId } = client;
-    
+
     // Remove client from game
     if (this.games.has(gameId)) {
       const gameClients = this.games.get(gameId);
       gameClients.delete(clientId);
-      
+
       // Remove game if empty
       if (gameClients.size === 0) {
         this.games.delete(gameId);
@@ -203,11 +202,11 @@ class WebSocketServer {
         this.broadcastToGame(gameId, 'game:player-left', {
           playerId: userId,
           gameId,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
       }
     }
-    
+
     client.gameId = null;
     logger.info(`Client ${clientId} left game ${gameId}`);
   }
@@ -220,7 +219,7 @@ class WebSocketServer {
     this.broadcastToGame(client.gameId, 'game:action', {
       playerId: client.userId,
       action,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -232,7 +231,7 @@ class WebSocketServer {
     this.broadcastToGame(client.gameId, 'game:chat', {
       playerId: client.userId,
       message,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -241,12 +240,12 @@ class WebSocketServer {
     if (!client) return;
 
     logger.info(`Client disconnected: ${clientId} (User: ${client.userId})`);
-    
+
     // Handle leaving games on disconnect
     if (client.gameId) {
       this.handleGameLeave(clientId);
     }
-    
+
     // Remove client from active connections
     this.clients.delete(clientId);
   }
@@ -261,11 +260,11 @@ class WebSocketServer {
   // Broadcast a message to all clients in a game
   broadcastToGame(gameId, event, data) {
     if (!this.games.has(gameId)) return;
-    
+
     const gameClients = this.games.get(gameId);
     const message = JSON.stringify({ event, data });
-    
-    gameClients.forEach(clientId => {
+
+    gameClients.forEach((clientId) => {
       const client = this.clients.get(clientId);
       if (client && client.ws.readyState === WebSocket.OPEN) {
         client.ws.send(message);
@@ -276,7 +275,7 @@ class WebSocketServer {
   // Broadcast a message to all connected clients
   broadcast(event, data) {
     const message = JSON.stringify({ event, data });
-    
+
     this.clients.forEach(({ ws }) => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(message);

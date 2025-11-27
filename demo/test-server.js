@@ -7,17 +7,19 @@ const ws = new WebSocket('ws://localhost:4000');
 
 ws.on('open', function open() {
   console.log('Connected to server');
-  
+
   // Test connection message
-  ws.send(JSON.stringify({
-    type: 'test',
-    payload: { message: 'Hello Server!' }
-  }));
+  ws.send(
+    JSON.stringify({
+      type: 'test',
+      payload: { message: 'Hello Server!' },
+    })
+  );
 });
 
 ws.on('message', function incoming(data) {
   console.log('Received:', data.toString());
-  
+
   // Close the connection after receiving a message
   ws.close();
 });

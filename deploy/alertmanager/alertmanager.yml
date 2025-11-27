@@ -20,13 +20,13 @@ route:
         severity: 'critical'
       receiver: 'pagerduty-critical'
       continue: true
-    
+
     # Warnings go to Slack
     - match:
         severity: 'warning'
       receiver: 'slack-warnings'
       continue: true
-    
+
     # Authentication-related alerts
     - match:
         service: 'auth'
@@ -42,7 +42,7 @@ receivers:
         headers:
           subject: '{{ template "email.default.subject" . }}'
         html: '{{ template "email.default.html" . }}'
-  
+
   # Auth team specific email
   - name: 'auth-team-email'
     email_configs:
@@ -51,7 +51,7 @@ receivers:
         headers:
           subject: '[Auth] {{ template "email.default.subject" . }}'
         html: '{{ template "email.default.html" . }}'
-  
+
   # Slack notifications
   - name: 'slack-warnings'
     slack_configs:
@@ -61,7 +61,7 @@ receivers:
         text: '{{ template "slack.default.text" . }}'
         icon_emoji: '⚠️'
         color: '{{ if eq .Status "firing" }}warning{{ else }}good{{ end }}'
-  
+
   # PagerDuty for critical alerts
   - name: 'pagerduty-critical'
     pagerduty_configs:
@@ -71,7 +71,7 @@ receivers:
           firing: '{{ .Alerts.Firing | len }}'
           resolved: '{{ .Alerts.Resolved | len }}'
           group_labels: '{{ .CommonLabels.SortedPairs.Values | join " " }}'
-  
+
   # Microsoft Teams Webhook
   - name: 'teams-notifications'
     webhook_configs:

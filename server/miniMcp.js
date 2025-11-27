@@ -15,18 +15,21 @@ app.get('/api/mcp/overview', async (req, res) => {
   try {
     const user = await User.findOne({ userId });
     if (!user) return res.status(403).json({ error: 'User not found' });
-    if (!user.onboardingComplete) return res.status(403).json({ error: 'User must complete onboarding' });
+    if (!user.onboardingComplete)
+      return res.status(403).json({ error: 'User must complete onboarding' });
     // מצא את כל ה-Agents של המיני-MCP הזה
     const agents = await Agent.find({ miniMcpId: process.env.MINI_MCP_ID });
-    const agentStatuses = await Promise.all(agents.map(async agent => {
-      try {
-        const r = await fetch(agent.url + '/healthz');
-        const status = await r.json();
-        return { ...agent.toObject(), status: status.status };
-      } catch {
-        return { ...agent.toObject(), status: 'offline' };
-      }
-    }));
+    const agentStatuses = await Promise.all(
+      agents.map(async (agent) => {
+        try {
+          const r = await fetch(agent.url + '/healthz');
+          const status = await r.json();
+          return { ...agent.toObject(), status: status.status };
+        } catch {
+          return { ...agent.toObject(), status: 'offline' };
+        }
+      })
+    );
     res.json(agentStatuses);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch agents', details: err.message });
@@ -39,7 +42,8 @@ app.post('/api/mcp/assign', async (req, res) => {
   try {
     const user = await User.findOne({ userId });
     if (!user) return res.status(403).json({ error: 'User not found' });
-    if (!user.onboardingComplete) return res.status(403).json({ error: 'User must complete onboarding' });
+    if (!user.onboardingComplete)
+      return res.status(403).json({ error: 'User must complete onboarding' });
 
     let agent;
     if (agentId) {
@@ -52,7 +56,10 @@ app.post('/api/mcp/assign', async (req, res) => {
       let r = Math.random() * total;
       for (const a of agents) {
         r -= a.weight || 1;
-        if (r <= 0) { agent = a; break; }
+        if (r <= 0) {
+          agent = a;
+          break;
+        }
       }
       if (!agent && agents.length > 0) agent = agents[0];
     }
@@ -61,7 +68,7 @@ app.post('/api/mcp/assign', async (req, res) => {
       const r = await fetch(agent.url + '/api/agent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command, userId })
+        body: JSON.stringify({ command, userId }),
       });
       const data = await r.json();
       res.json({ ok: true, agent: agent.agentId, response: data });

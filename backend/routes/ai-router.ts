@@ -29,7 +29,7 @@ router.post('/chat', async (req: Request, res: Response) => {
 
     // Get routing decision
     const decision = await aiRouter.route(requestBody);
-    
+
     // Execute the request
     const startTime = Date.now();
     const response = await aiRouter.execute(decision, requestBody);
@@ -44,7 +44,7 @@ router.post('/chat', async (req: Request, res: Response) => {
         responseTime,
         modelUsed: decision.selectedModel.name,
         complexity: requestBody.complexity || 'medium',
-        context: requestBody.context ? [requestBody.context] : []
+        context: requestBody.context ? [requestBody.context] : [],
       }
     );
 
@@ -58,15 +58,14 @@ router.post('/chat', async (req: Request, res: Response) => {
         estimatedLatency: decision.estimatedLatency,
         actualResponseTime: responseTime,
         timestamp: new Date().toISOString(),
-        interactionId
-      }
+        interactionId,
+      },
     });
-
   } catch (error: any) {
     console.error('AI Router error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to process AI request',
-      message: error.message 
+      message: error.message,
     });
   }
 });
@@ -91,15 +90,14 @@ router.post('/analyze', async (req: Request, res: Response) => {
         reasoning: decision.reasoning,
         estimatedCost: decision.estimatedCost,
         estimatedLatency: decision.estimatedLatency,
-        complexity: requestBody.complexity || 'auto-detected'
-      }
+        complexity: requestBody.complexity || 'auto-detected',
+      },
     });
-
   } catch (error) {
     console.error('AI Analysis error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to analyze request',
-      message: error.message 
+      message: error.message,
     });
   }
 });
@@ -113,9 +111,9 @@ router.get('/stats', (req: Request, res: Response) => {
     res.json(stats);
   } catch (error) {
     console.error('Stats error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get stats',
-      message: error.message 
+      message: error.message,
     });
   }
 });
@@ -129,18 +127,18 @@ router.get('/models', async (req: Request, res: Response) => {
     res.json({
       local: [
         { name: 'llama3-8b-local', status: 'checking...', endpoint: 'http://localhost:11434' },
-        { name: 'mistral-7b-local', status: 'checking...', endpoint: 'http://localhost:8081' }
+        { name: 'mistral-7b-local', status: 'checking...', endpoint: 'http://localhost:8081' },
       ],
       api: [
         { name: 'gpt-4o', status: 'available', provider: 'openai' },
-        { name: 'claude-3-sonnet', status: 'available', provider: 'anthropic' }
-      ]
+        { name: 'claude-3-sonnet', status: 'available', provider: 'anthropic' },
+      ],
     });
   } catch (error) {
     console.error('Models status error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get models status',
-      message: error.message 
+      message: error.message,
     });
   }
 });
@@ -158,12 +156,12 @@ router.post('/chat/candidates', async (req: Request, res: Response) => {
     const preferences: Array<'cost' | 'quality' | 'speed'> = ['cost', 'quality', 'speed'];
 
     const decisions = await Promise.all(
-      preferences.map(pref => aiRouter.route({ ...requestBody, userPreference: pref }))
+      preferences.map((pref) => aiRouter.route({ ...requestBody, userPreference: pref }))
     );
 
     const start = Date.now();
     const executions = await Promise.allSettled(
-      decisions.map(decision => aiRouter.execute(decision, requestBody))
+      decisions.map((decision) => aiRouter.execute(decision, requestBody))
     );
     const totalTime = Date.now() - start;
 
@@ -171,7 +169,9 @@ router.post('/chat/candidates', async (req: Request, res: Response) => {
       const exec = executions[idx];
       const success = exec.status === 'fulfilled';
       const content = success ? (exec as PromiseFulfilledResult<string>).value : null;
-      const error = success ? null : (exec as PromiseRejectedResult).reason?.message || 'Execution failed';
+      const error = success
+        ? null
+        : (exec as PromiseRejectedResult).reason?.message || 'Execution failed';
       return {
         response: content,
         error,
@@ -181,20 +181,20 @@ router.post('/chat/candidates', async (req: Request, res: Response) => {
           reasoning: decision.reasoning,
           estimatedCost: decision.estimatedCost,
           estimatedLatency: decision.estimatedLatency,
-          preference: preferences[idx]
-        }
+          preference: preferences[idx],
+        },
       };
     });
 
     res.json({
       totalTime,
-      candidates
+      candidates,
     });
   } catch (error: any) {
     console.error('AI candidates error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get candidates',
-      message: error.message 
+      message: error.message,
     });
   }
 });
@@ -202,7 +202,10 @@ router.post('/chat/candidates', async (req: Request, res: Response) => {
 // Feedback endpoint to update learning based on user choice
 router.post('/chat/feedback', async (req: Request, res: Response) => {
   try {
-    const { interactionId, feedback } = req.body as { interactionId: string; feedback: 'positive' | 'negative' | 'neutral' };
+    const { interactionId, feedback } = req.body as {
+      interactionId: string;
+      feedback: 'positive' | 'negative' | 'neutral';
+    };
     if (!interactionId || !feedback) {
       return res.status(400).json({ error: 'interactionId and feedback are required' });
     }
@@ -211,9 +214,9 @@ router.post('/chat/feedback', async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error: any) {
     console.error('AI feedback error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to update feedback',
-      message: error.message 
+      message: error.message,
     });
   }
 });

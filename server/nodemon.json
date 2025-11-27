@@ -4,5 +4,3 @@
   "ignore": ["node_modules", "**/*.log"],
   "exec": "node mcp.js"
 }
-
-

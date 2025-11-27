@@ -11,27 +11,25 @@ export default function ChallengeTracker() {
   const [toastMsg, setToastMsg] = useState('');
 
   function handleClaim(challengeId: string) {
-    claim.mutate(
-      challengeId,
-      {
-        onSuccess: () => {
-          setToastMsg('Reward claimed!');
-          setShowToast(true);
-        }
-      }
-    );
+    claim.mutate(challengeId, {
+      onSuccess: () => {
+        setToastMsg('Reward claimed!');
+        setShowToast(true);
+      },
+    });
   }
 
-  if (loadingDaily || loadingWeekly) return (
-    <div className="bg-gray-900 rounded-lg p-4 border border-orange-500 animate-pulse max-w-lg mx-auto">
-      <div className="h-6 bg-gray-700 rounded w-40 mb-4"></div>
-      <div className="flex flex-col gap-2">
-        <div className="h-8 bg-gray-700 rounded"></div>
-        <div className="h-8 bg-gray-700 rounded"></div>
-        <div className="h-8 bg-gray-700 rounded"></div>
+  if (loadingDaily || loadingWeekly)
+    return (
+      <div className="bg-gray-900 rounded-lg p-4 border border-orange-500 animate-pulse max-w-lg mx-auto">
+        <div className="h-6 bg-gray-700 rounded w-40 mb-4"></div>
+        <div className="flex flex-col gap-2">
+          <div className="h-8 bg-gray-700 rounded"></div>
+          <div className="h-8 bg-gray-700 rounded"></div>
+          <div className="h-8 bg-gray-700 rounded"></div>
+        </div>
       </div>
-    </div>
-  );
+    );
 
   return (
     <div className="bg-gray-900 rounded-lg p-4 border border-orange-500 max-w-lg mx-auto">
@@ -42,7 +40,9 @@ export default function ChallengeTracker() {
           <div key={ch.id} className="flex items-center space-x-2 mb-2">
             <span className="text-2xl">{ch.emoji}</span>
             <span>{ch.title}</span>
-            <span className="text-yellow-400">{ch.progress}/{ch.goal}</span>
+            <span className="text-yellow-400">
+              {ch.progress}/{ch.goal}
+            </span>
             <button
               className="btn-primary ml-auto transition hover:scale-105 focus:ring-2 focus:ring-yellow-400"
               onClick={() => handleClaim(ch.id)}
@@ -61,7 +61,9 @@ export default function ChallengeTracker() {
           <div key={ch.id} className="flex items-center space-x-2 mb-2">
             <span className="text-2xl">{ch.emoji}</span>
             <span>{ch.title}</span>
-            <span className="text-yellow-400">{ch.progress}/{ch.goal}</span>
+            <span className="text-yellow-400">
+              {ch.progress}/{ch.goal}
+            </span>
             <button
               className="btn-primary ml-auto transition hover:scale-105 focus:ring-2 focus:ring-yellow-400"
               onClick={() => claim.mutate(ch.id)}

@@ -31,5 +31,3 @@ const request = require('supertest');
     process.exit(1);
   }
 })();
-
-

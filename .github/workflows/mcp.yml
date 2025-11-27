@@ -13,8 +13,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v4.3.0
+      - uses: actions/setup-node@v4.4.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -30,5 +30,3 @@ jobs:
           fi
       - name: Build Docker
         run: docker build -t safesoundarena/mcp:ci ./server
-
-

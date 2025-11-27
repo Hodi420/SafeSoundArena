@@ -9,7 +9,6 @@ function useZustandSnapshot() {
   return store;
 }
 
-
 export default function DebugPanel() {
   const [open, setOpen] = useState(false);
   const [buildTime, setBuildTime] = useState<string | null>(null);
@@ -48,10 +47,17 @@ export default function DebugPanel() {
         <section className="mb-8">
           <div className="font-bold text-green-400 text-xl mb-2">React Query Cache</div>
           <pre className="bg-gray-800 rounded p-4 text-base overflow-x-auto">
-            {JSON.stringify(queryClient.getQueryCache().findAll().map(q => ({
-              queryKey: q.queryKey,
-              state: q.state
-            })), null, 2)}
+            {JSON.stringify(
+              queryClient
+                .getQueryCache()
+                .findAll()
+                .map((q) => ({
+                  queryKey: q.queryKey,
+                  state: q.state,
+                })),
+              null,
+              2,
+            )}
           </pre>
         </section>
 

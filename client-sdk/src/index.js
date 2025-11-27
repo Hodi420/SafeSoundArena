@@ -22,9 +22,9 @@ class SafeSoundArenaClient {
       onChatMessage: () => {},
       onPlayerJoined: () => {},
       onPlayerLeft: () => {},
-      ...callbacks
+      ...callbacks,
     };
-    
+
     this.socket = null;
     this.reconnectAttempts = 0;
     this.maxReconnectAttempts = 5;
@@ -103,7 +103,7 @@ class SafeSoundArenaClient {
     if (requestId && this.pendingRequests.has(requestId)) {
       const { resolve, reject } = this.pendingRequests.get(requestId);
       this.pendingRequests.delete(requestId);
-      
+
       if (type.endsWith(':error')) {
         reject(payload);
       } else {
@@ -148,12 +148,12 @@ class SafeSoundArenaClient {
     }
 
     const message = { type, payload };
-    
+
     if (expectResponse) {
       return new Promise((resolve, reject) => {
         const requestId = this.getNextRequestId();
         this.pendingRequests.set(requestId, { resolve, reject });
-        
+
         // Set timeout for response
         setTimeout(() => {
           if (this.pendingRequests.has(requestId)) {
@@ -175,7 +175,7 @@ class SafeSoundArenaClient {
    */
   startHeartbeat() {
     this.lastHeartbeat = Date.now();
-    
+
     // Clear existing interval if any
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
@@ -185,9 +185,10 @@ class SafeSoundArenaClient {
     this.heartbeatInterval = setInterval(() => {
       if (this.socket && this.socket.readyState === WebSocket.OPEN) {
         this.send('connection:heartbeat', { timestamp: Date.now() });
-        
+
         // Check if we missed too many heartbeats
-        if (Date.now() - this.lastHeartbeat > 90000) { // 90 seconds
+        if (Date.now() - this.lastHeartbeat > 90000) {
+          // 90 seconds
           console.warn('Missed heartbeats, reconnecting...');
           this.reconnect();
         }
@@ -207,9 +208,11 @@ class SafeSoundArenaClient {
 
     this.reconnectAttempts++;
     const delay = Math.min(this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1), 30000);
-    
-    console.log(`Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-    
+
+    console.log(
+      `Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`
+    );
+
     setTimeout(() => {
       if (this.socket && this.socket.readyState === WebSocket.CONNECTING) {
         return; // Already reconnecting
@@ -226,20 +229,20 @@ class SafeSoundArenaClient {
       clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
     }
-    
+
     if (this.socket) {
       this.socket.onopen = null;
       this.socket.onclose = null;
       this.socket.onerror = null;
       this.socket.onmessage = null;
-      
+
       if (this.socket.readyState === WebSocket.OPEN) {
         this.socket.close();
       }
-      
+
       this.socket = null;
     }
-    
+
     // Reject all pending requests
     for (const [requestId, { reject }] of this.pendingRequests) {
       reject(new Error('Connection closed'));

@@ -5,6 +5,7 @@ This document outlines the WebSocket-based real-time communication protocol used
 ## Connection Establishment
 
 ### Authentication
+
 Before any game events can be sent or received, the client must authenticate:
 
 ```javascript
@@ -17,9 +18,11 @@ const socket = new WebSocket('ws://your-server/ws?token=YOUR_JWT_TOKEN');
 ### 1. Game Events
 
 #### `game:create`
+
 **Direction**: Client → Server  
 **Description**: Create a new game instance  
 **Payload**:
+
 ```json
 {
   "type": "standard" | "ranked" | "custom",
@@ -29,9 +32,11 @@ const socket = new WebSocket('ws://your-server/ws?token=YOUR_JWT_TOKEN');
 ```
 
 #### `game:created`
+
 **Direction**: Server → Client  
 **Description**: Confirmation of game creation  
 **Payload**:
+
 ```json
 {
   "gameId": "unique-game-id",
@@ -40,9 +45,11 @@ const socket = new WebSocket('ws://your-server/ws?token=YOUR_JWT_TOKEN');
 ```
 
 #### `game:join`
+
 **Direction**: Client → Server  
 **Description**: Join an existing game  
 **Payload**:
+
 ```json
 {
   "gameId": "target-game-id"
@@ -50,9 +57,11 @@ const socket = new WebSocket('ws://your-server/ws?token=YOUR_JWT_TOKEN');
 ```
 
 #### `game:player-joined`
+
 **Direction**: Server → Client  
 **Description**: Notify all players when a new player joins  
 **Payload**:
+
 ```json
 {
   "gameId": "game-id",
@@ -62,9 +71,11 @@ const socket = new WebSocket('ws://your-server/ws?token=YOUR_JWT_TOKEN');
 ```
 
 #### `game:move`
+
 **Direction**: Client → Server  
 **Description**: Submit a game move  
 **Payload**:
+
 ```json
 {
   "gameId": "game-id",
@@ -74,9 +85,11 @@ const socket = new WebSocket('ws://your-server/ws?token=YOUR_JWT_TOKEN');
 ```
 
 #### `game:state-update`
+
 **Direction**: Server → Client  
 **Description**: Game state update  
 **Payload**:
+
 ```json
 {
   "gameId": "game-id",
@@ -90,9 +103,11 @@ const socket = new WebSocket('ws://your-server/ws?token=YOUR_JWT_TOKEN');
 ### 2. Chat Events
 
 #### `chat:message`
+
 **Direction**: Client → Server  
 **Description**: Send a chat message  
 **Payload**:
+
 ```json
 {
   "gameId": "game-id",
@@ -102,9 +117,11 @@ const socket = new WebSocket('ws://your-server/ws?token=YOUR_JWT_TOKEN');
 ```
 
 #### `chat:message-received`
+
 **Direction**: Server → Client  
 **Description**: Broadcast received message to all players  
 **Payload**:
+
 ```json
 {
   "gameId": "game-id",
@@ -118,9 +135,11 @@ const socket = new WebSocket('ws://your-server/ws?token=YOUR_JWT_TOKEN');
 ### 3. Connection Events
 
 #### `connection:heartbeat`
+
 **Direction**: Both  
 **Description**: Keep-alive ping/pong  
 **Payload**:
+
 ```json
 {
   "timestamp": 1620000000
@@ -128,9 +147,11 @@ const socket = new WebSocket('ws://your-server/ws?token=YOUR_JWT_TOKEN');
 ```
 
 #### `connection:error`
+
 **Direction**: Server → Client  
 **Description**: Error notification  
 **Payload**:
+
 ```json
 {
   "code": "ERROR_CODE",
@@ -141,14 +162,14 @@ const socket = new WebSocket('ws://your-server/ws?token=YOUR_JWT_TOKEN');
 
 ## Error Codes
 
-| Code | Description |
-|------|-------------|
+| Code          | Description                                |
+| ------------- | ------------------------------------------ |
 | AUTH_REQUIRED | Authentication token is missing or invalid |
-| INVALID_GAME | Game ID is invalid or game doesn't exist |
-| GAME_FULL | Game has reached maximum player capacity |
-| INVALID_MOVE | The submitted move is not valid |
-| NOT_YOUR_TURN | It's not the player's turn |
-| RATE_LIMITED | Too many requests, please slow down |
+| INVALID_GAME  | Game ID is invalid or game doesn't exist   |
+| GAME_FULL     | Game has reached maximum player capacity   |
+| INVALID_MOVE  | The submitted move is not valid            |
+| NOT_YOUR_TURN | It's not the player's turn                 |
+| RATE_LIMITED  | Too many requests, please slow down        |
 
 ## Implementation Example
 
@@ -167,7 +188,7 @@ class GameClient {
 
     this.socket.onmessage = (event) => {
       const { type, payload } = JSON.parse(event.data);
-      
+
       switch (type) {
         case 'game:state-update':
           this.handleGameStateUpdate(payload);
@@ -188,7 +209,7 @@ class GameClient {
     this.send('chat:message', {
       gameId: this.currentGameId,
       message,
-      type: 'text'
+      type: 'text',
     });
   }
 

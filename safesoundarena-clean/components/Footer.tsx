@@ -4,12 +4,14 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
         <span>© {new Date().getFullYear()} SafeSoundArena</span>
         <div className="flex gap-3">
-          <a href="/privacy-policy-en.md" className="hover:underline">Privacy</a>
-          <a href="/terms-of-service-en.md" className="hover:underline">Terms</a>
+          <a href="/privacy-policy-en.md" className="hover:underline">
+            Privacy
+          </a>
+          <a href="/terms-of-service-en.md" className="hover:underline">
+            Terms
+          </a>
         </div>
       </div>
     </footer>
   );
 }
-
-

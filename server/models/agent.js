@@ -10,7 +10,7 @@ const AgentSchema = new mongoose.Schema({
   rootMcpId: { type: String },
   weight: { type: Number, default: 1 },
   status: { type: String, enum: ['online', 'offline'], default: 'offline' },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('Agent', AgentSchema);

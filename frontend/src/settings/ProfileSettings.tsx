@@ -10,14 +10,18 @@ export default function ProfileSettingsPage() {
     { id: 'echo', name: 'Echo Bot' },
     // Add more bots here
   ];
-  const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || 'demo-user' : 'demo-user';
+  const userId =
+    typeof window !== 'undefined' ? localStorage.getItem('userId') || 'demo-user' : 'demo-user';
 
   function handleSave(botId: string, apiKey: string, endpoint?: string) {
-    fetch(`/api/ai/user-bot-keys?userId=${encodeURIComponent(userId)}&botId=${encodeURIComponent(botId)}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ apiKey, endpoint }),
-    });
+    fetch(
+      `/api/ai/user-bot-keys?userId=${encodeURIComponent(userId)}&botId=${encodeURIComponent(botId)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey, endpoint }),
+      },
+    );
   }
 
   return (

@@ -30,13 +30,13 @@ const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
 // Example job processor
 videoQueue.process('process-video', async (job) => {
   const { videoId } = job.data;
-  
+
   // Process video here
   console.log(`Processing video ${videoId}...`);
-  
+
   // Simulate work
-  await new Promise(resolve => setTimeout(resolve, 5000));
-  
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+
   return { status: 'completed', videoId };
 });
 

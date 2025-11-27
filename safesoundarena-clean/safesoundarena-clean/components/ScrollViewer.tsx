@@ -47,25 +47,29 @@ export default function ScrollViewer() {
           transition={{ type: 'spring', stiffness: 300 }}
         >
           <div className="flex justify-between items-start mb-2">
-            <h3 className="font-semibold text-lg text-blue-400 neon-text group-hover:text-blue-300 transition-colors">{quest.title}</h3>
+            <h3 className="font-semibold text-lg text-blue-400 neon-text group-hover:text-blue-300 transition-colors">
+              {quest.title}
+            </h3>
             <span
               className={`px-3 py-1 text-xs font-bold uppercase tracking-wider ${
                 quest.difficulty === 'Easy'
                   ? 'text-green-400 border-green-500'
                   : quest.difficulty === 'Medium'
-                  ? 'text-yellow-400 border-yellow-500'
-                  : 'text-red-400 border-red-500'
+                    ? 'text-yellow-400 border-yellow-500'
+                    : 'text-red-400 border-red-500'
               } border-2 relative`}
               style={{
-                clipPath: 'polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%)'
+                clipPath: 'polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%)',
               }}
             >
               {quest.difficulty}
             </span>
           </div>
-          
-          <p className="text-gray-400 text-sm mb-4 group-hover:text-gray-300 transition-colors">{quest.description}</p>
-          
+
+          <p className="text-gray-400 text-sm mb-4 group-hover:text-gray-300 transition-colors">
+            {quest.description}
+          </p>
+
           <div className="space-y-2">
             <div className="flex justify-between text-sm text-blue-400">
               <span>Progress</span>
@@ -86,9 +90,7 @@ export default function ScrollViewer() {
               <span className="text-xs text-gray-500 mr-1">Ⓟ</span>
               {quest.reward} Pi
             </span>
-            <button className="btn-secondary text-xs">
-              View Details
-            </button>
+            <button className="btn-secondary text-xs">View Details</button>
           </div>
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
         </motion.div>

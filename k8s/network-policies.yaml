@@ -7,7 +7,7 @@ metadata:
 spec:
   podSelector: {}
   policyTypes:
-  - Ingress
+    - Ingress
 ---
 # Default deny all egress traffic
 apiVersion: networking.k8s.io/v1
@@ -18,7 +18,7 @@ metadata:
 spec:
   podSelector: {}
   policyTypes:
-  - Egress
+    - Egress
 ---
 # Allow DNS resolution
 apiVersion: networking.k8s.io/v1
@@ -29,18 +29,18 @@ metadata:
 spec:
   podSelector: {}
   policyTypes:
-  - Egress
+    - Egress
   egress:
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-      podSelector:
-        matchLabels:
-          k8s-app: kube-dns
-    ports:
-    - protocol: UDP
-      port: 53
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
 ---
 # Allow web app traffic
 apiVersion: networking.k8s.io/v1
@@ -53,25 +53,25 @@ spec:
     matchLabels:
       app: safesoundarena
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  - from:
-    - podSelector: {}
-    - namespaceSelector:
-        matchLabels:
-          name: ingress-nginx
-    ports:
-    - protocol: TCP
-      port: 3000
+    - from:
+        - podSelector: {}
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
   egress:
-  - to:
-    - podSelector:
-        matchLabels:
-          app: safesoundarena
-    ports:
-    - protocol: TCP
-      port: 3000
+    - to:
+        - podSelector:
+            matchLabels:
+              app: safesoundarena
+      ports:
+        - protocol: TCP
+          port: 3000
 ---
 # Production network policies with stricter rules
 apiVersion: networking.k8s.io/v1
@@ -84,32 +84,32 @@ spec:
     matchLabels:
       app: safesoundarena
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  - from:
-    - ipBlock:
-        cidr: 10.0.0.0/8
-    - namespaceSelector:
-        matchLabels:
-          name: ingress-nginx
-    ports:
-    - protocol: TCP
-      port: 3000
+    - from:
+        - ipBlock:
+            cidr: 10.0.0.0/8
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
   egress:
-  - to:
-    - podSelector:
-        matchLabels:
-          app: safesoundarena
-    ports:
-    - protocol: TCP
-      port: 3000
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: monitoring
-    ports:
-    - protocol: TCP
-      port: 9090  # Prometheus
-    - protocol: TCP
-      port: 3000  # Grafana
+    - to:
+        - podSelector:
+            matchLabels:
+              app: safesoundarena
+      ports:
+        - protocol: TCP
+          port: 3000
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - protocol: TCP
+          port: 9090 # Prometheus
+        - protocol: TCP
+          port: 3000 # Grafana

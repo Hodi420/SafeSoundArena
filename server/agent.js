@@ -13,15 +13,21 @@ const AGENT_VERSION = '1.0.0';
 const AGENT_ANALOGY = 'אני כמו רובוט עוזר אישי שמבצע משימות, בודק בריאות, ומספק מידע על עצמו.';
 const AGENT_DESCRIPTION = 'Agent חכם להרצת פקודות, ניהול קבצים, אינטגרציה עם AI, ועוד.';
 const AGENT_CAPABILITIES = [
-  'open_game', 'move_file', 'delete_temp', 'run_update',
-  'fetch_github', 'query_openai', 'query_ollama', 'fetch_url'
+  'open_game',
+  'move_file',
+  'delete_temp',
+  'run_update',
+  'fetch_github',
+  'query_openai',
+  'query_ollama',
+  'fetch_url',
 ];
 
 // Rate limiting: 60 requests per minute per IP
 const limiter = rateLimit({
   windowMs: 60 * 1000,
   max: 60,
-  message: { error: 'Too many requests, please try again later.' }
+  message: { error: 'Too many requests, please try again later.' },
 });
 app.use(limiter);
 
@@ -37,7 +43,7 @@ function isAllowed(command) {
 }
 
 function isRestrictedPath(targetPath) {
-  return config.restrictedFolders.some(folder =>
+  return config.restrictedFolders.some((folder) =>
     path.resolve(targetPath).startsWith(path.resolve(folder))
   );
 }
@@ -62,7 +68,7 @@ app.get('/healthz', (req, res) => {
     memory: process.memoryUsage(),
     agentId: config.agentId || 'unknown',
     type: config.type || 'generic',
-    time: new Date().toISOString()
+    time: new Date().toISOString(),
   });
 });
 
@@ -75,7 +81,7 @@ app.get('/meta', (req, res) => {
     description: AGENT_DESCRIPTION,
     capabilities: AGENT_CAPABILITIES,
     tags: config.tags || [],
-    analogy: AGENT_ANALOGY
+    analogy: AGENT_ANALOGY,
   });
 });
 
@@ -83,7 +89,7 @@ app.get('/meta', (req, res) => {
 app.get('/capabilities', (req, res) => {
   res.json({
     agentId: config.agentId || 'unknown',
-    capabilities: AGENT_CAPABILITIES
+    capabilities: AGENT_CAPABILITIES,
   });
 });
 
@@ -117,21 +123,25 @@ function sendError(res, code, message, req, details) {
   res.status(code).json({
     error: message,
     requestId: req && req.requestId,
-    details: details || undefined
+    details: details || undefined,
   });
 }
 
 app.post('/api/agent', apiKeyCheck, (req, res) => {
   const { command, args, targetPath, confirm, apiKey } = req.body;
   if (!isAllowed(command)) return res.status(403).json({ error: 'Command not allowed' });
-  if (targetPath && isRestrictedPath(targetPath)) return res.status(403).json({ error: 'Target path restricted' });
+  if (targetPath && isRestrictedPath(targetPath))
+    return res.status(403).json({ error: 'Target path restricted' });
   if (!isActiveHour()) return res.status(403).json({ error: 'Outside active hours' });
   if (config.requireConfirmation.includes(command) && !confirm) {
     return res.status(403).json({ error: 'Confirmation required for this command' });
   }
 
   // Audit log
-  fs.appendFileSync('agent.log', `${new Date().toISOString()} EXEC: ${command} ${args ? JSON.stringify(args) : ''} ${targetPath || ''}\n`);
+  fs.appendFileSync(
+    'agent.log',
+    `${new Date().toISOString()} EXEC: ${command} ${args ? JSON.stringify(args) : ''} ${targetPath || ''}\n`
+  );
 
   // Real execution for local commands
   if (command === 'open_game' && args && args.exePath) {
@@ -144,7 +154,7 @@ app.post('/api/agent', apiKeyCheck, (req, res) => {
   }
   if (command === 'move_file' && args && args.src && args.dest) {
     // Move file
-    fs.rename(args.src, args.dest, err => {
+    fs.rename(args.src, args.dest, (err) => {
       if (err) return res.status(500).json({ error: err.message });
       return res.json({ ok: true, message: `File moved from ${args.src} to ${args.dest}` });
     });
@@ -152,7 +162,7 @@ app.post('/api/agent', apiKeyCheck, (req, res) => {
   }
   if (command === 'delete_temp' && args && args.file) {
     // Delete file
-    fs.unlink(args.file, err => {
+    fs.unlink(args.file, (err) => {
       if (err) return res.status(500).json({ error: err.message });
       return res.json({ ok: true, message: `File deleted: ${args.file}` });
     });
@@ -182,7 +192,7 @@ app.post('/api/agent', apiKeyCheck, (req, res) => {
     const https = require('https');
     const payload = JSON.stringify({
       model: 'gpt-3.5-turbo',
-      messages: [{ role: 'user', content: args && args.prompt ? args.prompt : 'Hello!' }]
+      messages: [{ role: 'user', content: args && args.prompt ? args.prompt : 'Hello!' }],
     });
     const options = {
       hostname: 'api.openai.com',
@@ -190,13 +200,13 @@ app.post('/api/agent', apiKeyCheck, (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Length': Buffer.byteLength(payload)
-      }
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Length': Buffer.byteLength(payload),
+      },
     };
-    const reqOpenAI = https.request(options, resp => {
+    const reqOpenAI = https.request(options, (resp) => {
       let data = '';
-      resp.on('data', chunk => data += chunk);
+      resp.on('data', (chunk) => (data += chunk));
       resp.on('end', () => {
         try {
           const parsed = JSON.parse(data);
@@ -206,7 +216,7 @@ app.post('/api/agent', apiKeyCheck, (req, res) => {
         }
       });
     });
-    reqOpenAI.on('error', e => res.status(500).json({ error: e.message }));
+    reqOpenAI.on('error', (e) => res.status(500).json({ error: e.message }));
     reqOpenAI.write(payload);
     reqOpenAI.end();
     return;
@@ -214,37 +224,47 @@ app.post('/api/agent', apiKeyCheck, (req, res) => {
   if (command === 'query_ollama') {
     // Minimal Ollama local API call
     const http = require('http');
-    const ollamaReq = http.request({
-      hostname: 'localhost',
-      port: 11434,
-      path: '/api/chat',
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    }, resp => {
-      let data = '';
-      resp.on('data', chunk => data += chunk);
-      resp.on('end', () => {
-        try {
-          const parsed = JSON.parse(data);
-          res.json({ ok: true, result: parsed.message || data });
-        } catch {
-          res.json({ ok: true, result: data });
-        }
-      });
-    });
-    ollamaReq.on('error', e => res.status(500).json({ error: e.message }));
-    ollamaReq.write(JSON.stringify({ model: args && args.model ? args.model : 'llama2', messages: [{ role: 'user', content: args && args.prompt ? args.prompt : 'Hello Ollama!' }] }));
+    const ollamaReq = http.request(
+      {
+        hostname: 'localhost',
+        port: 11434,
+        path: '/api/chat',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      },
+      (resp) => {
+        let data = '';
+        resp.on('data', (chunk) => (data += chunk));
+        resp.on('end', () => {
+          try {
+            const parsed = JSON.parse(data);
+            res.json({ ok: true, result: parsed.message || data });
+          } catch {
+            res.json({ ok: true, result: data });
+          }
+        });
+      }
+    );
+    ollamaReq.on('error', (e) => res.status(500).json({ error: e.message }));
+    ollamaReq.write(
+      JSON.stringify({
+        model: args && args.model ? args.model : 'llama2',
+        messages: [{ role: 'user', content: args && args.prompt ? args.prompt : 'Hello Ollama!' }],
+      })
+    );
     ollamaReq.end();
     return;
   }
   if (command === 'fetch_url') {
     if (!args || !args.url) return res.status(400).json({ error: 'Missing URL' });
     const https = require('https');
-    https.get(args.url, resp => {
-      let data = '';
-      resp.on('data', chunk => data += chunk);
-      resp.on('end', () => res.json({ ok: true, result: data.substring(0, 1000) })); // Limit output
-    }).on('error', e => res.status(500).json({ error: e.message }));
+    https
+      .get(args.url, (resp) => {
+        let data = '';
+        resp.on('data', (chunk) => (data += chunk));
+        resp.on('end', () => res.json({ ok: true, result: data.substring(0, 1000) })); // Limit output
+      })
+      .on('error', (e) => res.status(500).json({ error: e.message }));
     return;
   }
 
@@ -262,7 +282,7 @@ app.get('/settings', (req, res) => {
       allowedCommands: config.allowedCommands,
       requireConfirmation: config.requireConfirmation,
       tags: config.tags || [],
-      webhookUrl: config.webhookUrl || null
+      webhookUrl: config.webhookUrl || null,
     };
     res.json({ settings, requestId: req.requestId });
   } catch (e) {
@@ -296,16 +316,16 @@ app.post('/webhook', (req, res) => {
       port: url.port || 443,
       path: url.pathname,
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) },
     };
-    const webhookReq = https.request(options, resp => {
+    const webhookReq = https.request(options, (resp) => {
       let respData = '';
-      resp.on('data', chunk => respData += chunk);
+      resp.on('data', (chunk) => (respData += chunk));
       resp.on('end', () => {
         res.json({ ok: true, webhookResponse: respData, requestId: req.requestId });
       });
     });
-    webhookReq.on('error', e => sendError(res, 500, 'Webhook request failed', req, e.message));
+    webhookReq.on('error', (e) => sendError(res, 500, 'Webhook request failed', req, e.message));
     webhookReq.write(data);
     webhookReq.end();
   } catch (e) {
@@ -324,63 +344,85 @@ app.get('/docs', (req, res) => {
   res.json({
     endpoints: [
       {
-        path: '/healthz', method: 'GET',
+        path: '/healthz',
+        method: 'GET',
         description: 'Health check with status, version, uptime, memory, agentId, type, time',
         example_response: {
-          status: 'online', version: '1.0.0', uptime: 123.45, memory: {}, agentId: '...', type: '...', time: '...'
-        }
+          status: 'online',
+          version: '1.0.0',
+          uptime: 123.45,
+          memory: {},
+          agentId: '...',
+          type: '...',
+          time: '...',
+        },
       },
       {
-        path: '/meta', method: 'GET',
+        path: '/meta',
+        method: 'GET',
         description: 'Agent metadata: id, type, version, description, capabilities, tags, analogy',
         example_response: {
-          agentId: '...', type: '...', version: '1.0.0', description: '...', capabilities: [], tags: [], analogy: '...'
-        }
+          agentId: '...',
+          type: '...',
+          version: '1.0.0',
+          description: '...',
+          capabilities: [],
+          tags: [],
+          analogy: '...',
+        },
       },
       {
-        path: '/capabilities', method: 'GET',
+        path: '/capabilities',
+        method: 'GET',
         description: 'List of supported commands/capabilities',
-        example_response: { agentId: '...', capabilities: [] }
+        example_response: { agentId: '...', capabilities: [] },
       },
       {
-        path: '/logs', method: 'GET',
+        path: '/logs',
+        method: 'GET',
         description: 'Last 100 log lines',
-        example_response: { log: ['...'], requestId: '...' }
+        example_response: { log: ['...'], requestId: '...' },
       },
       {
-        path: '/analogy', method: 'GET',
+        path: '/analogy',
+        method: 'GET',
         description: 'Agent analogy and description',
-        example_response: { analogy: '...', description: '...' }
+        example_response: { analogy: '...', description: '...' },
       },
       {
-        path: '/settings', method: 'GET',
+        path: '/settings',
+        method: 'GET',
         description: 'Get agent settings',
-        example_response: { settings: {}, requestId: '...' }
+        example_response: { settings: {}, requestId: '...' },
       },
       {
-        path: '/set', method: 'POST',
+        path: '/set',
+        method: 'POST',
         description: 'Update agent settings',
         example_request: { allowedCommands: ['open_game'] },
-        example_response: { ok: true, updated: {}, requestId: '...' }
+        example_response: { ok: true, updated: {}, requestId: '...' },
       },
       {
-        path: '/webhook', method: 'POST',
+        path: '/webhook',
+        method: 'POST',
         description: 'Trigger webhook with event data',
         example_request: { event: { type: 'test', data: {} } },
-        example_response: { ok: true, webhookResponse: '...', requestId: '...' }
+        example_response: { ok: true, webhookResponse: '...', requestId: '...' },
       },
       {
-        path: '/self-update', method: 'POST',
+        path: '/self-update',
+        method: 'POST',
         description: 'Trigger self-update (stub)',
-        example_response: { ok: true, message: 'Self-update triggered (stub)', requestId: '...' }
+        example_response: { ok: true, message: 'Self-update triggered (stub)', requestId: '...' },
       },
       {
-        path: '/api/agent', method: 'POST',
+        path: '/api/agent',
+        method: 'POST',
         description: 'Run a command (see /capabilities)',
         example_request: { command: 'open_game', args: { exePath: 'C:/game.exe' }, confirm: true },
-        example_response: { ok: true, message: '...' }
-      }
-    ]
+        example_response: { ok: true, message: '...' },
+      },
+    ],
   });
 });
 

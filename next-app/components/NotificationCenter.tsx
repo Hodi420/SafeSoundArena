@@ -1,4 +1,8 @@
-import { useNotifications, useReadNotification, useReadAllNotifications } from '../hooks/useNotifications';
+import {
+  useNotifications,
+  useReadNotification,
+  useReadAllNotifications,
+} from '../hooks/useNotifications';
 import { EMOJIS } from '../constants/emojis';
 
 export default function NotificationCenter() {
@@ -6,16 +10,17 @@ export default function NotificationCenter() {
   const readNotification = useReadNotification();
   const readAll = useReadAllNotifications();
 
-  if (isLoading) return (
-    <div className="bg-gray-900 rounded-lg p-4 border border-purple-500 animate-pulse max-w-md mx-auto">
-      <div className="h-6 bg-gray-700 rounded w-32 mb-4"></div>
-      <div className="flex flex-col gap-2">
-        <div className="h-8 bg-gray-700 rounded"></div>
-        <div className="h-8 bg-gray-700 rounded"></div>
-        <div className="h-8 bg-gray-700 rounded"></div>
+  if (isLoading)
+    return (
+      <div className="bg-gray-900 rounded-lg p-4 border border-purple-500 animate-pulse max-w-md mx-auto">
+        <div className="h-6 bg-gray-700 rounded w-32 mb-4"></div>
+        <div className="flex flex-col gap-2">
+          <div className="h-8 bg-gray-700 rounded"></div>
+          <div className="h-8 bg-gray-700 rounded"></div>
+          <div className="h-8 bg-gray-700 rounded"></div>
+        </div>
       </div>
-    </div>
-  );
+    );
 
   if (error) {
     return (
@@ -47,9 +52,14 @@ export default function NotificationCenter() {
         {EMOJIS.UI.REFRESH} Mark All as Read
       </button>
       <ul className="space-y-2">
-        {notifications.map(n => (
-          <li key={n.id} className={`flex items-center p-2 rounded-lg ${n.read ? 'bg-gray-800' : 'bg-blue-900 border-l-4 border-blue-400'}`}>
-            <span className="text-2xl mr-2" aria-label="Notification emoji">{n.emoji}</span>
+        {notifications.map((n) => (
+          <li
+            key={n.id}
+            className={`flex items-center p-2 rounded-lg ${n.read ? 'bg-gray-800' : 'bg-blue-900 border-l-4 border-blue-400'}`}
+          >
+            <span className="text-2xl mr-2" aria-label="Notification emoji">
+              {n.emoji}
+            </span>
             <span className="flex-1">{n.content}</span>
             {!n.read && (
               <button
@@ -57,7 +67,9 @@ export default function NotificationCenter() {
                 aria-label={`Mark notification as read: ${n.content}`}
                 onClick={() => readNotification.mutate(n.id)}
                 disabled={readNotification.isPending}
-              >{EMOJIS.UI.SUCCESS} Read</button>
+              >
+                {EMOJIS.UI.SUCCESS} Read
+              </button>
             )}
           </li>
         ))}

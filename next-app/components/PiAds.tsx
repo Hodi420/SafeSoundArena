@@ -21,7 +21,7 @@ const mockAds = [
 ];
 
 export default function PiAds() {
-    const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['piAds'],
     queryFn: async () => {
       // Simulate loading delay
@@ -29,7 +29,7 @@ export default function PiAds() {
       // Simulate error state randomly (10% chance)
       if (Math.random() < 0.1) throw new Error('Mock ad fetch error');
       return { ads: mockAds };
-    }
+    },
   });
 
   if (isLoading) return <div>Loading Pi Network ads...</div>;
@@ -51,12 +51,9 @@ export default function PiAds() {
             alt={ad.title || 'Pi Network Ad'}
             className="max-w-xs max-h-24 object-contain mx-auto"
           />
-          {ad.title && (
-            <div className="text-xs text-gray-200 mt-1 text-center">{ad.title}</div>
-          )}
+          {ad.title && <div className="text-xs text-gray-200 mt-1 text-center">{ad.title}</div>}
         </a>
       ))}
     </div>
   );
 }
-

@@ -36,7 +36,6 @@ app.delete('/api/mcp/permissions', (req, res) => {
   res.json({ success: true, userId, role });
 });
 
-
 // ייבוא מודולים עיקריים (skeleton)
 const scrollsEngine = require('./scrolls-engine');
 const jailTimeEvents = require('./jailtime-events');
@@ -51,9 +50,6 @@ mcpPermissions.addPermission('devUser', 'admin');
 mcpPermissions.addPermission('devUser', 'write');
 mcpPermissions.addPermission('testUser', 'read');
 
-// הגדרת פורט
-const PORT = process.env.PORT || 4000;
-
 // הגדרת middleware
 app.use(cors());
 app.use(helmet());
@@ -62,15 +58,9 @@ app.use(express.json());
 // הגדרת rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 דקות
-  max: 100 // מקסימום 100 בקשות לכל IP
+  max: 100, // מקסימום 100 בקשות לכל IP
 });
 app.use(limiter);
-
-// הפעלת השרת
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
 // דוגמת API לבדיקה
 app.get('/api/mcp/permissions/:userId', (req, res) => {
   const { userId } = req.params;
@@ -89,7 +79,9 @@ let jailStartTime = null;
 let jailEndTime = null;
 
 // עדכון הגדרות CORS
-app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || ['*'], optionsSuccessStatus: 200 }));
+app.use(
+  cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || ['*'], optionsSuccessStatus: 200 })
+);
 
 const server = http.createServer(app);
 const io = socketIo(server, { cors: { origin: '*' } });
@@ -140,18 +132,21 @@ function scheduleJail() {
       jailEndTime = jailStartTime + 10 * 60 * 1000;
       console.log('Jail started');
       io.emit('jailStatus', { active: true, startTime: jailStartTime, endTime: jailEndTime });
-      setTimeout(() => {
-        jailActive = false;
-        console.log('Jail ended');
-        io.emit('jailStatus', { active: false });
-        setTimeout(() => {
-          const userCount = Object.keys(usersInJail).length;
-          const reward = calculateReward(userCount);
-          console.log(`Sending rewards: ${reward} for ${userCount} users`);
-          io.emit('jailReward', { reward, userCount });
-        }, 60 * 1000);
-        scheduleJail();
-      }, 10 * 60 * 1000);
+      setTimeout(
+        () => {
+          jailActive = false;
+          console.log('Jail ended');
+          io.emit('jailStatus', { active: false });
+          setTimeout(() => {
+            const userCount = Object.keys(usersInJail).length;
+            const reward = calculateReward(userCount);
+            console.log(`Sending rewards: ${reward} for ${userCount} users`);
+            io.emit('jailReward', { reward, userCount });
+          }, 60 * 1000);
+          scheduleJail();
+        },
+        10 * 60 * 1000
+      );
     }, 60 * 1000);
   }, msToNextJail);
 }
@@ -178,4 +173,6 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 4000;
-server.listen(PORT, () => console.log(`SafeSoundArena backend running on http://localhost:${PORT}`));
+server.listen(PORT, () =>
+  console.log(`SafeSoundArena backend running on http://localhost:${PORT}`)
+);

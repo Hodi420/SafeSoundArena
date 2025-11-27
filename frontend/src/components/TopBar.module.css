@@ -39,7 +39,8 @@
   border: none;
   color: inherit;
 }
-.label:hover, .labelActive {
+.label:hover,
+.labelActive {
   opacity: 1;
   text-decoration: underline;
 }

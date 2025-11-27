@@ -6,11 +6,11 @@
   "scripts": {
     "start": "node sim.js",
     "agg": "node aggregator/aggregator.js",
-  "test": "npx hardhat test",
-  "deploy": "npx hardhat run scripts/deploy.js --network localhost",
-  "submit": "node aggregator/submit-to-local.js",
-  "diag-server": "node diagnostics-server.js"
-  ,"diag-agent": "node diagnostics-agent.js"
+    "test": "npx hardhat test",
+    "deploy": "npx hardhat run scripts/deploy.js --network localhost",
+    "submit": "node aggregator/submit-to-local.js",
+    "diag-server": "node diagnostics-server.js",
+    "diag-agent": "node diagnostics-agent.js"
   },
   "author": "",
   "license": "MIT",

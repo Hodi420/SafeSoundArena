@@ -1,12 +1,12 @@
 entryPoints:
   web:
-    address: ":80"
+    address: ':80'
   websecure:
-    address: ":443"
+    address: ':443'
 
 providers:
   file:
-    directory: "/etc/traefik/dynamic"
+    directory: '/etc/traefik/dynamic'
     watch: true
 
 certificatesResolvers:
@@ -16,5 +16,3 @@ certificatesResolvers:
       storage: /letsencrypt/acme.json
       httpChallenge:
         entryPoint: web
-
-

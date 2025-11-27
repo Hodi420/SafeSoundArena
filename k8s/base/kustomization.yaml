@@ -37,11 +37,11 @@ secretGenerator:
 patches:
   - target:
       kind: Deployment
-      labelSelector: "app.kubernetes.io/part-of=safesoundarena"
+      labelSelector: 'app.kubernetes.io/part-of=safesoundarena'
     patch: |-
       - op: add
         path: /spec/template/metadata/annotations/prometheus.io~1scrape
         value: "true"
       - op: add
         path: /spec/template/metadata/annotations/prometheus.io~1port
-        value: "metrics" 
+        value: "metrics"

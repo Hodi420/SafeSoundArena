@@ -44,8 +44,8 @@ const client = new SafeSoundArenaClient({
     onGameState: (state) => console.log('Game state updated:', state),
     onChatMessage: (message) => console.log('New message:', message),
     onPlayerJoined: (player) => console.log('Player joined:', player),
-    onPlayerLeft: (player) => console.log('Player left:', player)
-  }
+    onPlayerLeft: (player) => console.log('Player left:', player),
+  },
 });
 
 // Connect to the server
@@ -54,7 +54,7 @@ client.connect();
 // Create a new game
 const game = await client.createGame({
   type: 'standard',
-  private: true
+  private: true,
 });
 console.log('Created game:', game);
 
@@ -66,7 +66,7 @@ await client.makeMove(game.gameId, {
   // Your move details here
   x: 1,
   y: 2,
-  type: 'move'
+  type: 'move',
 });
 
 // Disconnect when done
@@ -80,6 +80,7 @@ await client.makeMove(game.gameId, {
 Creates a new client instance.
 
 **Options:**
+
 - `serverUrl` (string, required): WebSocket server URL (e.g., 'wss://api.safesoundarena.com')
 - `authToken` (string, required): JWT authentication token
 - `callbacks` (object): Event callbacks
@@ -94,15 +95,19 @@ Creates a new client instance.
 ### Instance Methods
 
 #### `connect()`
+
 Connects to the game server.
 
 #### `disconnect()`
+
 Disconnects from the game server.
 
 #### `createGame(options)`: `Promise<Object>`
+
 Creates a new game.
 
 **Parameters:**
+
 - `options` (object): Game options
   - `type` (string): Game type ('standard', 'ranked', 'custom')
   - `private` (boolean): Whether the game is private
@@ -111,34 +116,42 @@ Creates a new game.
 **Returns:** Promise that resolves with game details
 
 #### `joinGame(gameId)`: `Promise<Object>`
+
 Joins an existing game.
 
 **Parameters:**
+
 - `gameId` (string): ID of the game to join
 
 **Returns:** Promise that resolves with game state
 
 #### `makeMove(gameId, move)`: `Promise<Object>`
+
 Makes a move in the current game.
 
 **Parameters:**
+
 - `gameId` (string): ID of the game
 - `move` (object): Move details
 
 **Returns:** Promise that resolves with updated game state
 
 #### `sendChatMessage(gameId, message, type = 'text')`: `Promise<void>`
+
 Sends a chat message.
 
 **Parameters:**
+
 - `gameId` (string): ID of the game
 - `message` (string): Message text
 - `type` (string): Message type ('text' or 'system')
 
 #### `send(type, payload, expectResponse = false)`: `Promise<any>`
+
 Sends a custom message to the server.
 
 **Parameters:**
+
 - `type` (string): Message type
 - `payload` (object): Message payload
 - `expectResponse` (boolean): Whether to expect a response

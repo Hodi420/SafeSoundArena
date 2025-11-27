@@ -34,9 +34,9 @@ describe('License Validation Integration', () => {
           maxInstances: 3,
           customer: {
             id: 'test-customer-id',
-            name: 'Test Customer'
-          }
-        }
+            name: 'Test Customer',
+          },
+        },
       };
 
       // הגדרת המוק של axios להחזיר את התשובה המוקית
@@ -52,7 +52,7 @@ describe('License Validation Integration', () => {
         expect.objectContaining({
           licenseKey: 'valid-license-key',
           systemInfo: expect.any(Object),
-          signature: expect.any(String)
+          signature: expect.any(String),
         })
       );
     });
@@ -63,9 +63,9 @@ describe('License Validation Integration', () => {
         response: {
           status: 404,
           data: {
-            error: 'Invalid license key'
-          }
-        }
+            error: 'Invalid license key',
+          },
+        },
       };
 
       // הגדרת המוק של axios לזרוק שגיאה
@@ -77,7 +77,7 @@ describe('License Validation Integration', () => {
       // בדיקת התוצאה
       expect(result).toEqual({
         valid: false,
-        error: 'Invalid license key'
+        error: 'Invalid license key',
       });
     });
 
@@ -87,9 +87,9 @@ describe('License Validation Integration', () => {
         response: {
           status: 403,
           data: {
-            error: 'License has expired'
-          }
-        }
+            error: 'License has expired',
+          },
+        },
       };
 
       // הגדרת המוק של axios לזרוק שגיאה
@@ -101,7 +101,7 @@ describe('License Validation Integration', () => {
       // בדיקת התוצאה
       expect(result).toEqual({
         valid: false,
-        error: 'License has expired'
+        error: 'License has expired',
       });
     });
 
@@ -115,7 +115,7 @@ describe('License Validation Integration', () => {
       // בדיקת התוצאה
       expect(result).toEqual({
         valid: false,
-        error: 'Network Error: Could not connect to license server'
+        error: 'Network Error: Could not connect to license server',
       });
     });
   });
@@ -131,10 +131,7 @@ describe('License Validation Integration', () => {
       fs.readFileSync.mockReturnValue(Buffer.from(mockFileContent));
 
       // חישוב חתימה צפויה
-      const expectedSignature = crypto
-        .createHash('sha256')
-        .update(mockFileContent)
-        .digest('hex');
+      const expectedSignature = crypto.createHash('sha256').update(mockFileContent).digest('hex');
 
       // קריאה לפונקציה שנבדקת
       const signature = calculateFileSignature('test-file.js');

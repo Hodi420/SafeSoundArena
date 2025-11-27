@@ -8,7 +8,7 @@ export function requirePioneer(handler: NextApiHandler) {
     const cookie = req.headers.cookie || '';
     const match = cookie.match(/safesound_session=([^;]+)/);
     if (!match) return res.status(401).json({ error: 'Not authenticated as SafeSoundArena' });
-  try {
+    try {
       const decoded = jwt.verify(match[1], JWT_SECRET) as any;
       if (!decoded || !(decoded as any).isSafeSoundArena) throw new Error('Not a SafeSoundArena');
       // Attach SafeSoundArena info to req for downstream use

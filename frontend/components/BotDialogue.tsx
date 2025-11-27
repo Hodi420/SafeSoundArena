@@ -9,7 +9,9 @@ type Message = {
 
 export default function BotDialogue() {
   const [isTalking, setIsTalking] = useState(false);
-  const synthRef = useRef<typeof window.speechSynthesis | null>(typeof window !== 'undefined' ? window.speechSynthesis : null);
+  const synthRef = useRef<typeof window.speechSynthesis | null>(
+    typeof window !== 'undefined' ? window.speechSynthesis : null,
+  );
 
   function speak(text: string) {
     if (!synthRef.current) return;
@@ -21,7 +23,11 @@ export default function BotDialogue() {
   }
 
   const [messages, setMessages] = useState<Message[]>([
-    { id: 1, text: '> Initializing AI interface...\n> Connection established.\n> Welcome to SafeSoundArena! How can I assist you today?', isBot: true },
+    {
+      id: 1,
+      text: '> Initializing AI interface...\n> Connection established.\n> Welcome to SafeSoundArena! How can I assist you today?',
+      isBot: true,
+    },
   ]);
   const [input, setInput] = useState('');
 
@@ -61,7 +67,9 @@ export default function BotDialogue() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={isTalking ? { opacity: [0.4, 0.8, 0.4] } : { opacity: 0 }}
-          transition={isTalking ? { repeat: Infinity, duration: 1.2, ease: 'easeInOut' } : { duration: 0.3 }}
+          transition={
+            isTalking ? { repeat: Infinity, duration: 1.2, ease: 'easeInOut' } : { duration: 0.3 }
+          }
           className="absolute z-0 w-20 h-20 rounded-full bg-yellow-400 blur-2xl"
           style={{ top: '-8px' }}
         />
@@ -86,7 +94,7 @@ export default function BotDialogue() {
                 <rect x="15" y="28" width="6" height="2" fill="#00b4d8" />
               </>
             ) : (
-                <rect x="15" y="27" width="6" height="2" fill="#00b4d8" />
+              <rect x="15" y="27" width="6" height="2" fill="#00b4d8" />
             )}
           </svg>
         </motion.div>
@@ -114,7 +122,10 @@ export default function BotDialogue() {
         ))}
       </div>
 
-      <form onSubmit={sendMessage} className="p-4 border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm">
+      <form
+        onSubmit={sendMessage}
+        className="p-4 border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm"
+      >
         <div className="flex space-x-2">
           <input
             type="text"
