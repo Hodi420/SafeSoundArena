@@ -49,6 +49,6 @@ export const useThemeStore = create<ThemeState>()(
     {
       name: 'safesound-theme-storage',
       version: 1,
-    }
-  )
+    },
+  ),
 );

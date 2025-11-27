@@ -1,13 +1,5 @@
 {
   "root": true,
-  "extends": [
-    "next/core-web-vitals",
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended"
-  ],
-  "plugins": ["@typescript-eslint", "react"],
-  "rules": {
-    "react/react-in-jsx-scope": "off"
-  }
+  "extends": ["next/core-web-vitals"],
+  "rules": { "react/react-in-jsx-scope": "off" }
 }

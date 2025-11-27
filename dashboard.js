@@ -8,6 +8,7 @@ const socketIo = require('socket.io');
 const fs = require('fs');
 const path = require('path');
 const { getStats } = require('./analytics');
+const multer = require('multer');
 
 const app = express();
 const server = http.createServer(app);
@@ -17,11 +18,13 @@ global.io = io;
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'secret-key',
-  resave: false,
-  saveUninitialized: true
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'secret-key',
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -43,11 +46,6 @@ function getPiUserKey(req) {
   return ua;
 }
 
-app.get('/api/me', (req, res) => {
-  const pioneerKey = getPioneerKey(req);
-  res.json({ pioneer: !!pioneerKey, pioneerKey });
-});
-
 // Per-user analytics
 // Expose user role
 app.get('/api/me', (req, res) => {
@@ -67,9 +65,7 @@ function loadVotes() {
   } catch (e) {
     return { votes: [] };
   }
-  const userQueries = data.queries.filter(q => q.pioneerKey === userKey || q.piUsername === userKey);
-  res.json({ queries: userQueries });
-});
+}
 
 // Profile management
 const PROFILES_FILE = path.join(__dirname, 'profiles.json');
@@ -111,10 +107,10 @@ app.post('/api/my-profile', (req, res) => {
 // Voting endpoints
 function recalculateConsensus(timestamp) {
   // Get votes
-  const votes = loadVotes().votes.filter(v => v.timestamp === timestamp);
+  const votes = loadVotes().votes.filter((v) => v.timestamp === timestamp);
   if (!votes.length) return;
-  const agree = votes.filter(v => v.vote === 'agree').length;
-  const disagree = votes.filter(v => v.vote === 'disagree').length;
+  const agree = votes.filter((v) => v.vote === 'agree').length;
+  const disagree = votes.filter((v) => v.vote === 'disagree').length;
   // Only update if there is a clear majority
   let newConsensus = null;
   if (agree > disagree) newConsensus = 'agree';
@@ -122,7 +118,7 @@ function recalculateConsensus(timestamp) {
   // Update analytics.json
   if (newConsensus) {
     const analytics = loadAnalytics();
-    const q = analytics.queries.find(q => String(q.timestamp) === String(timestamp));
+    const q = analytics.queries.find((q) => String(q.timestamp) === String(timestamp));
     if (q && q.consensus !== newConsensus) {
       q.consensus = newConsensus;
       saveAnalytics(analytics);
@@ -137,10 +133,13 @@ app.post('/api/vote', (req, res) => {
   const piUsername = req.headers['x-pi-username'];
   if (!piUsername) return res.status(403).json({ error: 'Not authenticated' });
   const { timestamp, vote } = req.body;
-  if (!timestamp || !['agree','disagree'].includes(vote)) return res.status(400).json({ error: 'Invalid vote' });
+  if (!timestamp || !['agree', 'disagree'].includes(vote))
+    return res.status(400).json({ error: 'Invalid vote' });
   const votes = loadVotes();
   // Remove any previous vote by this user for this query
-  votes.votes = votes.votes.filter(v => !(v.timestamp === timestamp && v.piUsername === piUsername));
+  votes.votes = votes.votes.filter(
+    (v) => !(v.timestamp === timestamp && v.piUsername === piUsername)
+  );
   votes.votes.push({ timestamp, piUsername, vote });
   saveVotes(votes);
   recalculateConsensus(timestamp);
@@ -152,9 +151,9 @@ app.post('/api/vote', (req, res) => {
 });
 app.get('/api/votes/:timestamp', (req, res) => {
   const timestamp = req.params.timestamp;
-  const votes = loadVotes().votes.filter(v => v.timestamp === timestamp);
-  const agree = votes.filter(v => v.vote === 'agree').length;
-  const disagree = votes.filter(v => v.vote === 'disagree').length;
+  const votes = loadVotes().votes.filter((v) => v.timestamp === timestamp);
+  const agree = votes.filter((v) => v.vote === 'agree').length;
+  const disagree = votes.filter((v) => v.vote === 'disagree').length;
   res.json({ agree, disagree });
 });
 
@@ -163,7 +162,9 @@ app.get('/api/export-my-data', (req, res) => {
   const userKey = getPiUserKey(req);
   if (!userKey) return res.status(403).json({ error: 'Not a Pi Browser pioneer' });
   const data = loadAnalytics();
-  const userQueries = data.queries.filter(q => q.pioneerKey === userKey || q.piUsername === userKey);
+  const userQueries = data.queries.filter(
+    (q) => q.pioneerKey === userKey || q.piUsername === userKey
+  );
   const profiles = loadProfiles();
   res.json({ profile: profiles[userKey] || null, queries: userQueries });
 });
@@ -172,7 +173,7 @@ app.post('/api/delete-my-data', (req, res) => {
   if (!userKey) return res.status(403).json({ error: 'Not a Pi Browser pioneer' });
   // Delete analytics
   const data = loadAnalytics();
-  data.queries = data.queries.filter(q => q.pioneerKey !== userKey && q.piUsername !== userKey);
+  data.queries = data.queries.filter((q) => q.pioneerKey !== userKey && q.piUsername !== userKey);
   saveAnalytics(data);
   // Delete profile
   const profiles = loadProfiles();

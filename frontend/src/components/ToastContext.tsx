@@ -19,13 +19,16 @@ let toastId = 0;
 export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const showToast = useCallback((message: string, type: Toast['type'] = 'info', duration = 3000) => {
-    const id = ++toastId;
-    setToasts((prev) => [...prev, { id, message, type, duration }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, duration);
-  }, []);
+  const showToast = useCallback(
+    (message: string, type: Toast['type'] = 'info', duration = 3000) => {
+      const id = ++toastId;
+      setToasts((prev) => [...prev, { id, message, type, duration }]);
+      setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      }, duration);
+    },
+    [],
+  );
 
   return (
     <ToastContext.Provider value={{ showToast }}>
@@ -42,10 +45,13 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
               role="alert"
               className={
                 `px-4 py-3 rounded shadow-lg text-white transition-colors duration-300 ` +
-                (toast.type === 'success' ? 'bg-green-600 dark:bg-green-500' :
-                 toast.type === 'error' ? 'bg-red-600 dark:bg-red-500' :
-                 toast.type === 'warning' ? 'bg-yellow-600 dark:bg-yellow-500 text-gray-900 dark:text-gray-900' :
-                 'bg-blue-600 dark:bg-blue-500')
+                (toast.type === 'success'
+                  ? 'bg-green-600 dark:bg-green-500'
+                  : toast.type === 'error'
+                    ? 'bg-red-600 dark:bg-red-500'
+                    : toast.type === 'warning'
+                      ? 'bg-yellow-600 dark:bg-yellow-500 text-gray-900 dark:text-gray-900'
+                      : 'bg-blue-600 dark:bg-blue-500')
               }
             >
               {toast.message}
@@ -59,6 +65,9 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
 export const useToast = () => {
   const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error('useToast must be used within a ToastProvider');
+  if (!ctx) {
+    // Fallback no-op during SSR/prerender or when provider not mounted
+    return { showToast: () => {} } as ToastContextType;
+  }
   return ctx;
 };

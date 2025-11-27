@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: safesoundarena-web
+  namespace: safesoundarena-staging
+  labels:
+    app: safesoundarena
+    environment: staging
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: safesoundarena
+      environment: staging
+      tier: frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: safesoundarena
+        environment: staging
+        tier: frontend
+    spec:
+      containers:
+        - name: safesoundarena
+          image: $DOCKERHUB_USERNAME/safesoundarena:staging-latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: safesoundarena-config
+            - secretRef:
+                name: safesoundarena-secrets
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: '100m'
+              memory: '256Mi'
+            limits:
+              cpu: '500m'
+              memory: '512Mi'

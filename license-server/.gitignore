@@ -1,0 +1,56 @@
+# קובץ .gitignore לשרת רישיונות SafeSoundArena
+
+# משתני סביבה ומידע רגיש
+.env
+.env.local
+.env.*.local
+
+# נתונים ולוגים
+/data/
+/logs/
+
+# תלויות
+/node_modules/
+
+# קבצי לוג
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# קבצי מערכת
+.DS_Store
+Thumbs.db
+
+# קבצי עורכי קוד
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# קבצי בדיקות וכיסוי
+/coverage/
+.nyc_output/
+
+# קבצי בנייה
+/dist/
+/build/
+
+# קבצי SSL (אין לשמור במאגר הקוד)
+/nginx/ssl/
+
+# קבצי גיבוי
+*.bak
+*.backup
+*~
+
+# קבצי Docker זמניים
+.dockerignore
+docker-compose.override.yml
+
+# קבצי npm/yarn
+package-lock.json
+yarn.lock
+
+# קבצים זמניים
+/tmp/
+/temp/

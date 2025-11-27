@@ -5,7 +5,7 @@ services:
     build: ./backend
     container_name: safesoundarena-backend
     ports:
-      - "4000:4000"
+      - '4000:4000'
     environment:
       - NODE_ENV=production
       - PORT=4000
@@ -15,4 +15,4 @@ services:
       - ./backend:/usr/src/app
       - ./backend/mcp-permissions.json:/usr/src/app/mcp-permissions.json
     restart: unless-stopped
-    command: ["node", "app.js"]
+    command: ['node', 'app.js']

@@ -80,7 +80,9 @@ program
 async function requireAuth() {
   const token = getAuth();
   if (!token) {
-    console.error('Error: Not authenticated. Please run `pioneer-cli login --api-key <API_KEY>` first.');
+    console.error(
+      'Error: Not authenticated. Please run `pioneer-cli login --api-key <API_KEY>` first.'
+    );
     process.exit(1);
   }
   return token;
@@ -89,12 +91,18 @@ async function requireAuth() {
 // create-scroll command
 program
   .command('create-scroll <title>')
-  .description('Generate a new Scroll smart contract (Solidity) and metadata JSON with Pi ownership')
+  .description(
+    'Generate a new Scroll smart contract (Solidity) and metadata JSON with Pi ownership'
+  )
   .action(async (title) => {
     const token = await requireAuth();
     let profile;
     try {
-      profile = (await axios.get(`${PI_API_BASE}/user/profile`, { headers: { Authorization: `Bearer ${token}` } })).data;
+      profile = (
+        await axios.get(`${PI_API_BASE}/user/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      ).data;
     } catch (err) {
       console.error('Failed to fetch profile:', err.response?.data || err.message);
       process.exit(1);
@@ -106,7 +114,7 @@ program
       scrollId: id,
       title,
       owner: profile.username,
-      auth_level: profile.verified ? 'verified' : 'unverified'
+      auth_level: profile.verified ? 'verified' : 'unverified',
     };
     writeFile('scrolls', `Scroll_${id}.sol`, solContent);
     writeFile('scrolls', `Scroll_${id}.json`, JSON.stringify(meta, null, 2));
@@ -119,9 +127,9 @@ program
   .action((username) => {
     const config = {
       username,
-      personality: "aggressive",
+      personality: 'aggressive',
       state: {},
-      expressions: []
+      expressions: [],
     };
     writeFile('bots', `${username}_bot.json`, JSON.stringify(config, null, 2));
   });

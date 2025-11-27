@@ -7,7 +7,7 @@ describe('DataStrategyBot', () => {
     const bot = new DataStrategyBot();
     let context = {
       data: [[10], [20], [30]],
-      strategy: { name: 'sum' }
+      strategy: { name: 'sum' },
     };
     await bot.operate(context);
     const lastResult = bot.testResults[bot.testResults.length - 1];
@@ -21,7 +21,9 @@ describe('DataStrategyBot', () => {
     const bot = new DataStrategyBot();
     let warned = false;
     const origWarn = console.warn;
-    console.warn = () => { warned = true; };
+    console.warn = () => {
+      warned = true;
+    };
     await bot.operate({});
     console.warn = origWarn;
     assert.strictEqual(warned, true);

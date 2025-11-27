@@ -1,0 +1,127 @@
+groups:
+- name: application
+  rules:
+    # High error rate (reduced threshold for faster detection)
+    - alert: HighErrorRate
+      expr: sum(rate(http_requests_total{status=~"5.."}[5m])) by (service, route) / sum(rate(http_requests_total[5m])) by (service, route) > 0.03  # 3% error rate
+      for: 5m
+      labels:
+        severity: warning
+        team: backend
+      annotations:
+        summary: "High error rate on {{ $labels.service }}/{{ $labels.route }}"
+        description: "Error rate is {{ $value | humanizePercentage }}% for {{ $labels.service }}/{{ $labels.route }}"
+        runbook: "https://github.com/yourorg/runbooks/blob/master/application/high-error-rate.md"
+
+    # High latency (tighter threshold)
+    - alert: HighLatency
+      expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service, route)) > 0.8  # 800ms p95
+      for: 5m
+      labels:
+        severity: warning
+        team: backend
+      annotations:
+        summary: "High latency on {{ $labels.service }}/{{ $labels.route }}"
+        description: "95th percentile latency is {{ $value | humanize }}s for {{ $labels.service }}/{{ $labels.route }}"
+        impact: "Users may experience slow response times"
+
+    # Failed health checks (immediate alert)
+    - alert: ServiceDown
+      expr: up == 0
+      for: 1m
+      labels:
+        severity: critical
+        team: devops
+      annotations:
+        summary: "Service {{ $labels.instance }} is down"
+        description: "{{ $labels.job }} has been down for more than 1 minute."
+        runbook: "https://github.com/yourorg/runbooks/blob/master/infrastructure/service-down.md"
+
+- name: infrastructure
+  rules:
+    # High memory usage (earlier warning)
+    - alert: HighMemoryUsage
+      expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.85  # 85% memory usage
+      for: 15m  # Longer duration to avoid false positives
+      labels:
+        severity: warning
+        team: devops
+      annotations:
+        summary: "High memory usage on {{ $labels.instance }}"
+        description: "Memory usage is {{ $value | humanizePercentage }}%"
+        impact: "System performance may be degraded"
+
+    # High CPU usage (adjusted threshold and duration)
+    - alert: HighCpuUsage
+      expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100 > 70  # 70% CPU
+      for: 10m  # Longer duration to handle temporary spikes
+      labels:
+        severity: warning
+        team: devops
+      annotations:
+        summary: "High CPU usage on {{ $labels.instance }}"
+        description: "CPU usage is {{ $value | humanize }}%"
+
+    # Disk space (earlier warning)
+    - alert: LowDiskSpace
+      expr: (node_filesystem_avail_bytes{mountpoint="/"} * 100) / node_filesystem_size_bytes{mountpoint="/"} < 20  # 20% free
+      for: 30m
+      labels:
+        severity: warning
+        team: devops
+      annotations:
+        summary: "Low disk space on {{ $labels.instance }}"
+        description: "Only {{ $value | humanize }}% space left on {{ $labels.mountpoint }}"
+        impact: "System may become unstable if disk fills completely"
+
+- name: security
+  rules:
+    # Authentication failures (reduced threshold for security)
+    - alert: AuthFailureRateHigh
+      expr: rate(auth_failed_login_attempts_total[5m]) > 5  # 5 failed attempts per minute
+      for: 2m
+      labels:
+        severity: warning
+        team: security
+      annotations:
+        summary: "High authentication failure rate on {{ $labels.instance }}"
+        description: "{{ $value | humanize }} failed login attempts per second"
+        impact: "Possible brute force attempt"
+
+    # Suspicious activity (immediate alert)
+    - alert: SuspiciousActivity
+      expr: rate(auth_security_events_total{type=~"brute_force|injection_attempt"}[5m]) > 3  # 3 events per minute
+      for: 1m
+      labels:
+        severity: critical
+        team: security
+      annotations:
+        summary: "Suspicious activity detected on {{ $labels.instance }}"
+        description: "{{ $value | humanize }} security events per second"
+        impact: "Potential security breach in progress"
+
+- name: business
+  rules:
+    # High number of signups (business metric)
+    - alert: HighSignupRate
+      expr: rate(auth_user_registrations_total[1h]) > 100  # 100 signups/hour
+      for: 15m
+      labels:
+        severity: info
+        team: growth
+      annotations:
+        summary: "High user signup rate"
+        description: "{{ $value | humanize }} signups per hour"
+        impact: "Consider scaling up resources"
+
+    # Abandoned carts (business metric)
+    - alert: HighCartAbandonment
+      expr: rate(cart_abandoned_total[1h]) / rate(cart_created_total[1h]) > 0.7  # 70% abandonment
+      for: 2h
+      labels:
+        severity: warning
+        team: product
+      annotations:
+        summary: "High cart abandonment rate"
+        description: "{{ $value | humanizePercentage }} of carts abandoned"
+        impact: "Potential issues with checkout flow"

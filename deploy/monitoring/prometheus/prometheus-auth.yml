@@ -1,0 +1,134 @@
+# Authentication Service Monitoring Configuration
+
+# Global configuration
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+# Alert manager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+# Rule files
+rule_files:
+  - 'alerts/auth.rules'
+  - 'alerts/performance.rules'
+
+# Scrape configurations
+scrape_configs:
+  # Authentication service metrics
+  - job_name: 'auth-service-metrics'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['auth-service:3002']
+        labels:
+          service: 'auth-service'
+          environment: 'production'
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: auth-service:3002
+
+  # Redis metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-metrics:9121']
+    metrics_path: '/scrape'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: redis-metrics:9121
+
+  # Node exporter
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: node-exporter:9100
+
+  # cAdvisor for container metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    metrics_path: '/metrics'
+    scheme: http
+
+  # Blackbox exporter for endpoint monitoring
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - 'http://auth-service:3002/health'  # Auth service health check
+        - 'http://auth-service:3002/api/auth/health'  # Auth endpoint
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Custom business metrics
+  - job_name: 'auth-business-metrics'
+    metrics_path: '/metrics/business'
+    static_configs:
+      - targets: ['auth-service:3002']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: auth-service:3002
+
+# Remote write configuration (if using remote storage)
+remote_write:
+  - url: 'http://thanos-receive:19291/api/v1/receive'
+    queue_config:
+      max_samples_per_send: 1000
+      max_shards: 200
+      capacity: 2500
+    write_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'up|process_.*|scrape_.*'
+        action: keep
+
+# Alerting rules evaluation
+alert_rules:
+  - name: authentication.rules
+    interval: 1m
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_request_duration_seconds_count{status=~"5.."}[5m]) / rate(http_request_duration_seconds_count[5m]) > 0.05
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate on {{ $labels.instance }}"
+          description: "Error rate is {{ $value }}% for {{ $labels.instance }}"
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, instance)) > 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High latency on {{ $labels.instance }}"
+          description: "95th percentile latency is {{ $value }}s for {{ $labels.instance }}"

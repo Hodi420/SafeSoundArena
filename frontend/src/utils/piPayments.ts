@@ -16,19 +16,32 @@ const payments: PaymentRecord[] = [];
 export async function checkPayment(userId: string, requestType: string): Promise<boolean> {
   // Check if a confirmed payment exists for this user/requestType in the last hour
   const now = Date.now();
-  return payments.some(p => p.userId === userId && p.requestType === requestType && p.confirmed && (now - p.timestamp < 60 * 60 * 1000));
+  return payments.some(
+    (p) =>
+      p.userId === userId &&
+      p.requestType === requestType &&
+      p.confirmed &&
+      now - p.timestamp < 60 * 60 * 1000,
+  );
 }
 
 export async function createPaymentRequest(userId: string, amount: number, requestType: string) {
   // In real use, create a payment request via Pi SDK and return its details
   const paymentId = `pi_${userId}_${Date.now()}`;
-  payments.push({ userId, requestType, paymentId, amount, confirmed: false, timestamp: Date.now() });
+  payments.push({
+    userId,
+    requestType,
+    paymentId,
+    amount,
+    confirmed: false,
+    timestamp: Date.now(),
+  });
   return { paymentId, amount, requestType };
 }
 
 export async function confirmPayment(paymentId: string) {
   // In real use, verify with Pi Network (webhook or polling)
-  const payment = payments.find(p => p.paymentId === paymentId);
+  const payment = payments.find((p) => p.paymentId === paymentId);
   if (payment) payment.confirmed = true;
   return !!payment;
 }

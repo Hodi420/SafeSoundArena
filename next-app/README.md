@@ -3,6 +3,7 @@
 This folder contains the initial structure for a Next.js app, ready for fast server-side rendering (SSR) and migration from a React SPA.
 
 ## Structure
+
 - `/pages` — All route-based pages (index, marketplace, etc.)
 - `/public` — Static assets (images, icons, etc.)
 - `/components` — Reusable UI components
@@ -17,6 +18,7 @@ This folder contains the initial structure for a Next.js app, ready for fast ser
 - `/utils` — Pure helpers
 
 ## Getting Started
+
 1. Install dependencies:
    ```sh
    npm install

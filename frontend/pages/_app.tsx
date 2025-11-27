@@ -9,7 +9,8 @@ import { useThemeSync } from '../src/hooks/useThemeSync';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ExternalSDKs from '../src/lib/ExternalSDKs';
 // Only import devtools and DebugPanel in dev or sandbox
-const isDevOrSandbox = process.env.NODE_ENV !== 'production' || process.env.NEXT_PUBLIC_PI_SANDBOX === 'true';
+const isDevOrSandbox =
+  process.env.NODE_ENV !== 'production' || process.env.NEXT_PUBLIC_PI_SANDBOX === 'true';
 import DebugPanel from '../src/components/DebugPanel';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
@@ -21,7 +22,7 @@ import '@fontsource/rajdhani';
 const App: React.FC<AppProps> = ({ Component, pageProps }) => {
   const [queryClient] = useState(() => new QueryClient());
   const { font, uiStyle, animationSpeed } = useThemeStore();
-  
+
   useThemeSync();
 
   return (

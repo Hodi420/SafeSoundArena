@@ -1,6 +1,13 @@
 /* Cyberpunk Style */
 .theme-cyberpunk {
-  --card-clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  --card-clip-path: polygon(
+    0 10px,
+    10px 0,
+    100% 0,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    0 100%
+  );
   --button-clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
   --neon-intensity: var(--user-neon-intensity, 1);
   --neon-blur: calc(var(--neon-intensity) * 10px);
@@ -18,8 +25,22 @@
 
 /* Retro Style */
 .theme-retro {
-  --card-clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px));
-  --button-clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+  --card-clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 calc(100% - 10px)
+  );
+  --button-clip-path: polygon(
+    0 0,
+    calc(100% - 5px) 0,
+    100% 5px,
+    100% 100%,
+    5px 100%,
+    0 calc(100% - 5px)
+  );
   --neon-intensity: calc(var(--user-neon-intensity, 1) * 0.8);
   --neon-blur: calc(var(--neon-intensity) * 8px);
   --neon-spread: calc(var(--neon-intensity) * 15px);
@@ -54,12 +75,14 @@
 /* Dynamic Theme Classes */
 .card {
   clip-path: var(--card-clip-path);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 
+  box-shadow:
     0 var(--neon-blur) var(--neon-spread) rgba(var(--primary-color-rgb), 0.1),
     0 calc(var(--neon-blur) * 2) calc(var(--neon-spread) * 2) rgba(var(--primary-color-rgb), 0.05);
 }
@@ -91,7 +114,7 @@
 }
 
 .neon-text {
-  text-shadow: 
+  text-shadow:
     0 0 calc(5px * var(--neon-intensity)) rgba(var(--primary-color-rgb), 0.8),
     0 0 calc(10px * var(--neon-intensity)) rgba(var(--primary-color-rgb), 0.5),
     0 0 calc(15px * var(--neon-intensity)) rgba(var(--primary-color-rgb), 0.3);
@@ -200,11 +223,11 @@
   --bg-primary: #ffffff;
   --bg-secondary: #f8fafc;
   --bg-tertiary: #f1f5f9;
-  
+
   --text-primary: #0f172a;
   --text-secondary: #334155;
   --text-tertiary: #64748b;
-  
+
   --border-primary: #e2e8f0;
   --border-secondary: #cbd5e1;
 }
@@ -214,11 +237,11 @@
   --bg-primary: #0f172a;
   --bg-secondary: #1e293b;
   --bg-tertiary: #334155;
-  
+
   --text-primary: #f8fafc;
   --text-secondary: #e2e8f0;
   --text-tertiary: #cbd5e1;
-  
+
   --border-primary: #334155;
   --border-secondary: #475569;
 }
@@ -280,13 +303,23 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Responsive Breakpoints */
@@ -377,7 +410,14 @@
 
 /* Arena Style */
 .theme-arena {
-  --card-clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+  --card-clip-path: polygon(
+    20px 0,
+    100% 0,
+    100% calc(100% - 20px),
+    calc(100% - 20px) 100%,
+    0 100%,
+    0 20px
+  );
   --button-clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
   --neon-intensity: calc(var(--user-neon-intensity, 1) * 1.2);
   --neon-blur: calc(var(--neon-intensity) * 12px);
@@ -386,8 +426,26 @@
 
 /* Stealth Style */
 .theme-stealth {
-  --card-clip-path: polygon(0 10px, 10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px));
-  --button-clip-path: polygon(5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px), 0 5px);
+  --card-clip-path: polygon(
+    0 10px,
+    10px 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 calc(100% - 10px)
+  );
+  --button-clip-path: polygon(
+    5px 0,
+    calc(100% - 5px) 0,
+    100% 5px,
+    100% calc(100% - 5px),
+    calc(100% - 5px) 100%,
+    5px 100%,
+    0 calc(100% - 5px),
+    0 5px
+  );
   --neon-intensity: calc(var(--user-neon-intensity, 1) * 0.6);
   --neon-blur: calc(var(--neon-intensity) * 6px);
   --neon-spread: calc(var(--neon-intensity) * 12px);
@@ -445,7 +503,8 @@
   align-items: center;
   gap: var(--spacing-2);
   padding: var(--spacing-2) var(--spacing-3);
-  background: linear-gradient(135deg, 
+  background: linear-gradient(
+    135deg,
     rgba(var(--primary-color-rgb), 0.1),
     rgba(var(--secondary-color-rgb), 0.1)
   );

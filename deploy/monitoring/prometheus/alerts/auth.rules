@@ -1,0 +1,288 @@
+groups:
+- name: authentication.rules
+  rules:
+    # High error rate on login attempts (tiered thresholds)
+    - alert: HighLoginErrorRateWarning
+      expr: |
+        (
+          sum(rate(auth_login_attempts_total{status="failed"}[5m])) by (method)
+          /
+          sum(rate(auth_login_attempts_total[5m])) by (method)
+          * 100 > 10
+        ) and
+        (
+          sum(rate(auth_login_attempts_total[5m])) by (method) > 5
+        )
+      for: 5m
+      labels:
+        severity: warning
+        tier: 1
+      annotations:
+        summary: "Elevated login error rate ({{ $value }}%)"
+        description: "Elevated error rate ({{ $value }}%) for {{ $labels.method }} login method"
+        runbook_url: "https://your-wiki.example.com/alerts/login-error-rate"
+
+    - alert: HighLoginErrorRateCritical
+      expr: |
+        (
+          sum(rate(auth_login_attempts_total{status="failed"}[5m])) by (method)
+          /
+          sum(rate(auth_login_attempts_total[5m])) by (method)
+          * 100 > 30
+        ) and
+        (
+          sum(rate(auth_login_attempts_total[5m])) by (method) > 5
+        )
+      for: 5m
+      labels:
+        severity: critical
+        tier: 1
+      annotations:
+        summary: "Critical login error rate ({{ $value }}%)"
+        description: "Critical error rate ({{ $value }}%) for {{ $labels.method }} login method"
+        runbook_url: "https://your-wiki.example.com/alerts/login-error-rate"
+
+    # Suspicious login patterns with progressive thresholds
+    - alert: SuspiciousLoginActivityWarning
+      expr: |
+        sum by (ip) (
+          rate(auth_login_attempts_total{status="failed"}[5m])
+        ) > 10
+      for: 2m
+      labels:
+        severity: warning
+        tier: 2
+      annotations:
+        summary: "Suspicious login activity from {{ $labels.ip }}"
+        description: "More than 10 failed login attempts from {{ $labels.ip }} in 5 minutes"
+
+    - alert: SuspiciousLoginActivityCritical
+      expr: |
+        sum by (ip) (
+          rate(auth_login_attempts_total{status="failed"}[5m])
+        ) > 50
+      for: 1m
+      labels:
+        severity: critical
+        tier: 1
+      annotations:
+        summary: "Critical suspicious login activity from {{ $labels.ip }}"
+        description: "More than 50 failed login attempts from {{ $labels.ip }} in 5 minutes"
+        runbook_url: "https://your-wiki.example.com/alerts/brute-force-attempt"
+
+    # Token refresh failures with rate limiting
+    - alert: HighTokenRefreshFailureRate
+      expr: |
+        (
+          sum(rate(auth_token_refreshes_total{status="failed"}[5m]))
+          /
+          sum(rate(auth_token_refreshes_total[5m]))
+          * 100 > 5
+        ) and
+        (
+          sum(rate(auth_token_refreshes_total[5m])) > 10
+        )
+      for: 10m
+      labels:
+        severity: warning
+        tier: 2
+      annotations:
+        summary: "High token refresh failure rate ({{ $value }}%)"
+        description: "Elevated rate of failed token refresh attempts"
+        runbook_url: "https://your-wiki.example.com/alerts/token-refresh-failure"
+
+    # Request latency with percentiles
+    - alert: HighAuthRequestLatencyP99
+      expr: |
+        histogram_quantile(0.99, 
+          sum(rate(auth_request_duration_seconds_bucket[5m])) 
+          by (le, endpoint, method)
+        ) > 1
+      for: 10m
+      labels:
+        severity: warning
+        tier: 2
+      annotations:
+        summary: "High P99 request latency ({{ $value }}s)"
+        description: "99th percentile request latency is high for {{ $labels.endpoint }} {{ $labels.method }}"
+
+    - alert: HighAuthRequestLatencyP95
+      expr: |
+        histogram_quantile(0.95, 
+          sum(rate(auth_request_duration_seconds_bucket[5m])) 
+          by (le, endpoint, method)
+        ) > 0.5
+      for: 15m
+      labels:
+        severity: warning
+        tier: 3
+      annotations:
+        summary: "Elevated P95 request latency ({{ $value }}s)"
+        description: "95th percentile request latency is elevated for {{ $labels.endpoint }} {{ $labels.method }}"
+
+    # Session management alerts
+    - alert: HighActiveSessions
+      expr: |
+        auth_active_sessions > 1000
+      for: 30m
+      labels:
+        severity: warning
+        tier: 2
+      annotations:
+        summary: "High number of active sessions ({{ $value }})"
+        description: "Number of active sessions is unusually high"
+
+    - alert: SessionDurationAnomaly
+      expr: |
+        (
+          histogram_quantile(0.99, sum(rate(session_duration_seconds_bucket[1h])) by (le))
+          / 
+          histogram_quantile(0.99, sum(rate(session_duration_seconds_bucket[1h] offset 1d)) by (le))
+        ) > 2
+      for: 1h
+      labels:
+        severity: warning
+        tier: 3
+      annotations:
+        summary: "Unusual session duration detected"
+        description: "Session duration is significantly higher than usual"
+
+    # Service health checks
+    - alert: AuthServiceDown
+      expr: |
+        up{job="auth-service"} == 0
+      for: 2m
+      labels:
+        severity: critical
+        tier: 1
+      annotations:
+        summary: "Authentication service is down"
+        description: "The authentication service is not responding to health checks"
+        runbook_url: "https://your-wiki.example.com/runbooks/service-outage"
+
+    - alert: AuthServiceHighLatency
+      expr: |
+        rate(http_request_duration_seconds_sum{job="auth-service"}[5m]) 
+        / 
+        rate(http_request_duration_seconds_count{job="auth-service"}[5m]) > 0.5
+      for: 10m
+      labels:
+        severity: warning
+        tier: 2
+      annotations:
+        summary: "High authentication service latency ({{ $value }}s)"
+        description: "Average request latency is high for the authentication service"
+
+    # Error rate alerts with method and endpoint details
+    - alert: HighAuthErrorRate
+      expr: |
+        (
+          sum by (method, endpoint) (
+            rate(http_requests_total{
+              handler=~"/api/auth/.+", 
+              status=~"5..",
+              method!~"OPTIONS"
+            }[5m])
+          )
+          /
+          sum by (method, endpoint) (
+            rate(http_requests_total{
+              handler=~"/api/auth/.+",
+              method!~"OPTIONS"
+            }[5m])
+          )
+          * 100 > 5
+        ) and
+        (
+          sum by (method, endpoint) (
+            rate(http_requests_total{handler=~"/api/auth/.+"}[5m])
+          ) > 1
+        )
+      for: 5m
+      labels:
+        severity: warning
+        tier: 2
+      annotations:
+        summary: "High error rate on {{ $labels.method }} {{ $labels.endpoint }} ({{ $value }}%)"
+        description: "Elevated rate of 5xx errors on authentication endpoint"
+
+    # Security-related alerts
+    - alert: AccountLockoutSpike
+      expr: |
+        rate(auth_account_locked_total[5m]) > 5
+      for: 5m
+      labels:
+        severity: warning
+        tier: 2
+      annotations:
+        summary: "Unusual number of account lockouts ({{ $value }} in 5m)"
+        description: "Spike in account lockouts detected"
+
+    - alert: PasswordResetFlood
+      expr: |
+        rate(auth_password_reset_requests_total[5m]) > 10
+      for: 5m
+      labels:
+        severity: critical
+        tier: 1
+      annotations:
+        summary: "Password reset flood detected ({{ $value }} in 5m)"
+        description: "Possible password reset abuse attempt"
+
+    # Suspicious patterns
+    - alert: SuspiciousUserAgents
+      expr: |
+        sum by (user_agent) (
+          rate(http_requests_total{
+            handler=~"/api/auth/.+",
+            user_agent!~"Mozilla|Postman|curl|python-requests|Go-http-client|Java|okhttp|node-fetch|axios|python-urllib|Ruby"
+          }[5m])
+        ) > 0
+      for: 5m
+      labels:
+        severity: warning
+        tier: 3
+      annotations:
+        summary: "Suspicious user agent detected: {{ $labels.user_agent }}"
+        description: "Unusual user agent making authentication requests"
+
+    - alert: UnusualIPLocations
+      expr: |
+        count by (country) (
+          sum by (ip, country) (
+            rate(auth_login_attempts_total[1h])
+          )
+        ) > 5
+      for: 1h
+      labels:
+        severity: warning
+        tier: 2
+      annotations:
+        summary: "Login attempts from multiple countries"
+        description: "Login attempts from {{ $value }} different countries detected"
+
+    # Resource usage alerts
+    - alert: HighMemoryUsage
+      expr: |
+        (
+          node_memory_MemTotal_bytes{job="node"} - node_memory_MemAvailable_bytes{job="node"}
+        ) / 
+        node_memory_MemTotal_bytes{job="node"} * 100 > 90
+      for: 15m
+      labels:
+        severity: warning
+        tier: 1
+      annotations:
+        summary: "High memory usage ({{ $value }}%)"
+        description: "Node memory usage is critically high"
+
+    - alert: HighCPUUsage
+      expr: |
+        100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+      for: 15m
+      labels:
+        severity: warning
+        tier: 1
+      annotations:
+        summary: "High CPU usage ({{ $value }}%)"
+        description: "Node CPU usage is critically high"

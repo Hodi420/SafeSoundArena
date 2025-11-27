@@ -1,6 +1,7 @@
 # 🧩 components/
 
 Reusable UI building blocks (buttons, cards, modals, etc.).
+
 - Presentational, stateless where possible
 - Used across multiple features/pages
 

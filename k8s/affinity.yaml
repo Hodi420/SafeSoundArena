@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: safesoundarena-web
+  namespace: safesoundarena-staging
+spec:
+  template:
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - safesoundarena
+                topologyKey: 'kubernetes.io/hostname'
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: node-role.kubernetes.io/worker
+                    operator: Exists
+      tolerations:
+        - key: 'dedicated'
+          operator: 'Equal'
+          value: 'frontend'
+          effect: 'NoSchedule'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: safesoundarena-web-blue # Will be updated by deployment script
+  namespace: safesoundarena-prod
+spec:
+  template:
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - safesoundarena
+              topologyKey: 'kubernetes.io/hostname'
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - safesoundarena
+                topologyKey: 'topology.kubernetes.io/zone'
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/worker
+                    operator: Exists
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: node.kubernetes.io/instance-type
+                    operator: In
+                    values:
+                      - standard-d2s-v3
+                      - standard-d4s-v3
+      tolerations:
+        - key: 'dedicated'
+          operator: 'Equal'
+          value: 'frontend'
+          effect: 'NoSchedule'
+        - key: 'CriticalAddonsOnly'
+          operator: 'Exists'

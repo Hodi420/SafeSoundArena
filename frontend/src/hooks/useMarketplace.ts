@@ -45,8 +45,19 @@ export const useBuyItem = () => {
 export const useSellItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ itemId, quantity, price }: { itemId: string; quantity: number; price: number }) => {
-      const { data } = await apiClient.post(API_ENDPOINTS.MARKETPLACE.SELL(itemId), { quantity, price });
+    mutationFn: async ({
+      itemId,
+      quantity,
+      price,
+    }: {
+      itemId: string;
+      quantity: number;
+      price: number;
+    }) => {
+      const { data } = await apiClient.post(API_ENDPOINTS.MARKETPLACE.SELL(itemId), {
+        quantity,
+        price,
+      });
       return data;
     },
     onSuccess: () => {

@@ -14,8 +14,8 @@ export default function UserEntryPoint() {
     const saved = localStorage.getItem('userId');
     if (saved) {
       fetch(`/api/root/user-memory/${saved}`)
-        .then(res => res.json())
-        .then(data => {
+        .then((res) => res.json())
+        .then((data) => {
           if (data && data.onboardingComplete) {
             setUserId(saved);
             setOnboarded(true);

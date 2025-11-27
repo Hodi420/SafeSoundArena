@@ -1,1 +1,1 @@
-const config = require('./agent-config.json'); 
+const config = require('./agent-config.json');

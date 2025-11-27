@@ -1,0 +1,17 @@
+{
+  "name": "safesoundarena-scripts",
+  "version": "1.0.0",
+  "description": "Utility scripts for SafeSoundArena development",
+  "main": "index.js",
+  "scripts": {
+    "verify-env": "node verify-env.js",
+    "setup-dev": "node setup-dev.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "semver": "^7.3.8"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.8"
+  }
+}

@@ -10,7 +10,7 @@ export default function ExternalSDKs() {
         strategy="afterInteractive"
         onLoad={() => {
           if (window.Pi) {
-            window.Pi.init({ version: "2.0" });
+            window.Pi.init({ version: '2.0' });
           }
         }}
       />

@@ -6,7 +6,7 @@ const CommunityBot = require('../aiClients/communityBot');
 const bot = new CommunityBot({
   telegramToken: process.env.TELEGRAM_BOT_TOKEN,
   llmOptions: { provider: 'openai', apiKey: process.env.OPENAI_API_KEY, model: 'gpt-4.1' },
-  language: 'he'
+  language: 'he',
 });
 
 // Poll Telegram every 2 seconds

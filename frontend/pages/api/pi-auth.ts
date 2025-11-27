@@ -25,12 +25,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const sessionToken = jwt.sign(
       { pi_uid: pioneer.uid, username: pioneer.username, isPioneer: true },
       JWT_SECRET,
-      { expiresIn: '12h' }
+      { expiresIn: '12h' },
     );
 
     // For security, use HttpOnly cookie (or return token for client storage if needed)
-    res.setHeader('Set-Cookie', `pioneer_session=${sessionToken}; HttpOnly; Path=/; Max-Age=43200; SameSite=Strict; Secure`);
-    return res.status(200).json({ ok: true, pioneer: { username: pioneer.username, uid: pioneer.uid } });
+    res.setHeader(
+      'Set-Cookie',
+      `pioneer_session=${sessionToken}; HttpOnly; Path=/; Max-Age=43200; SameSite=Strict; Secure`,
+    );
+    return res
+      .status(200)
+      .json({ ok: true, pioneer: { username: pioneer.username, uid: pioneer.uid } });
   } catch (err) {
     return res.status(500).json({ error: 'Pi verification failed' });
   }

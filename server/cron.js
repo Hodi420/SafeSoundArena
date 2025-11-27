@@ -9,7 +9,10 @@ function runScheduledTasks() {
     fs.appendFileSync('agent.log', `${new Date().toISOString()} CRON: Running daily maintenance\n`);
     // Example: Run update script
     exec('powershell ./scripts/daily-maintenance.ps1', (err, stdout, stderr) => {
-      fs.appendFileSync('agent.log', `${new Date().toISOString()} CRON_RESULT: ${err ? stderr : stdout}\n`);
+      fs.appendFileSync(
+        'agent.log',
+        `${new Date().toISOString()} CRON_RESULT: ${err ? stderr : stdout}\n`
+      );
     });
   }
 }

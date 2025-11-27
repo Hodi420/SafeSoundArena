@@ -1,0 +1,12 @@
+{
+  "extends": ["airbnb-base"],
+  "env": {
+    "node": true,
+    "es2021": true
+  },
+  "rules": {
+    "no-console": "warn",
+    "indent": ["error", 2],
+    "quotes": ["error", "double"]
+  }
+}

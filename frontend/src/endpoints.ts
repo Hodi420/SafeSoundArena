@@ -4,9 +4,9 @@ export const API_ENDPOINTS = {
   MARKETPLACE: {
     LIST: '/api/marketplace', // GET - list all items
     BUY: (itemId: string) => `/api/marketplace/buy/${itemId}`, // POST - buy item
-    SELL: (itemId: string) => `/api/marketplace/sell/${itemId}` // POST - sell item
+    SELL: (itemId: string) => `/api/marketplace/sell/${itemId}`, // POST - sell item
   },
   USER: {
-    PROFILE: (userId: string) => `/api/user/${userId}` // GET - user profile
-  }
+    PROFILE: (userId: string) => `/api/user/${userId}`, // GET - user profile
+  },
 };

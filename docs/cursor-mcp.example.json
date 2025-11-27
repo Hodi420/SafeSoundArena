@@ -1,0 +1,19 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/client/mcp-settings.schema.json",
+  "version": 1,
+  "clients": {
+    "cursor": {
+      "servers": {
+        "safesoundarena-local": {
+          "command": "node",
+          "args": ["server/mcp.js"],
+          "env": {
+            "MCP_ENABLE_SHELL": "false",
+            "MCP_ENABLE_GIT": "false",
+            "PORT": "3005"
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,9 +2,9 @@ name: Security & Lint Checks
 
 on:
   push:
-    branches: ["main", "master", "develop"]
+    branches: ['main', 'master', 'develop']
   pull_request:
-    branches: ["*"]
+    branches: ['*']
 
 jobs:
   security-lint:
@@ -14,9 +14,9 @@ jobs:
         working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.3.0
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.4.0
         with:
           node-version: '20'
       - name: Install dependencies

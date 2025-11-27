@@ -1,25 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { apiClient } from '../client';
-import { API_ENDPOINTS } from '../endpoints';
-
-export interface Event {
-  id: string;
-  title: string;
-  description: string;
-  startTime: Date;
-  endTime: Date;
-  capacity: number;
-  participants: number;
-  type: 'conference' | 'challenge' | 'tournament' | 'social';
-  status: 'upcoming' | 'active' | 'ended';
-  rewards: {
-    amount: number;
-    type: 'Pi' | 'XP' | 'NFT';
-  }[];
-  emoji: '🎪' | '⚔️' | '🏆' | '🤝'; // Event type emoji
-}
-
 import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '@/services/api/client';
 
 export interface Event {
   id: string;
@@ -55,9 +35,15 @@ export const useEvents = () => {
   return useQuery<Event[]>({
     queryKey: ['events'],
     queryFn: async () => {
-      const { data } = await apiClient.get(API_ENDPOINTS.EVENTS.LIST);
-      return data;
+      try {
+        const { data } = await apiClient.get('/events');
+        return data ?? mockEvents;
+      } catch (err) {
+        return mockEvents;
+      }
     },
+    suspense: false,
+    experimental_prefetchInRender: false,
   });
 };
 

@@ -1,5 +1,11 @@
 import { AIProfile } from '../utils/aiProfileStore';
-import { getProfile, updateProfile, addTrainingData, addHistory, getHistory } from '../utils/aiProfileStore';
+import {
+  getProfile,
+  updateProfile,
+  addTrainingData,
+  addHistory,
+  getHistory,
+} from '../utils/aiProfileStore';
 
 export function fetchProfile(pi_uid: string): AIProfile {
   return getProfile(pi_uid);

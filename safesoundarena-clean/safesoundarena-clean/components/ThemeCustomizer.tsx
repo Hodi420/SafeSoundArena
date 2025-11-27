@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { Dialog, Transition, Listbox } from '@headlessui/react';
 import { HexColorPicker } from 'react-colorful';
-import { useThemeStore } from '../store/useThemeStore';
+import { useThemeStore } from '../../store/useThemeStore';
 import { motion } from 'framer-motion';
 
 const fonts = [
@@ -86,17 +86,15 @@ export default function ThemeCustomizer({ isOpen, onClose }: Props) {
                                 selected
                                   ? 'bg-blue-600/20 border-l-2 border-blue-500'
                                   : active
-                                  ? 'bg-blue-600/10'
-                                  : ''
+                                    ? 'bg-blue-600/10'
+                                    : ''
                               }`
                             }
                           >
                             {({ selected }) => (
                               <div className={option.id}>
                                 <div className="font-medium">{option.name}</div>
-                                <div className="text-sm text-gray-400">
-                                  {option.description}
-                                </div>
+                                <div className="text-sm text-gray-400">{option.description}</div>
                                 {selected && (
                                   <motion.div
                                     layoutId="font-check"
@@ -124,17 +122,15 @@ export default function ThemeCustomizer({ isOpen, onClose }: Props) {
                                 selected
                                   ? 'bg-blue-600/20 border-l-2 border-blue-500'
                                   : active
-                                  ? 'bg-blue-600/10'
-                                  : ''
+                                    ? 'bg-blue-600/10'
+                                    : ''
                               }`
                             }
                           >
                             {({ selected }) => (
                               <>
                                 <div className="font-medium">{option.name}</div>
-                                <div className="text-sm text-gray-400">
-                                  {option.description}
-                                </div>
+                                <div className="text-sm text-gray-400">{option.description}</div>
                                 {selected && (
                                   <motion.div
                                     layoutId="style-check"
@@ -182,17 +178,15 @@ export default function ThemeCustomizer({ isOpen, onClose }: Props) {
                                 selected
                                   ? 'bg-blue-600/20 border-l-2 border-blue-500'
                                   : active
-                                  ? 'bg-blue-600/10'
-                                  : ''
+                                    ? 'bg-blue-600/10'
+                                    : ''
                               }`
                             }
                           >
                             {({ selected }) => (
                               <>
                                 <div className="font-medium">{option.name}</div>
-                                <div className="text-sm text-gray-400">
-                                  {option.description}
-                                </div>
+                                <div className="text-sm text-gray-400">{option.description}</div>
                                 {selected && (
                                   <motion.div
                                     layoutId="speed-check"

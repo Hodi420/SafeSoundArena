@@ -13,10 +13,10 @@ spec:
         app: safesoundarena
     spec:
       containers:
-      - name: safesoundarena
-        image: your-dockerhub/safesoundarena:latest
-        ports:
-        - containerPort: 3000
-        envFrom:
-        - secretRef:
-            name: safesoundarena-secrets
+        - name: safesoundarena
+          image: your-dockerhub/safesoundarena:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: safesoundarena-secrets

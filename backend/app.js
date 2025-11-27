@@ -1,3 +1,16 @@
+// app.js - SafeSoundArena backend bootstrap
+// נקודת כניסה ראשית לשרת ולמודולים המרכזיים
+require('dotenv').config();
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+// יצירת אפליקציית Express
+const app = express();
+
 // --- MCP Permissions API ---
 // רשימת כל המשתמשים עם הרשאות
 app.get('/api/mcp/users', (req, res) => {
@@ -22,16 +35,6 @@ app.delete('/api/mcp/permissions', (req, res) => {
   mcpPermissions.removePermission(userId, role);
   res.json({ success: true, userId, role });
 });
-// app.js - SafeSoundArena backend bootstrap
-// נקודת כניסה ראשית לשרת ולמודולים המרכזיים
-require('dotenv').config();
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-
 
 // ייבוא מודולים עיקריים (skeleton)
 const scrollsEngine = require('./scrolls-engine');
@@ -47,6 +50,17 @@ mcpPermissions.addPermission('devUser', 'admin');
 mcpPermissions.addPermission('devUser', 'write');
 mcpPermissions.addPermission('testUser', 'read');
 
+// הגדרת middleware
+app.use(cors());
+app.use(helmet());
+app.use(express.json());
+
+// הגדרת rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 דקות
+  max: 100, // מקסימום 100 בקשות לכל IP
+});
+app.use(limiter);
 // דוגמת API לבדיקה
 app.get('/api/mcp/permissions/:userId', (req, res) => {
   const { userId } = req.params;
@@ -64,10 +78,10 @@ let usersInJail = {};
 let jailStartTime = null;
 let jailEndTime = null;
 
-const app = express();
-app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || ['*'], optionsSuccessStatus: 200 }));
-app.use(express.json());
-app.use(helmet());
+// עדכון הגדרות CORS
+app.use(
+  cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || ['*'], optionsSuccessStatus: 200 })
+);
 
 const server = http.createServer(app);
 const io = socketIo(server, { cors: { origin: '*' } });
@@ -118,18 +132,21 @@ function scheduleJail() {
       jailEndTime = jailStartTime + 10 * 60 * 1000;
       console.log('Jail started');
       io.emit('jailStatus', { active: true, startTime: jailStartTime, endTime: jailEndTime });
-      setTimeout(() => {
-        jailActive = false;
-        console.log('Jail ended');
-        io.emit('jailStatus', { active: false });
-        setTimeout(() => {
-          const userCount = Object.keys(usersInJail).length;
-          const reward = calculateReward(userCount);
-          console.log(`Sending rewards: ${reward} for ${userCount} users`);
-          io.emit('jailReward', { reward, userCount });
-        }, 60 * 1000);
-        scheduleJail();
-      }, 10 * 60 * 1000);
+      setTimeout(
+        () => {
+          jailActive = false;
+          console.log('Jail ended');
+          io.emit('jailStatus', { active: false });
+          setTimeout(() => {
+            const userCount = Object.keys(usersInJail).length;
+            const reward = calculateReward(userCount);
+            console.log(`Sending rewards: ${reward} for ${userCount} users`);
+            io.emit('jailReward', { reward, userCount });
+          }, 60 * 1000);
+          scheduleJail();
+        },
+        10 * 60 * 1000
+      );
     }, 60 * 1000);
   }, msToNextJail);
 }
@@ -156,4 +173,6 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 4000;
-server.listen(PORT, () => console.log(`SafeSoundArena backend running on http://localhost:${PORT}`));
+server.listen(PORT, () =>
+  console.log(`SafeSoundArena backend running on http://localhost:${PORT}`)
+);

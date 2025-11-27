@@ -1,18 +1,10 @@
-<<<<<<< HEAD
-import { useEffect, useState } from 'react';
-=======
 import { useEffect, useState, useRef } from 'react';
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
 
 interface AIProfile {
   pi_uid: string;
   username: string;
   avatarUrl?: string;
-<<<<<<< HEAD
-  preferences?: Record<string, unknown>;
-=======
   preferences?: Record<string, any>;
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
   trainingData: string[];
   history: { timestamp: number; input: string; output: string }[];
 }
@@ -24,15 +16,16 @@ export default function AIDashboard() {
   const [uploadText, setUploadText] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [loading, setLoading] = useState(false);
-<<<<<<< HEAD
-=======
   const fileInputRef = useRef<HTMLInputElement>(null);
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
 
   // Fetch profile and history on mount
   useEffect(() => {
-    fetch('/api/ai-profile').then(res => res.json()).then(setProfile);
-    fetch('/api/ai-history').then(res => res.json()).then(data => setChat(data.history || []));
+    fetch('/api/ai-profile')
+      .then((res) => res.json())
+      .then(setProfile);
+    fetch('/api/ai-history')
+      .then((res) => res.json())
+      .then((data) => setChat(data.history || []));
   }, []);
 
   // Handle chat/AI interaction
@@ -45,7 +38,7 @@ export default function AIDashboard() {
       body: JSON.stringify({ input }),
     });
     const data = await res.json();
-    setChat(c => [...c, { input, output: data.output, timestamp: Date.now() }]);
+    setChat((c) => [...c, { input, output: data.output, timestamp: Date.now() }]);
     setInput('');
     setLoading(false);
   };
@@ -58,7 +51,7 @@ export default function AIDashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ avatarUrl }),
     });
-    setProfile(p => (p ? { ...p, avatarUrl } : p));
+    setProfile((p) => (p ? { ...p, avatarUrl } : p));
     setAvatarUrl('');
   };
 
@@ -72,7 +65,9 @@ export default function AIDashboard() {
     });
     setUploadText('');
     // Optionally, refetch profile
-    fetch('/api/ai-profile').then(res => res.json()).then(setProfile);
+    fetch('/api/ai-profile')
+      .then((res) => res.json())
+      .then(setProfile);
   };
 
   // Replay chat
@@ -99,12 +94,14 @@ export default function AIDashboard() {
                 className="p-2 rounded bg-gray-800 border border-pink-500 text-white text-xs"
                 placeholder="Paste avatar image URL..."
                 value={avatarUrl}
-                onChange={e => setAvatarUrl(e.target.value)}
+                onChange={(e) => setAvatarUrl(e.target.value)}
               />
               <button
                 className="px-3 py-1 rounded bg-pink-600 hover:bg-pink-700 text-xs font-bold"
                 onClick={updateAvatar}
-              >Update Avatar</button>
+              >
+                Update Avatar
+              </button>
             </div>
           </div>
         </div>
@@ -115,7 +112,13 @@ export default function AIDashboard() {
           {chat.length === 0 && <div className="text-gray-400">No conversation yet.</div>}
           {chat.map((msg, i) => (
             <div key={i} className="mb-2">
-              <div className="text-blue-400 text-xs">You <span className="text-gray-400">({new Date(msg.timestamp).toLocaleTimeString()})</span>:</div>
+              <div className="text-blue-400 text-xs">
+                You{' '}
+                <span className="text-gray-400">
+                  ({new Date(msg.timestamp).toLocaleTimeString()})
+                </span>
+                :
+              </div>
               <div className="mb-1">{msg.input}</div>
               <div className="text-pink-300 text-xs">AI:</div>
               <div className="mb-2">{msg.output}</div>
@@ -128,18 +131,22 @@ export default function AIDashboard() {
             placeholder="Type your message..."
             value={input}
             disabled={loading}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => (e.key === 'Enter' ? sendInput() : undefined)}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => (e.key === 'Enter' ? sendInput() : undefined)}
           />
           <button
             className="px-4 py-2 rounded bg-pink-600 hover:bg-pink-700 font-bold"
             onClick={sendInput}
             disabled={loading}
-          >Send</button>
+          >
+            Send
+          </button>
           <button
             className="px-2 py-2 rounded bg-blue-700 hover:bg-blue-800 font-bold text-xs"
             onClick={replayChat}
-          >Replay</button>
+          >
+            Replay
+          </button>
         </div>
 
         {/* Training Data Upload */}
@@ -150,18 +157,22 @@ export default function AIDashboard() {
             rows={3}
             placeholder="Paste text or notes to train your AI..."
             value={uploadText}
-            onChange={e => setUploadText(e.target.value)}
+            onChange={(e) => setUploadText(e.target.value)}
           />
           <button
             className="px-4 py-2 rounded bg-green-600 hover:bg-green-700 font-bold"
             onClick={uploadTraining}
-          >Upload</button>
+          >
+            Upload
+          </button>
         </div>
 
         {/* Preferences/Control Panel (simple for now) */}
         <div className="bg-gray-800 rounded p-4">
           <div className="font-bold text-pink-300 mb-2">AI Preferences (Coming Soon)</div>
-          <div className="text-gray-400 text-xs">Control your AI's learning, behavior, and online updates here.</div>
+          <div className="text-gray-400 text-xs">
+            Control your AI's learning, behavior, and online updates here.
+          </div>
         </div>
       </div>
     </div>

@@ -5,7 +5,9 @@ const { OpenAI } = require('openai');
 
 const apiKey = process.env.OPENAI_API_KEY;
 if (!apiKey) {
-  throw new Error('Missing OPENAI_API_KEY in environment variables. Please set it in your .env file.');
+  throw new Error(
+    'Missing OPENAI_API_KEY in environment variables. Please set it in your .env file.'
+  );
 }
 const openai = new OpenAI({ apiKey });
 
@@ -21,7 +23,7 @@ async function askOpenAI(prompt, options = {}) {
       model: options.model || 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: prompt }],
       temperature: options.temperature || 0.7,
-      ...options
+      ...options,
     });
     return response.choices[0].message.content.trim();
   } catch (error) {
@@ -31,8 +33,4 @@ async function askOpenAI(prompt, options = {}) {
 }
 
 module.exports = { askOpenAI };
-    throw error;
-  }
-}
-
-module.exports = { askOpenAI };
+// module complete

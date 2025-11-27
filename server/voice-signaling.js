@@ -58,9 +58,9 @@ io.on('connection', (socket) => {
 
   function updateVoiceUsers() {
     const sockets = io.sockets.adapter.rooms.get('voiceRoom') || new Set();
-    const usernames = Array.from(sockets).map(
-      id => Array.from(usernameToSocketId.entries()).find(([, sid]) => sid === id)?.[0]
-    ).filter(Boolean);
+    const usernames = Array.from(sockets)
+      .map((id) => Array.from(usernameToSocketId.entries()).find(([, sid]) => sid === id)?.[0])
+      .filter(Boolean);
     io.to('voiceRoom').emit('voiceUsers', usernames);
   }
 });

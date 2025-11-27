@@ -20,25 +20,29 @@ app.use(express.json());
 connectDB();
 // קבלת סטטוס מכל Mini-MCP ו-Agents בודדים
 app.get('/api/root/overview', async (req, res) => {
-  const miniMcpStatuses = await Promise.all(config.miniMCPs.map(async mcp => {
-    try {
-      const r = await fetch(mcp.url + '/api/mcp/overview');
-      const status = await r.json();
-      return { ...mcp, status };
-    } catch {
-      return { ...mcp, status: 'offline' };
-    }
-  }));
+  const miniMcpStatuses = await Promise.all(
+    config.miniMCPs.map(async (mcp) => {
+      try {
+        const r = await fetch(mcp.url + '/api/mcp/overview');
+        const status = await r.json();
+        return { ...mcp, status };
+      } catch {
+        return { ...mcp, status: 'offline' };
+      }
+    })
+  );
   // סטטוס של Agents בודדים
-  const standaloneStatuses = await Promise.all(config.standaloneAgents.map(async agent => {
-    try {
-      const r = await fetch(agent.url + '/healthz');
-      const status = await r.json();
-      return { ...agent, status: status.status };
-    } catch {
-      return { ...agent, status: 'offline' };
-    }
-  }));
+  const standaloneStatuses = await Promise.all(
+    config.standaloneAgents.map(async (agent) => {
+      try {
+        const r = await fetch(agent.url + '/healthz');
+        const status = await r.json();
+        return { ...agent, status: status.status };
+      } catch {
+        return { ...agent, status: 'offline' };
+      }
+    })
+  );
   res.json({ miniMcpStatuses, standaloneStatuses });
 });
 
@@ -46,13 +50,13 @@ app.get('/api/root/overview', async (req, res) => {
 app.post('/api/root/assign', async (req, res) => {
   const { targetType, targetName, command } = req.body;
   if (targetType === 'miniMCP') {
-    const mcp = config.miniMCPs.find(m => m.name === targetName);
-    if (!mcp) return res.status(404).json({error:'Mini-MCP not found'});
+    const mcp = config.miniMCPs.find((m) => m.name === targetName);
+    if (!mcp) return res.status(404).json({ error: 'Mini-MCP not found' });
     try {
       const r = await fetch(mcp.url + '/api/mcp/assign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command })
+        body: JSON.stringify({ command }),
       });
       const data = await r.json();
       return res.json({ ok: true, response: data });
@@ -60,13 +64,13 @@ app.post('/api/root/assign', async (req, res) => {
       return res.status(500).json({ error: 'Mini-MCP unreachable' });
     }
   } else if (targetType === 'agent') {
-    const agent = config.standaloneAgents.find(a => a.name === targetName);
-    if (!agent) return res.status(404).json({error:'Agent not found'});
+    const agent = config.standaloneAgents.find((a) => a.name === targetName);
+    if (!agent) return res.status(404).json({ error: 'Agent not found' });
     try {
       const r = await fetch(agent.url + '/api/agent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command })
+        body: JSON.stringify({ command }),
       });
       const data = await r.json();
       return res.json({ ok: true, response: data });
@@ -74,7 +78,7 @@ app.post('/api/root/assign', async (req, res) => {
       return res.status(500).json({ error: 'Agent unreachable' });
     }
   }
-  res.status(400).json({error:'Invalid targetType'});
+  res.status(400).json({ error: 'Invalid targetType' });
 });
 
 // Update user notification email preferences
@@ -84,7 +88,7 @@ app.put('/api/root/user-email-preferences/:userId', async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
     user.preferences.notificationEmails = {
       ...user.preferences.notificationEmails,
-      ...req.body // expected: { onboarding, notification, system, task }
+      ...req.body, // expected: { onboarding, notification, system, task }
     };
     await user.save();
     res.json({ ok: true, notificationEmails: user.preferences.notificationEmails });
@@ -98,18 +102,27 @@ app.put('/api/root/user-email-preferences/:userId', async (req, res) => {
 app.post('/api/root/user-register', async (req, res) => {
   try {
     const { userId, name, email, password, agree, preferences } = req.body;
-    if (!userId || !name || !email || !password || !agree) return res.status(400).json({ error: 'Missing required fields' });
-    const existing = await User.findOne({ $or: [ { userId }, { email } ] });
+    if (!userId || !name || !email || !password || !agree)
+      return res.status(400).json({ error: 'Missing required fields' });
+    const existing = await User.findOne({ $or: [{ userId }, { email }] });
     if (existing) return res.status(409).json({ error: 'User already exists or email in use' });
-    const user = new User({ userId, name, email, password, preferences, agree, onboardingComplete: true });
+    const user = new User({
+      userId,
+      name,
+      email,
+      password,
+      preferences,
+      agree,
+      onboardingComplete: true,
+    });
     await user.save();
     // Always send onboarding email (non-blocking)
     sendMail({
       to: email,
       subject: 'ברוך הבא ל-SafeSoundArena',
       text: `שלום ${name},\nההרשמה שלך הושלמה בהצלחה!`,
-      html: `<h2>שלום ${name},</h2><p>ההרשמה שלך הושלמה בהצלחה!</p>`
-    }).catch(e => console.error('Mail error:', e.message));
+      html: `<h2>שלום ${name},</h2><p>ההרשמה שלך הושלמה בהצלחה!</p>`,
+    }).catch((e) => console.error('Mail error:', e.message));
     res.json({ ok: true, userId });
   } catch (err) {
     res.status(500).json({ error: 'Registration failed', details: err.message });
@@ -157,7 +170,8 @@ app.get('/api/root/user-memory/:userId', async (req, res) => {
 app.get('/api/root/tasks/:userId', async (req, res) => {
   try {
     const user = await User.findOne({ userId: req.params.userId });
-    if (!user || !user.onboardingComplete) return res.status(403).json({ error: 'User not authorized' });
+    if (!user || !user.onboardingComplete)
+      return res.status(403).json({ error: 'User not authorized' });
     const tasks = await Task.find({ userId: req.params.userId });
     res.json(tasks);
   } catch (err) {
@@ -168,7 +182,8 @@ app.get('/api/root/tasks/:userId', async (req, res) => {
 app.post('/api/root/tasks/:userId', async (req, res) => {
   try {
     const user = await User.findOne({ userId: req.params.userId });
-    if (!user || !user.onboardingComplete) return res.status(403).json({ error: 'User not authorized' });
+    if (!user || !user.onboardingComplete)
+      return res.status(403).json({ error: 'User not authorized' });
     const { title, description, agentId } = req.body;
     if (!title) return res.status(400).json({ error: 'Missing title' });
     const task = new Task({ userId: req.params.userId, title, description, agentId });
@@ -182,8 +197,13 @@ app.post('/api/root/tasks/:userId', async (req, res) => {
 app.put('/api/root/tasks/:userId/:taskId', async (req, res) => {
   try {
     const user = await User.findOne({ userId: req.params.userId });
-    if (!user || !user.onboardingComplete) return res.status(403).json({ error: 'User not authorized' });
-    const task = await Task.findOneAndUpdate({ _id: req.params.taskId, userId: req.params.userId }, req.body, { new: true });
+    if (!user || !user.onboardingComplete)
+      return res.status(403).json({ error: 'User not authorized' });
+    const task = await Task.findOneAndUpdate(
+      { _id: req.params.taskId, userId: req.params.userId },
+      req.body,
+      { new: true }
+    );
     if (!task) return res.status(404).json({ error: 'Task not found' });
     res.json(task);
   } catch (err) {
@@ -194,7 +214,8 @@ app.put('/api/root/tasks/:userId/:taskId', async (req, res) => {
 app.delete('/api/root/tasks/:userId/:taskId', async (req, res) => {
   try {
     const user = await User.findOne({ userId: req.params.userId });
-    if (!user || !user.onboardingComplete) return res.status(403).json({ error: 'User not authorized' });
+    if (!user || !user.onboardingComplete)
+      return res.status(403).json({ error: 'User not authorized' });
     const task = await Task.findOneAndDelete({ _id: req.params.taskId, userId: req.params.userId });
     if (!task) return res.status(404).json({ error: 'Task not found' });
     res.json({ ok: true });
@@ -208,8 +229,11 @@ app.delete('/api/root/tasks/:userId/:taskId', async (req, res) => {
 app.get('/api/root/notifications/:userId', async (req, res) => {
   try {
     const user = await User.findOne({ userId: req.params.userId });
-    if (!user || !user.onboardingComplete) return res.status(403).json({ error: 'User not authorized' });
-    const notifications = await Notification.find({ userId: req.params.userId }).sort({ createdAt: -1 });
+    if (!user || !user.onboardingComplete)
+      return res.status(403).json({ error: 'User not authorized' });
+    const notifications = await Notification.find({ userId: req.params.userId }).sort({
+      createdAt: -1,
+    });
     res.json(notifications);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch notifications', details: err.message });
@@ -219,7 +243,8 @@ app.get('/api/root/notifications/:userId', async (req, res) => {
 app.post('/api/root/notifications/:userId', async (req, res) => {
   try {
     const user = await User.findOne({ userId: req.params.userId });
-    if (!user || !user.onboardingComplete) return res.status(403).json({ error: 'User not authorized' });
+    if (!user || !user.onboardingComplete)
+      return res.status(403).json({ error: 'User not authorized' });
     const { type, message } = req.body;
     if (!type || !message) return res.status(400).json({ error: 'Missing type or message' });
     const notification = new Notification({ userId: req.params.userId, type, message });
@@ -231,20 +256,22 @@ app.post('/api/root/notifications/:userId', async (req, res) => {
         const pref = notifUser.preferences?.notificationEmails || {};
         // Always send onboarding, otherwise check type
         if (
-          type === 'onboarding' && pref.onboarding !== false ||
-          type === 'notification' && pref.notification === true ||
-          type === 'system' && pref.system === true ||
-          type === 'task' && pref.task === true
+          (type === 'onboarding' && pref.onboarding !== false) ||
+          (type === 'notification' && pref.notification === true) ||
+          (type === 'system' && pref.system === true) ||
+          (type === 'task' && pref.task === true)
         ) {
           sendMail({
             to: notifUser.email,
             subject: `התראה חדשה: ${type}`,
             text: message,
-            html: `<h3>התראה חדשה</h3><p>${message}</p>`
-          }).catch(e => console.error('Mail error:', e.message));
+            html: `<h3>התראה חדשה</h3><p>${message}</p>`,
+          }).catch((e) => console.error('Mail error:', e.message));
         }
       }
-    } catch(e) { console.error('Mail error:', e.message); }
+    } catch (e) {
+      console.error('Mail error:', e.message);
+    }
     res.json(notification);
   } catch (err) {
     res.status(500).json({ error: 'Failed to create notification', details: err.message });
@@ -254,8 +281,13 @@ app.post('/api/root/notifications/:userId', async (req, res) => {
 app.put('/api/root/notifications/:userId/:notifId/read', async (req, res) => {
   try {
     const user = await User.findOne({ userId: req.params.userId });
-    if (!user || !user.onboardingComplete) return res.status(403).json({ error: 'User not authorized' });
-    const notification = await Notification.findOneAndUpdate({ _id: req.params.notifId, userId: req.params.userId }, { read: true }, { new: true });
+    if (!user || !user.onboardingComplete)
+      return res.status(403).json({ error: 'User not authorized' });
+    const notification = await Notification.findOneAndUpdate(
+      { _id: req.params.notifId, userId: req.params.userId },
+      { read: true },
+      { new: true }
+    );
     if (!notification) return res.status(404).json({ error: 'Notification not found' });
     res.json(notification);
   } catch (err) {
@@ -279,15 +311,17 @@ app.get('/api/root/top-users-tasks-stats', async (req, res) => {
     // Get users who agreed
     const users = await User.find({ agree: true }, 'userId');
     // For each user, count total and completed tasks
-    const stats = await Promise.all(users.map(async u => {
-      const totalTasks = await Task.countDocuments({ userId: u.userId });
-      const completedTasks = await Task.countDocuments({ userId: u.userId, status: 'done' });
-      return {
-        user: u.userId.slice(-6), // anonymized (last 6 chars)
-        totalTasks,
-        completedTasks
-      };
-    }));
+    const stats = await Promise.all(
+      users.map(async (u) => {
+        const totalTasks = await Task.countDocuments({ userId: u.userId });
+        const completedTasks = await Task.countDocuments({ userId: u.userId, status: 'done' });
+        return {
+          user: u.userId.slice(-6), // anonymized (last 6 chars)
+          totalTasks,
+          completedTasks,
+        };
+      })
+    );
     // Sort by totalTasks desc, take top 10
     stats.sort((a, b) => b.totalTasks - a.totalTasks);
     res.json(stats.slice(0, 10));
@@ -314,7 +348,11 @@ app.post('/api/admin/users/:userId/block', async (req, res) => {
   const token = req.headers['x-admin-token'];
   if (token !== process.env.ADMIN_TOKEN) return res.status(403).json({ error: 'Forbidden' });
   try {
-    const user = await User.findOneAndUpdate({ userId: req.params.userId }, { blocked: true }, { new: true });
+    const user = await User.findOneAndUpdate(
+      { userId: req.params.userId },
+      { blocked: true },
+      { new: true }
+    );
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);
   } catch (err) {
@@ -338,7 +376,11 @@ app.post('/api/admin/users/:userId/promote', async (req, res) => {
   const token = req.headers['x-admin-token'];
   if (token !== process.env.ADMIN_TOKEN) return res.status(403).json({ error: 'Forbidden' });
   try {
-    const user = await User.findOneAndUpdate({ userId: req.params.userId }, { isAdmin: true }, { new: true });
+    const user = await User.findOneAndUpdate(
+      { userId: req.params.userId },
+      { isAdmin: true },
+      { new: true }
+    );
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);
   } catch (err) {

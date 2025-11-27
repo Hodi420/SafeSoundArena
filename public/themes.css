@@ -19,7 +19,9 @@
 body {
   background: var(--color-bg);
   color: var(--color-text);
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .theme-btn {

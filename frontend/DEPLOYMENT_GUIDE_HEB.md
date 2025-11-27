@@ -17,6 +17,7 @@ npm install
 ```bash
 npm run build
 ```
+
 - אם יש רק אזהרות (warnings) – אפשר להמשיך.
 - אם יש שגיאות (errors) – תקן אותן לפני העלאה.
 
@@ -25,6 +26,7 @@ npm run build
 ```bash
 npm run dev
 ```
+
 - כתובת ברירת מחדל: http://localhost:3000
 
 ## 5. משתני סביבה (ENV)
@@ -35,6 +37,7 @@ npm run dev
 ## 6. פריסה (Deploy) ל־Vercel/Netlify
 
 ### ל־Vercel:
+
 1. הירשם/התחבר ל־[Vercel](https://vercel.com)
 2. לחץ על "Add New Project"
 3. בחר את התיקיה `frontend`
@@ -45,6 +48,7 @@ npm run dev
 8. לחץ Deploy
 
 ### ל־Netlify:
+
 1. הירשם/התחבר ל־[Netlify](https://netlify.com)
 2. לחץ על "Add new site"
 3. בחר את התיקיה `frontend`
@@ -63,6 +67,7 @@ npm run dev
 5. SSL יתווסף אוטומטית
 
 ## 8. תחזוקה
+
 - כל שינוי שתעלה ל־GitHub (אם חיברת) – יגרור build אוטומטי
 - תוכל להוסיף דומיינים, Redirects, ועוד
 

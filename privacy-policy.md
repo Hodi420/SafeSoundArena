@@ -13,6 +13,7 @@ SafeSoundArena (“we”, “our”, or “us”) is committed to protecting you
 ## 2. How We Use Your Information
 
 We use your information to:
+
 - Provide and improve our app’s features and services
 - Authenticate users and secure accounts
 - Process in-app transactions and rewards
@@ -22,6 +23,7 @@ We use your information to:
 ## 3. Sharing Your Information
 
 We do **not** sell or rent your personal information. We may share your information with:
+
 - Service providers who help operate our app (e.g., hosting, analytics)
 - Legal authorities if required by law
 

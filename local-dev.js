@@ -12,28 +12,24 @@ const colors = {
 };
 
 // Configuration validation
-const requiredEnvVars = [
-  'OPENAI_API_KEY',
-  'PI_API_KEY',
-  'JWT_SECRET'
-];
+const requiredEnvVars = ['OPENAI_API_KEY', 'PI_API_KEY', 'JWT_SECRET'];
 
 function checkPrerequisites() {
   console.log(`${colors.bright}Checking prerequisites...${colors.reset}`);
-  
+
   // Check Node.js version
   const nodeVersion = process.version;
   if (nodeVersion.split('.')[0] < 16) {
     throw new Error('Node.js 16+ is required');
   }
-  
+
   // Check Docker
   try {
     execSync('docker --version', { stdio: 'ignore' });
   } catch (error) {
     throw new Error('Docker is not installed');
   }
-  
+
   // Check environment variables
   if (!fs.existsSync('.env')) {
     if (fs.existsSync('.env.example')) {
@@ -43,10 +39,10 @@ function checkPrerequisites() {
       throw new Error('.env.example file not found');
     }
   }
-  
+
   // Check required directories
   const requiredDirs = ['frontend', 'backend', 'ai', 'blockchain'];
-  requiredDirs.forEach(dir => {
+  requiredDirs.forEach((dir) => {
     if (!fs.existsSync(dir)) {
       throw new Error(`Required directory '${dir}' not found`);
     }
@@ -55,10 +51,10 @@ function checkPrerequisites() {
 
 function installDependencies() {
   console.log(`${colors.bright}Installing dependencies...${colors.reset}`);
-  
+
   // Install root dependencies
   execSync('npm install', { stdio: 'inherit' });
-  
+
   // Install frontend dependencies
   if (fs.existsSync('frontend/package.json')) {
     console.log(`${colors.bright}Installing frontend dependencies...${colors.reset}`);
@@ -68,10 +64,10 @@ function installDependencies() {
 
 function setupLocalServices() {
   console.log(`${colors.bright}Setting up local services...${colors.reset}`);
-  
+
   // Start Docker services
   execSync('docker-compose up -d', { stdio: 'inherit' });
-  
+
   // Wait for services to be ready
   console.log(`${colors.yellow}Waiting for services to be ready...${colors.reset}`);
   setTimeout(() => {
@@ -81,7 +77,7 @@ function setupLocalServices() {
 
 function startDevelopment() {
   console.log(`${colors.bright}Starting development environment...${colors.reset}`);
-  
+
   // Start backend services
   execSync('npm run start', { stdio: 'inherit' });
 }
@@ -98,4 +94,4 @@ async function main() {
   }
 }
 
-main(); 
+main();

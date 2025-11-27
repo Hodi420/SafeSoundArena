@@ -3,7 +3,11 @@
 require('dotenv').config();
 const { askAI } = require('./aiClients');
 let chalk;
-try { chalk = require('chalk'); } catch { chalk = null; }
+try {
+  chalk = require('chalk');
+} catch {
+  chalk = null;
+}
 
 const providers = [
   'openai',
@@ -14,7 +18,7 @@ const providers = [
   'grok',
   'huggingface',
   'deepseek',
-  'telegram'
+  'telegram',
 ];
 
 const weights = {
@@ -26,7 +30,7 @@ const weights = {
   grok: 1,
   huggingface: 1,
   deepseek: 1,
-  telegram: 1
+  telegram: 1,
 };
 
 function color(text, style) {
@@ -41,7 +45,11 @@ function color(text, style) {
 
 const { logQuery } = require('./analytics');
 let io = null;
-try { io = require('socket.io')(3001, { cors: { origin: '*' } }); } catch { io = null; }
+try {
+  io = require('socket.io')(3001, { cors: { origin: '*' } });
+} catch {
+  io = null;
+}
 
 // Helper: get pioneerKey from process.env (for CLI) or from Pi Browser UA (for web/API)
 function getPioneerKeyFromEnvOrRequest() {
@@ -55,14 +63,16 @@ function getPioneerKeyFromEnvOrRequest() {
 
 async function getConsensus(prompt, userId = 'anonymous', pioneerKey = null) {
   const results = {};
-  await Promise.all(providers.map(async provider => {
-    try {
-      const response = await askAI(provider, prompt);
-      results[provider] = response;
-    } catch (err) {
-      results[provider] = `[ERROR: ${err.message}]`;
-    }
-  }));
+  await Promise.all(
+    providers.map(async (provider) => {
+      try {
+        const response = await askAI(provider, prompt);
+        results[provider] = response;
+      } catch (err) {
+        results[provider] = `[ERROR: ${err.message}]`;
+      }
+    })
+  );
 
   // Tally identical answers (weighted)
   const tally = {};
@@ -73,7 +83,8 @@ async function getConsensus(prompt, userId = 'anonymous', pioneerKey = null) {
   }
 
   // Find the answer with the highest weight
-  let consensus = null, maxWeight = 0;
+  let consensus = null,
+    maxWeight = 0;
   for (const answer in tally) {
     if (tally[answer] > maxWeight) {
       consensus = answer;
@@ -85,7 +96,8 @@ async function getConsensus(prompt, userId = 'anonymous', pioneerKey = null) {
   if (pioneerKey) {
     logQuery({ prompt, consensus, all: results, tally, userId, pioneerKey });
     // Emit update to WebSocket clients
-    if (io) io.emit('analyticsUpdate', { prompt, consensus, all: results, tally, userId, pioneerKey });
+    if (io)
+      io.emit('analyticsUpdate', { prompt, consensus, all: results, tally, userId, pioneerKey });
   }
 
   // Output to console
@@ -118,7 +130,7 @@ async function getConsensus(prompt, userId = 'anonymous', pioneerKey = null) {
 // Example usage if run directly
 if (require.main === module) {
   const prompt = process.argv[2] || 'Say hello from your AI!';
-  getConsensus(prompt).catch(e => {
+  getConsensus(prompt).catch((e) => {
     console.error(color('Fatal error:', 'error'), e.message);
   });
 }

@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: safesoundarena-web-{{COLOR}}
+  namespace: safesoundarena-prod
+  labels:
+    app: safesoundarena
+    environment: production
+    tier: frontend
+    color: { { COLOR } }
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: safesoundarena
+      environment: production
+      tier: frontend
+      color: { { COLOR } }
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: safesoundarena
+        environment: production
+        tier: frontend
+        color: { { COLOR } }
+    spec:
+      containers:
+        - name: safesoundarena
+          image: $DOCKERHUB_USERNAME/safesoundarena:prod-{{GIT_SHA}}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: safesoundarena-config
+            - secretRef:
+                name: safesoundarena-secrets
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: '200m'
+              memory: '512Mi'
+            limits:
+              cpu: '1000m'
+              memory: '1Gi'
+          lifecycle:
+            preStop:
+              exec:
+                command: ['/bin/sh', '-c', 'sleep 30']
+      nodeSelector:
+        kubernetes.io/os: linux
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - safesoundarena
+                topologyKey: 'kubernetes.io/hostname'

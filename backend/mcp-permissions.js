@@ -13,7 +13,7 @@
 function importExternalUsers(usersArr) {
   usersArr.forEach(({ userId, roles }) => {
     if (!permissions[userId]) permissions[userId] = [];
-    roles.forEach(role => {
+    roles.forEach((role) => {
       if (!permissions[userId].includes(role)) permissions[userId].push(role);
     });
   });
@@ -73,7 +73,7 @@ function addPermission(userId, role) {
 
 function removePermission(userId, role) {
   if (!permissions[userId]) return;
-  permissions[userId] = permissions[userId].filter(r => r !== role);
+  permissions[userId] = permissions[userId].filter((r) => r !== role);
   savePermissions();
   logAction('removePermission', userId, role);
 }
@@ -85,13 +85,13 @@ function hasPermission(userId, role) {
 // Check if user has any of the roles in array
 function hasAnyPermission(userId, rolesArr) {
   const userRoles = getUserRoles(userId);
-  return rolesArr.some(r => userRoles.includes(r));
+  return rolesArr.some((r) => userRoles.includes(r));
 }
 
 // Check if user has all roles in array
 function hasAllPermissions(userId, rolesArr) {
   const userRoles = getUserRoles(userId);
-  return rolesArr.every(r => userRoles.includes(r));
+  return rolesArr.every((r) => userRoles.includes(r));
 }
 
 function getUserRoles(userId) {
@@ -124,5 +124,5 @@ module.exports = {
   getAllUsers,
   permissions, // for debugging
   savePermissions,
-  loadPermissions
+  loadPermissions,
 };

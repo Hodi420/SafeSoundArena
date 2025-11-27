@@ -1,40 +1,69 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# SafeSoundArena Frontend (Clean)
 
-## Getting Started
+A modern Next.js frontend for SafeSoundArena with a polished UI, theme customizer, and integrations to the backend API and license server.
 
-First, run the development server:
+## Features
+
+- Layout with Navbar/Footer, responsive and theme-aware
+- Theme Customizer (fonts, colors, styles, neon intensity, animation speed)
+- Pages:
+  - Home: quick access cards
+  - Leaderboard: fetches from `/api/leaderboard/:type` (overall/scam_detection/community_impact)
+  - Jail: shows current jail status from `/api/jail-status`
+  - License: verify a license key against the license server `/verify`
+- Healthcheck endpoint: `/api/healthz`
+- Production-ready Dockerfile
+
+## Requirements
+
+- Node.js 18+
+- Backend API running (Express) with endpoints:
+  - `GET /api/leaderboard/:type`
+  - `GET /api/jail-status`
+- License server (optional) with endpoint:
+  - `POST /verify`
+
+## Environment Variables
+
+Create `.env.local` for local dev or pass env vars to Docker:
+
+- `NEXT_PUBLIC_API_URL` (default `http://localhost:4000`)
+- `NEXT_PUBLIC_LICENSE_URL` (default `http://localhost:3010`)
+- Optional analytics: `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+
+## Scripts
+
+- `npm run dev` – start local dev server
+- `npm run build` – build production
+- `npm start` – start production server
+
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Docker
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+Build and run the production image:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+```bash
+docker build -t safesoundarena-clean:latest -f Dockerfile .
+docker run -d --name ssa-frontend \
+  -p 3001:3000 \
+  -e NEXT_PUBLIC_API_URL=http://host.docker.internal:4000 \
+  -e NEXT_PUBLIC_LICENSE_URL=http://host.docker.internal:3010 \
+  safesoundarena-clean:latest
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Theming
 
-## Learn More
+Theme state is stored via Zustand (`store/useThemeStore.ts`). The customizer is available from the Navbar button.
 
-To learn more about Next.js, take a look at the following resources:
+## Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- This frontend targets the in-repo backend (`backend/`) and license-server. Update `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_LICENSE_URL` when deploying.
+- For the older `frontend/` app, there are unresolved merge conflicts. Use this clean app for production.

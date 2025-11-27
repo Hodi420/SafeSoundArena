@@ -14,18 +14,18 @@ const newHooksDir = path.join(__dirname, 'src/hooks');
 const testsDir = path.join(__dirname, 'src/tests');
 
 // Ensure target directories exist
-if (!fs.existsSync(newHooksDir)) fs.mkdirSync(newHooksDir, {recursive: true});
-if (!fs.existsSync(testsDir)) fs.mkdirSync(testsDir, {recursive: true});
+if (!fs.existsSync(newHooksDir)) fs.mkdirSync(newHooksDir, { recursive: true });
+if (!fs.existsSync(testsDir)) fs.mkdirSync(testsDir, { recursive: true });
 
 // Move hooks
-fs.readdirSync(oldHooksDir).forEach(file => {
+fs.readdirSync(oldHooksDir).forEach((file) => {
   if (file.endsWith('.ts') || file.endsWith('.js')) {
     fs.renameSync(path.join(oldHooksDir, file), path.join(newHooksDir, file));
   }
 });
 
 // Move test files from hooks
-fs.readdirSync(newHooksDir).forEach(file => {
+fs.readdirSync(newHooksDir).forEach((file) => {
   if (file.endsWith('.test.ts') || file.endsWith('.test.js')) {
     fs.renameSync(path.join(newHooksDir, file), path.join(testsDir, file));
   }

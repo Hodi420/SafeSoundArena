@@ -34,15 +34,21 @@ router.post('/text', authMiddleware.authenticateJWT, checkConsent, (req, res) =>
 });
 
 // Image moderation endpoint
-router.post('/image', authMiddleware.authenticateJWT, upload.single('image'), checkConsent, async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'Missing image' });
-  if (!nsfwModel) return res.status(503).json({ error: 'Model not loaded' });
-  // Downscale for faster inference
-  const image = await sharp(req.file.buffer).resize(299, 299).toBuffer();
-  const predictions = await nsfwModel.classify(image);
-  // GDPR: Do not save image, do not log PII
-  res.json({ predictions });
-});
+router.post(
+  '/image',
+  authMiddleware.authenticateJWT,
+  upload.single('image'),
+  checkConsent,
+  async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'Missing image' });
+    if (!nsfwModel) return res.status(503).json({ error: 'Model not loaded' });
+    // Downscale for faster inference
+    const image = await sharp(req.file.buffer).resize(299, 299).toBuffer();
+    const predictions = await nsfwModel.classify(image);
+    // GDPR: Do not save image, do not log PII
+    res.json({ predictions });
+  }
+);
 
 // Diagnostics endpoint (example)
 router.post('/diagnostics', authMiddleware.authenticateJWT, checkConsent, (req, res) => {
@@ -50,7 +56,10 @@ router.post('/diagnostics', authMiddleware.authenticateJWT, checkConsent, (req, 
   // Minimal retention: Only log if problematic
   if (fps < 30 || usingIGPU || onBattery) {
     // Store anonymized hash only
-    const anonId = crypto.createHash('sha256').update(req.ip + Date.now().toString()).digest('hex');
+    const anonId = crypto
+      .createHash('sha256')
+      .update(req.ip + Date.now().toString())
+      .digest('hex');
     // Example: store in DB (not implemented here)
     // db.saveDiagnostics({ anonId, fps, usingIGPU, onBattery, memGB, cores, ts: Date.now() });
   }

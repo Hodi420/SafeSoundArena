@@ -18,9 +18,20 @@ apiClient.interceptors.request.use(
       if (!config.headers) config.headers = {};
       config.headers.Authorization = `Bearer ${token}`;
     }
+    if (process.env.NODE_ENV !== 'production') {
+      const devKey =
+        typeof document !== 'undefined'
+          ? document.cookie
+              .split('; ')
+              .find((x) => x.startsWith('dev_access='))
+              ?.split('=')[1]
+          : undefined;
+      if (!config.headers) config.headers = {};
+      if (devKey) (config.headers as any)['X-Dev-Key'] = devKey;
+    }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Response interceptor
@@ -35,11 +46,7 @@ apiClient.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refresh_token');
         const response = await apiClient.post('/auth/refresh', { refreshToken });
-<<<<<<< HEAD
-        const data = response.data as { token: string };
-=======
-        const data = (response as any).data;
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+        const data = (response as any).data as { token: string };
         localStorage.setItem('auth_token', data.token);
         originalRequest.headers.Authorization = `Bearer ${data.token}`;
         return apiClient(originalRequest);
@@ -52,5 +59,5 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );

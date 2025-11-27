@@ -1,0 +1,27 @@
+name: Setup Branch Protection
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  setup-protection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.3.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4.4.0
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install @octokit/rest @actions/core
+
+      - name: Run branch protection setup
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/setup-branch-protection.js

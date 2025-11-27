@@ -1,0 +1,644 @@
+openapi: 3.0.3
+info:
+  title: SafeSoundArena License Server API
+  description: |
+    API לשרת רישיונות SafeSoundArena המאפשר ניהול ואימות רישיונות.
+
+    שרת זה מספק יכולות ליצירה, עדכון, מחיקה ואימות של רישיונות עבור מוצרי SafeSoundArena.
+  version: 1.0.0
+  contact:
+    name: צוות SafeSoundArena
+    email: support@safesoundarena.com
+    url: https://safesoundarena.com
+  license:
+    name: ראה LICENSE.md בתיקיית השורש של הפרויקט
+
+servers:
+  - url: https://license.safesoundarena.com
+    description: שרת ייצור
+  - url: http://localhost:3010
+    description: שרת פיתוח מקומי
+
+tags:
+  - name: health
+    description: בדיקת בריאות המערכת
+  - name: admin
+    description: ניהול רישיונות (דורש הרשאות מנהל)
+  - name: verification
+    description: אימות רישיונות
+
+paths:
+  /healthz:
+    get:
+      tags:
+        - health
+      summary: בדיקת בריאות המערכת
+      description: בודק אם השרת פעיל ומחזיר מידע בסיסי
+      operationId: getHealth
+      responses:
+        '200':
+          description: השרת פעיל
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /admin/login:
+    post:
+      tags:
+        - admin
+      summary: התחברות מנהל
+      description: מאמת את סיסמת המנהל ומחזיר טוקן JWT לשימוש בנקודות קצה מוגנות
+      operationId: adminLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminLoginRequest'
+      responses:
+        '200':
+          description: התחברות מוצלחת
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminLoginResponse'
+        '401':
+          description: פרטי התחברות שגויים
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/licenses:
+    post:
+      tags:
+        - admin
+      summary: יצירת רישיון חדש
+      description: יוצר רישיון חדש עם הפרטים שסופקו
+      operationId: createLicense
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLicenseRequest'
+      responses:
+        '201':
+          description: רישיון נוצר בהצלחה
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseResponse'
+        '400':
+          description: בקשה לא תקינה
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: לא מורשה
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: אין הרשאות מספיקות
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - admin
+      summary: קבלת כל הרישיונות
+      description: מחזיר רשימה של כל הרישיונות במערכת
+      operationId: getAllLicenses
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: רשימת רישיונות
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicensesListResponse'
+        '401':
+          description: לא מורשה
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: אין הרשאות מספיקות
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/licenses/{id}:
+    put:
+      tags:
+        - admin
+      summary: עדכון רישיון
+      description: מעדכן רישיון קיים לפי מזהה
+      operationId: updateLicense
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: מזהה הרישיון לעדכון
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLicenseRequest'
+      responses:
+        '200':
+          description: רישיון עודכן בהצלחה
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseResponse'
+        '400':
+          description: בקשה לא תקינה
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: לא מורשה
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: אין הרשאות מספיקות
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: רישיון לא נמצא
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - admin
+      summary: מחיקת רישיון
+      description: מוחק רישיון קיים לפי מזהה
+      operationId: deleteLicense
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: מזהה הרישיון למחיקה
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: רישיון נמחק בהצלחה
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteLicenseResponse'
+        '401':
+          description: לא מורשה
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: אין הרשאות מספיקות
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: רישיון לא נמצא
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/stats:
+    get:
+      tags:
+        - admin
+      summary: קבלת סטטיסטיקות
+      description: מחזיר סטטיסטיקות על הרישיונות במערכת
+      operationId: getStats
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: סטטיסטיקות רישיונות
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsResponse'
+        '401':
+          description: לא מורשה
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: אין הרשאות מספיקות
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /verify:
+    post:
+      tags:
+        - verification
+      summary: אימות רישיון
+      description: מאמת את תוקף הרישיון ומחזיר את פרטיו
+      operationId: verifyLicense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyLicenseRequest'
+      responses:
+        '200':
+          description: רישיון תקף
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyLicenseResponse'
+        '400':
+          description: בקשה לא תקינה
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: רישיון לא פעיל או פג תוקף
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: רישיון לא נמצא
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+        - version
+      properties:
+        status:
+          type: string
+          example: ok
+        timestamp:
+          type: string
+          format: date-time
+          example: '2023-01-01T12:00:00Z'
+        version:
+          type: string
+          example: '1.0.0'
+
+    AdminLoginRequest:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
+          format: password
+          example: admin_password
+
+    AdminLoginResponse:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+    CreateLicenseRequest:
+      type: object
+      required:
+        - customerName
+        - customerEmail
+        - licenseType
+      properties:
+        customerName:
+          type: string
+          example: חברת דוגמה בע"מ
+        customerEmail:
+          type: string
+          format: email
+          example: info@example.com
+        licenseType:
+          type: string
+          example: premium
+        expiresAt:
+          type: string
+          format: date-time
+          example: '2024-12-31T23:59:59Z'
+        maxUsers:
+          type: integer
+          minimum: 1
+          example: 10
+        maxInstances:
+          type: integer
+          minimum: 1
+          example: 3
+        features:
+          type: array
+          items:
+            type: string
+          example: ['feature1', 'feature2']
+
+    UpdateLicenseRequest:
+      type: object
+      properties:
+        customerName:
+          type: string
+          example: חברת דוגמה מעודכנת בע"מ
+        customerEmail:
+          type: string
+          format: email
+          example: updated@example.com
+        licenseType:
+          type: string
+          example: enterprise
+        expiresAt:
+          type: string
+          format: date-time
+          example: '2025-12-31T23:59:59Z'
+        maxUsers:
+          type: integer
+          minimum: 1
+          example: 20
+        maxInstances:
+          type: integer
+          minimum: 1
+          example: 5
+        features:
+          type: array
+          items:
+            type: string
+          example: ['feature1', 'feature2', 'feature3']
+        active:
+          type: boolean
+          example: true
+
+    LicenseResponse:
+      type: object
+      required:
+        - id
+        - licenseKey
+        - customerName
+        - licenseType
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        licenseKey:
+          type: string
+          example: a1b2c3d4e5f6g7h8i9j0
+        customerName:
+          type: string
+          example: חברת דוגמה בע"מ
+        licenseType:
+          type: string
+          example: premium
+        createdAt:
+          type: string
+          format: date-time
+          example: '2023-01-01T12:00:00Z'
+        expiresAt:
+          type: string
+          format: date-time
+          example: '2024-12-31T23:59:59Z'
+        active:
+          type: boolean
+          example: true
+        updated:
+          type: boolean
+          example: true
+
+    LicensesListResponse:
+      type: object
+      required:
+        - licenses
+        - lastUpdated
+        - count
+      properties:
+        licenses:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - customerName
+              - licenseType
+              - createdAt
+              - active
+            properties:
+              id:
+                type: string
+                format: uuid
+                example: 123e4567-e89b-12d3-a456-426614174000
+              customerName:
+                type: string
+                example: חברת דוגמה בע"מ
+              customerEmail:
+                type: string
+                format: email
+                example: info@example.com
+              licenseType:
+                type: string
+                example: premium
+              createdAt:
+                type: string
+                format: date-time
+                example: '2023-01-01T12:00:00Z'
+              expiresAt:
+                type: string
+                format: date-time
+                example: '2024-12-31T23:59:59Z'
+              active:
+                type: boolean
+                example: true
+              verificationCount:
+                type: integer
+                example: 42
+              lastVerification:
+                type: string
+                format: date-time
+                example: '2023-06-15T08:30:00Z'
+        lastUpdated:
+          type: string
+          format: date-time
+          example: '2023-06-15T08:30:00Z'
+        count:
+          type: integer
+          example: 10
+
+    DeleteLicenseResponse:
+      type: object
+      required:
+        - deleted
+        - id
+      properties:
+        deleted:
+          type: boolean
+          example: true
+        id:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+
+    StatsResponse:
+      type: object
+      required:
+        - totalLicenses
+        - activeLicenses
+        - licensesByType
+        - verificationCount
+        - lastUpdated
+      properties:
+        totalLicenses:
+          type: integer
+          example: 100
+        activeLicenses:
+          type: integer
+          example: 85
+        expiredLicenses:
+          type: integer
+          example: 15
+        licensesByType:
+          type: object
+          additionalProperties:
+            type: integer
+          example:
+            premium: 50
+            basic: 30
+            enterprise: 20
+        verificationCount:
+          type: integer
+          example: 1250
+        lastUpdated:
+          type: string
+          format: date-time
+          example: '2023-06-15T08:30:00Z'
+
+    VerifyLicenseRequest:
+      type: object
+      required:
+        - licenseKey
+      properties:
+        licenseKey:
+          type: string
+          example: a1b2c3d4e5f6g7h8i9j0
+        systemInfo:
+          type: object
+          properties:
+            instanceId:
+              type: string
+              example: unique-instance-id-123
+            hostname:
+              type: string
+              example: user-pc
+            platform:
+              type: string
+              example: win32
+            cpuCores:
+              type: integer
+              example: 8
+            totalMemory:
+              type: integer
+              example: 16384
+            macAddress:
+              type: string
+              example: 00:1A:2B:3C:4D:5E
+        signature:
+          type: string
+          example: 1a2b3c4d5e6f7g8h9i0j
+
+    VerifyLicenseResponse:
+      type: object
+      required:
+        - valid
+        - type
+        - customer
+      properties:
+        valid:
+          type: boolean
+          example: true
+        type:
+          type: string
+          example: premium
+        expiresAt:
+          type: string
+          format: date-time
+          example: '2024-12-31T23:59:59Z'
+        features:
+          type: array
+          items:
+            type: string
+          example: ['feature1', 'feature2']
+        maxUsers:
+          type: integer
+          example: 10
+        maxInstances:
+          type: integer
+          example: 3
+        customer:
+          type: object
+          required:
+            - id
+            - name
+          properties:
+            id:
+              type: string
+              format: uuid
+              example: 123e4567-e89b-12d3-a456-426614174000
+            name:
+              type: string
+              example: חברת דוגמה בע"מ
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          example: Invalid license key

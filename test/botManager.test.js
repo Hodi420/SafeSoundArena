@@ -27,25 +27,49 @@ describe('BotManager', () => {
   it('should only allow whitelisted actions', () => {
     botManager.addBot('test3', { position: 'D4' });
     let operated = false;
-    botManager.bots['test3'].operate = () => { operated = true; };
+    botManager.bots['test3'].operate = () => {
+      operated = true;
+    };
     // פעולה מותרת
-    botManager.operateAll({ softwareCommand: 'game_move', hardwareAction: { action: 'move' }, question: 'game: hi' });
+    botManager.operateAll({
+      softwareCommand: 'game_move',
+      hardwareAction: { action: 'move' },
+      question: 'game: hi',
+    });
     assert.strictEqual(operated, true);
     // פעולה אסורה
     operated = false;
-    botManager.operateAll({ softwareCommand: 'rm -rf /', hardwareAction: { action: 'shutdown' }, question: 'how to hack?' });
+    botManager.operateAll({
+      softwareCommand: 'rm -rf /',
+      hardwareAction: { action: 'shutdown' },
+      question: 'how to hack?',
+    });
     assert.strictEqual(operated, false);
   });
 
   it('should respect action cooldown', (done) => {
     botManager.addBot('test4', { position: 'E5' });
     let count = 0;
-    botManager.bots['test4'].operate = () => { count++; };
+    botManager.bots['test4'].operate = () => {
+      count++;
+    };
     botManager.actionCooldownMs = 100; // 100ms
-    botManager.operateAll({ softwareCommand: 'game_move', hardwareAction: { action: 'move' }, question: 'game: hi' });
-    botManager.operateAll({ softwareCommand: 'game_move', hardwareAction: { action: 'move' }, question: 'game: hi' });
+    botManager.operateAll({
+      softwareCommand: 'game_move',
+      hardwareAction: { action: 'move' },
+      question: 'game: hi',
+    });
+    botManager.operateAll({
+      softwareCommand: 'game_move',
+      hardwareAction: { action: 'move' },
+      question: 'game: hi',
+    });
     setTimeout(() => {
-      botManager.operateAll({ softwareCommand: 'game_move', hardwareAction: { action: 'move' }, question: 'game: hi' });
+      botManager.operateAll({
+        softwareCommand: 'game_move',
+        hardwareAction: { action: 'move' },
+        question: 'game: hi',
+      });
       assert.strictEqual(count, 2);
       done();
     }, 120);

@@ -16,7 +16,7 @@ async function ask(prompt, options = {}) {
       {
         model,
         messages: [{ role: 'user', content: prompt }],
-        ...options
+        ...options,
       },
       {
         headers: {
