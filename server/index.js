@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const myQueue = require('./queue');
 const selfUpdate = require('./selfupdate');
+const aiAdminGovernance = require('./aiAdminGovernance');
 
 const app = express();
 app.use(bodyParser.json());
@@ -16,6 +17,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api/moderation', moderationApi);
 // Mount agent API
 app.use('/api/agent', agentApp);
+// Mount AI admin governance API
+app.use('/api/admin/ai', aiAdminGovernance);
 
 // Agent log viewing for dashboard
 app.get('/api/agent/log', (req, res) => {

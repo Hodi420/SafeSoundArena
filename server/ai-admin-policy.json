@@ -1,0 +1,122 @@
+{
+  "version": "1.0.0",
+  "mode": "human-gated",
+  "roles": {
+    "observer": {
+      "description": "Reads health, logs, diagnostics, public metrics, and audit summaries.",
+      "allowedActions": [
+        "inspect_health",
+        "inspect_logs",
+        "summarize_errors",
+        "summarize_users",
+        "summarize_agent_status",
+        "task_status",
+        "audit_review",
+        "question_status"
+      ]
+    },
+    "security": {
+      "description": "Finds suspicious behavior and proposes containment actions.",
+      "allowedActions": [
+        "inspect_logs",
+        "summarize_errors",
+        "propose_block_user",
+        "propose_rotate_token",
+        "propose_incident"
+      ]
+    },
+    "ops": {
+      "description": "Proposes operational actions for agents, services, and deployment flow.",
+      "allowedActions": [
+        "inspect_health",
+        "restart_agent",
+        "clear_temp_cache",
+        "run_diagnostic_task",
+        "request_agent_answer",
+        "propose_deploy",
+        "propose_rollback",
+        "propose_incident"
+      ]
+    },
+    "community": {
+      "description": "Reviews moderation, reputation, reports, and community safety actions.",
+      "allowedActions": [
+        "summarize_users",
+        "summarize_reports",
+        "propose_block_user",
+        "propose_restore_user",
+        "propose_reputation_adjustment"
+      ]
+    }
+  },
+  "allowedReadOnly": [
+    "inspect_health",
+    "inspect_logs",
+    "summarize_errors",
+    "summarize_users",
+    "summarize_agent_status",
+    "summarize_reports",
+    "task_status",
+    "audit_review",
+    "question_status"
+  ],
+  "allowedLowRiskWithAgentToken": [
+    "clear_temp_cache",
+    "restart_agent",
+    "run_diagnostic_task",
+    "request_agent_answer"
+  ],
+  "requiresHumanApproval": [
+    "run_system_task",
+    "dispatch_agent_command",
+    "approve_user_action",
+    "reject_user_action",
+    "propose_block_user",
+    "propose_restore_user",
+    "propose_reputation_adjustment",
+    "propose_rotate_token",
+    "propose_deploy",
+    "propose_rollback",
+    "propose_incident",
+    "delete_user",
+    "promote_admin",
+    "self_update",
+    "deploy_production",
+    "change_tokenomics",
+    "rotate_payment_keys"
+  ],
+  "forbiddenForAiExecution": [
+    "delete_user",
+    "promote_admin",
+    "self_update",
+    "deploy_production",
+    "change_tokenomics",
+    "rotate_payment_keys"
+  ],
+  "riskDefaults": {
+    "inspect_health": "low",
+    "inspect_logs": "low",
+    "summarize_errors": "low",
+    "summarize_users": "medium",
+    "summarize_agent_status": "low",
+    "summarize_reports": "medium",
+    "task_status": "low",
+    "audit_review": "medium",
+    "question_status": "low",
+    "clear_temp_cache": "low",
+    "restart_agent": "medium",
+    "run_diagnostic_task": "low",
+    "request_agent_answer": "low",
+    "run_system_task": "high",
+    "dispatch_agent_command": "high",
+    "approve_user_action": "critical",
+    "reject_user_action": "medium",
+    "propose_block_user": "high",
+    "propose_restore_user": "high",
+    "propose_reputation_adjustment": "high",
+    "propose_rotate_token": "critical",
+    "propose_deploy": "critical",
+    "propose_rollback": "critical",
+    "propose_incident": "high"
+  }
+}

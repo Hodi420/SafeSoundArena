@@ -174,6 +174,28 @@ docker compose -f docker-compose.backend.yml up --build -d
 - Logging
 - Docker & GitHub Actions ready
 
+---
+
+## 🧭 AI Command Control Room
+
+The admin AI layer is command-centered: UI or AI agents create commands, policy classifies risk, admins approve or reject sensitive work, agents return answers, and every response follows `{ requestId, error, data }`.
+
+Key files:
+- `server/aiAdminGovernance.js`
+- `server/ai-admin-policy.json`
+- `frontend/pages/admin-ai.jsx`
+- `docs/AI_ADMIN_CONTROL_ROOM.md`
+
+Key API:
+- GET    `/api/admin/ai/healthz`
+- GET    `/api/admin/ai/capabilities`
+- GET    `/api/admin/ai/commands`
+- POST   `/api/admin/ai/commands`
+- POST   `/api/admin/ai/commands/:id/approve`
+- POST   `/api/admin/ai/commands/:id/reject`
+- POST   `/api/admin/ai/commands/:id/dispatch`
+- POST   `/api/admin/ai/commands/:id/answer`
+
 ### CI/CD
 - Every push to main runs tests, builds Docker, and pushes to GitHub Container Registry.
 
