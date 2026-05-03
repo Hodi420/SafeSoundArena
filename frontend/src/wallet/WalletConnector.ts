@@ -6,6 +6,16 @@ export const IDAN_FOR_FILL_CONFIG = {
   CHAIN_ID: 'your_chain_id',
 };
 
+declare const piNetwork: {
+  connect: () => Promise<unknown>;
+  sendTransaction: (payload: { from: string; to: string; amount: number }) => Promise<unknown>;
+  estimateGas: (payload: { from: string; to: string; amount: number }) => Promise<unknown>;
+  getTransactionReceipt: (transactionId: string) => Promise<unknown>;
+  createWallet: () => Promise<unknown>;
+  getWalletDetails: (walletId: string) => Promise<unknown>;
+  updateWallet: (walletId: string, data: Record<string, unknown>) => Promise<unknown>;
+};
+
 export async function connectWallet() {
   const walletConnection = await piNetwork.connect();
   return walletConnection;
@@ -51,11 +61,10 @@ export async function getWalletDetails(walletId: string) {
   return details;
 }
 
-export async function updateWallet(walletId: string, data: any) {
+export async function updateWallet(walletId: string, data: Record<string, unknown>) {
   // Placeholder for updating wallet information
   const updatedWallet = await piNetwork.updateWallet(walletId, data);
   return updatedWallet;
-}
 }
 
 // Add more placeholders as needed, all marked with 'IDAN FOR FILL' label

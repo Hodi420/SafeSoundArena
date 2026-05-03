@@ -7,7 +7,7 @@ class BotOperator {
   constructor(config = {}) {
     this.position = config.position || null;
     this.components = config.components || [];
-    this.active = true;
+    this.active = config.active !== undefined ? config.active : true;
     this.actionExecutor = actionExecutor;
   }
 
