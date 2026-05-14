@@ -1,0 +1,54 @@
+# SafeSoundArena API Server - Production Dockerfile
+# Multi-stage build for minimal production image
+
+# Builder stage
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev)
+RUN npm ci
+
+# Copy application source
+COPY . .
+
+# Build TypeScript if needed
+RUN npm run build || true
+
+# Production stage
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init curl
+
+# Create non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Copy dependencies from builder
+COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
+
+# Copy built application
+COPY --from=builder --chown=appuser:appgroup /app/package*.json ./
+COPY --from=builder --chown=appuser:appgroup /app/dist ./dist || true
+COPY --from=builder --chown=appuser:appgroup /app/src ./src || true
+
+# Set security context
+USER appuser
+
+# Expose port
+EXPOSE 4000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:4000/api/health || exit 1
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["/sbin/dumb-init", "--"]
+
+# Start application
+CMD ["node", "app.js"]
