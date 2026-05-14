@@ -1,0 +1,50 @@
+# SafeSoundArena Development Dockerfile
+# Includes development tools, debugging, and hot-reload capabilities
+
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install development tools
+RUN apk add --no-cache \
+  dumb-init \
+  curl \
+  git \
+  bash \
+  nano \
+  netcat-openbsd \
+  jq
+
+# Create non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Set development environment
+ENV NODE_ENV=development
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev)
+RUN npm ci --legacy-peer-deps
+
+# Copy source code
+COPY . .
+
+# Create node_modules directory for appuser
+RUN chown -R appuser:appgroup /app
+
+# Set security context
+USER appuser
+
+# Expose default ports
+EXPOSE 3000 4000 5001 8080 9090 3001 16686
+
+# Health check
+HEALTHCHECK --interval=10s --timeout=3s --retries=3 \
+  CMD curl -f http://localhost:3000/ || curl -f http://localhost:4000/api/health || true
+
+# Use dumb-init for proper signal handling
+ENTRYPOINT ["/sbin/dumb-init", "--"]
+
+# Default command - can be overridden by docker-compose
+CMD ["npm", "run", "dev"]
