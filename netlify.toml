@@ -1,10 +1,7 @@
 [build]
+  base = "frontend"
   command = "npm run build"
   publish = ".next"
-
-[dev]
-  command = "npm run dev"
-  port = 3000
 
 [build.environment]
   NODE_VERSION = "20"
