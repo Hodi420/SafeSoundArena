@@ -59,6 +59,7 @@
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-react": "^7.26.3",
     "@babel/preset-typescript": "^7.27.0",
+    "@netlify/plugin-nextjs": "^5.15.11",
     "@next/bundle-analyzer": "^15.3.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^14.0.0",
