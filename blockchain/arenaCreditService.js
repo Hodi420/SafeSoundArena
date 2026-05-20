@@ -220,12 +220,6 @@ class ArenaCreditService {
     if (!this.admins.has(caller)) throw new Error('Unauthorized');
     this.whitelist.delete(userId);
     this._logTx('removeFromWhitelist', caller, userId, 0, {});
-      fromUser,
-      toUser,
-      amount,
-      date: new Date().toISOString(),
-      meta
-    });
   }
 }
 

@@ -1,26 +1,16 @@
 // aiClients/index.js
 // Unified interface for multiple AI providers
 
-const ollama = require('./ollama');
-const telegram = require('./telegram');
-const openai = require('./openai');
-const claude = require('./claude');
-const gemini = require('./gemini');
-const copilot = require('./copilot');
-const grok = require('./grok');
-const huggingface = require('./huggingface');
-const deepseek = require('./deepseek');
-
 const PROVIDERS = {
-  ollama,
-  telegram,
-  openai,
-  claude,
-  gemini,
-  copilot,
-  grok,
-  huggingface,
-  deepseek,
+  ollama: () => require('./ollama'),
+  telegram: () => require('./telegram'),
+  openai: () => require('./openai'),
+  claude: () => require('./claude'),
+  gemini: () => require('./gemini'),
+  copilot: () => require('./copilot'),
+  grok: () => require('./grok'),
+  huggingface: () => require('./huggingface'),
+  deepseek: () => require('./deepseek'),
 };
 
 /**
@@ -32,7 +22,11 @@ const PROVIDERS = {
  */
 async function askAI(provider, prompt, options = {}) {
   if (!PROVIDERS[provider]) throw new Error(`Provider ${provider} not supported`);
-  return PROVIDERS[provider].ask(prompt, options);
+  return PROVIDERS[provider]().ask(prompt, options);
 }
 
-module.exports = { askAI };
+function listProviders() {
+  return Object.keys(PROVIDERS);
+}
+
+module.exports = { askAI, listProviders };

@@ -7,16 +7,24 @@
     "frontend"
   ],
   "scripts": {
-    "test": "mocha --exit",
+    "test": "mocha \"test/**/*.test.js\" \"tests/**/*.test.js\" --exit",
+    "test:all": "npm test && npm --prefix frontend test -- --runInBand && npm --prefix backend test && npm --prefix backend/backend_tmp test && node test_aiClients.js && node blockchain/test_arenaCreditService.js && node backend/backend_tmp/blockchain/test_arenaCreditService.js",
     "dev": "cd frontend && npm run dev"
   },
   "devDependencies": {
     "mocha": "^10.0.0",
-    "sinon": "^20.0.0"
+    "sinon": "^22.0.0"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
+    "express": "^5.2.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.14.1"
+    "mongoose": "^8.24.0",
+    "node-fetch": "^2.7.0"
+  },
+  "overrides": {
+    "mocha": {
+      "serialize-javascript": "7.0.5"
+    }
   }
 }

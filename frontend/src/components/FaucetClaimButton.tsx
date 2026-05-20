@@ -21,7 +21,7 @@ function formatTime(seconds: number) {
 }
 
 export default function FaucetClaimButton() {
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
+  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
   const [account, setAccount] = useState<string>('');
   const [cooldown, setCooldown] = useState<number>(0);
@@ -35,12 +35,12 @@ export default function FaucetClaimButton() {
   // Connect wallet on mount
   useEffect(() => {
     if ((window as any).ethereum) {
-      const ethProvider = new ethers.providers.Web3Provider((window as any).ethereum);
+      const ethProvider = new ethers.BrowserProvider((window as any).ethereum);
       setProvider(ethProvider);
       (async () => {
         const accounts: string[] = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
         setAccount(accounts[0]);
-        setSigner(ethProvider.getSigner());
+        setSigner(await ethProvider.getSigner());
       })();
     }
   }, []);
@@ -56,7 +56,7 @@ export default function FaucetClaimButton() {
     ]);
     setCooldown(Number(cd));
     setLastClaim(Number(lc));
-    setReward(ethers.utils.formatUnits(rw, 18));
+    setReward(ethers.formatUnits(rw, 18));
   }, [provider, account]);
 
   useEffect(() => {

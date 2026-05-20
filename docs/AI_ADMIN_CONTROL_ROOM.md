@@ -14,6 +14,23 @@
 
 המסוף אינו נותן ל-AI לבצע פעולות קריטיות לבד. הוא נותן ל-AI ולמערכת ליצור פקודות, אבל מנהל מאשר או דוחה לפי policy.
 
+## יישומי פיקוד במסוף
+
+המסוף מחולק ליישומים תפעוליים, וכל יישום מכיל תבניות פקודה עם role, risk, יעד, שאלות, payload ו-impact:
+
+- בריאות מערכת: בדיקת חיים, פורטים, תהליכים ותלויות.
+- ולידציה: בדיקת repo לפני דחיפה ובדיקת מסמכים מול policy.
+- לוגים וביקורת: קריאת לוגים, סיכום שגיאות, audit review ושאלות פתוחות.
+- סוכנים ומשימות: מצב agents, סטטוס משימה, בקשת תשובה, דיאגנוסטיקה, restart ו-dispatch.
+- אבטחה: פתיחת incident וסיבוב token.
+- קהילה ומודרציה: סיכום משתמשים, דיווחים, moderation review וחסימות מוצעות.
+- GitHub ו-CI: בדיקת CI, סקירת PR, בקשת code review והרצת בדיקות.
+- פריסה ושחרור: deploy, rollback, merge PR ושינוי ENV.
+- תשלומים וכלכלה: payment hold וסיבוב מפתחות תשלום.
+- ממשל והרשאות: משימות מערכת רגישות וקידום מנהלים ידני.
+
+כל תבנית מייצרת פקודה בפורמט אחיד, אבל ה-policy עדיין קובע אם היא `ready`, `pending_approval`, או חסומה ל-dispatch.
+
 ## המבנה הפנימי
 
 זרימת הפקודה:
@@ -28,6 +45,24 @@ UI / AI Agent
   -> answer
   -> audit log
 ```
+
+בשלב הפיתוח הנוכחי יש executor מקומי מוגבל לפקודות בטוחות. הוא לא מבצע פעולות הרסניות, אלא מחזיר snapshot מבוקר לפקודות כמו:
+
+- `inspect_health`
+- `inspect_runtime_ports`
+- `inspect_dependencies`
+- `validate_repository`
+- `validate_documents`
+- `inspect_logs`
+- `summarize_errors`
+- `audit_review`
+- `question_status`
+- `summarize_agent_status`
+- `task_status`
+- `inspect_ci_status`
+- `inspect_github_pr`
+
+פקודות בקשה כמו `request_test_run`, `request_code_review` ו-`request_agent_answer` נרשמות כמשימה לסוכן ומחזירות חוזה פעולה, בלי להריץ shell חופשי. פקודות קריטיות או אסורות ל-AI ממשיכות להידרש לאישור מנהל ולתהליך ידני.
 
 סטטוסים:
 
@@ -148,7 +183,9 @@ AI_AGENT_TOKEN=replace-with-agent-secret
 - `frontend/pages/admin-ai.jsx`: עמוד כניסה למסוף.
 - `frontend/src/ui/AiAdminControlRoom.jsx`: רכיב המסוף.
 
-הקדמי מדבר רק עם `/api/admin/ai/commands` ו-`/api/admin/ai/logs`, ומפרק את התשובות לפי `data`. זה מיישר קו עם ההנחיה שכל API יחזיר `requestId`, `error`, `data`.
+הקדמי מדבר עם `/api/admin/ai/commands`, `/api/admin/ai/logs` ו-`/api/admin/ai/capabilities`, ומפרק את התשובות לפי `data`. זה מיישר קו עם ההנחיה שכל API יחזיר `requestId`, `error`, `data`.
+
+בסביבת פיתוח מקומית `frontend/next.config.js` יכול לבצע rewrite מ-`/api/admin/ai/*` אל שרת ה-API המקומי, למשל `http://localhost:4000`.
 
 ## הפעלה כדוגמת פיתוח
 
@@ -203,4 +240,4 @@ x-agent-token: <AI_AGENT_TOKEN>
 - לחבר executor אמיתי שמבצע רק פקודות `ready` או `approved`.
 - לחבר הרשאות מנהל אמיתיות במקום `window.ADMIN_TOKEN`.
 - להעביר את תור הפקודות מ-JSON ל-DB.
-- לפתור conflict markers ב-frontend לפני build מלא.
+- להחליף את `ignoreBuildErrors`/`ignoreDuringBuilds` בניקוי TypeScript ו-ESLint מלא.

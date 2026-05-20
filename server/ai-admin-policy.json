@@ -6,6 +6,10 @@
       "description": "Reads health, logs, diagnostics, public metrics, and audit summaries.",
       "allowedActions": [
         "inspect_health",
+        "inspect_runtime_ports",
+        "inspect_dependencies",
+        "validate_repository",
+        "validate_documents",
         "inspect_logs",
         "summarize_errors",
         "summarize_users",
@@ -20,7 +24,9 @@
       "allowedActions": [
         "inspect_logs",
         "summarize_errors",
+        "inspect_ci_status",
         "propose_block_user",
+        "propose_moderation_review",
         "propose_rotate_token",
         "propose_incident"
       ]
@@ -29,12 +35,17 @@
       "description": "Proposes operational actions for agents, services, and deployment flow.",
       "allowedActions": [
         "inspect_health",
+        "inspect_runtime_ports",
+        "validate_repository",
         "restart_agent",
         "clear_temp_cache",
         "run_diagnostic_task",
         "request_agent_answer",
+        "request_test_run",
         "propose_deploy",
         "propose_rollback",
+        "propose_release_tag",
+        "propose_env_change",
         "propose_incident"
       ]
     },
@@ -43,14 +54,55 @@
       "allowedActions": [
         "summarize_users",
         "summarize_reports",
+        "propose_moderation_review",
         "propose_block_user",
         "propose_restore_user",
         "propose_reputation_adjustment"
+      ]
+    },
+    "devops": {
+      "description": "Reviews GitHub, CI, release, validation, and deployment readiness.",
+      "allowedActions": [
+        "inspect_ci_status",
+        "inspect_github_pr",
+        "validate_repository",
+        "validate_documents",
+        "request_code_review",
+        "request_test_run",
+        "propose_merge_pr",
+        "propose_release_tag",
+        "propose_deploy",
+        "propose_rollback"
+      ]
+    },
+    "finance": {
+      "description": "Reviews tokenomics, payment keys, payout risk, and economy changes.",
+      "allowedActions": [
+        "audit_review",
+        "propose_payment_hold",
+        "rotate_payment_keys",
+        "change_tokenomics"
+      ]
+    },
+    "governance": {
+      "description": "Controls sensitive platform, admin, and production operations.",
+      "allowedActions": [
+        "run_system_task",
+        "approve_user_action",
+        "reject_user_action",
+        "delete_user",
+        "promote_admin",
+        "self_update",
+        "deploy_production"
       ]
     }
   },
   "allowedReadOnly": [
     "inspect_health",
+    "inspect_runtime_ports",
+    "inspect_dependencies",
+    "validate_repository",
+    "validate_documents",
     "inspect_logs",
     "summarize_errors",
     "summarize_users",
@@ -58,25 +110,34 @@
     "summarize_reports",
     "task_status",
     "audit_review",
-    "question_status"
+    "question_status",
+    "inspect_ci_status",
+    "inspect_github_pr"
   ],
   "allowedLowRiskWithAgentToken": [
     "clear_temp_cache",
     "restart_agent",
     "run_diagnostic_task",
-    "request_agent_answer"
+    "request_agent_answer",
+    "request_code_review",
+    "request_test_run"
   ],
   "requiresHumanApproval": [
     "run_system_task",
     "dispatch_agent_command",
     "approve_user_action",
     "reject_user_action",
+    "propose_moderation_review",
     "propose_block_user",
     "propose_restore_user",
     "propose_reputation_adjustment",
     "propose_rotate_token",
     "propose_deploy",
     "propose_rollback",
+    "propose_merge_pr",
+    "propose_release_tag",
+    "propose_env_change",
+    "propose_payment_hold",
     "propose_incident",
     "delete_user",
     "promote_admin",
@@ -95,6 +156,10 @@
   ],
   "riskDefaults": {
     "inspect_health": "low",
+    "inspect_runtime_ports": "low",
+    "inspect_dependencies": "low",
+    "validate_repository": "low",
+    "validate_documents": "low",
     "inspect_logs": "low",
     "summarize_errors": "low",
     "summarize_users": "medium",
@@ -103,20 +168,35 @@
     "task_status": "low",
     "audit_review": "medium",
     "question_status": "low",
+    "inspect_ci_status": "low",
+    "inspect_github_pr": "low",
     "clear_temp_cache": "low",
     "restart_agent": "medium",
     "run_diagnostic_task": "low",
     "request_agent_answer": "low",
+    "request_code_review": "medium",
+    "request_test_run": "medium",
     "run_system_task": "high",
     "dispatch_agent_command": "high",
     "approve_user_action": "critical",
     "reject_user_action": "medium",
+    "propose_moderation_review": "medium",
     "propose_block_user": "high",
     "propose_restore_user": "high",
     "propose_reputation_adjustment": "high",
     "propose_rotate_token": "critical",
     "propose_deploy": "critical",
     "propose_rollback": "critical",
-    "propose_incident": "high"
+    "propose_merge_pr": "critical",
+    "propose_release_tag": "critical",
+    "propose_env_change": "critical",
+    "propose_payment_hold": "high",
+    "propose_incident": "high",
+    "delete_user": "critical",
+    "promote_admin": "critical",
+    "self_update": "critical",
+    "deploy_production": "critical",
+    "change_tokenomics": "critical",
+    "rotate_payment_keys": "critical"
   }
 }

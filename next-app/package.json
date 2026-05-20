@@ -8,7 +8,6 @@
     "start": "next start"
   },
   "dependencies": {
-    "@types/next-auth": "^3.13.0",
     "@types/react": "^19.1.2",
     "next": "latest",
     "next-auth": "^4.24.11",
@@ -22,5 +21,11 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.3.0",
     "typescript": "^5.8.3"
+  },
+  "overrides": {
+    "next": {
+      ".": "latest",
+      "postcss": "8.5.15"
+    }
   }
 }
