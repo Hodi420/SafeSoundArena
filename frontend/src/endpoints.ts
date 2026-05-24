@@ -8,5 +8,10 @@ export const API_ENDPOINTS = {
   },
   USER: {
     PROFILE: (userId: string) => `/api/user/${userId}` // GET - user profile
+  },
+  EVENTS: {
+    LIST: '/api/events',
+    JOIN: (eventId: string) => `/api/events/${eventId}/join`,
+    LEAVE: (eventId: string) => `/api/events/${eventId}/leave`
   }
 };

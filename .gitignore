@@ -34,11 +34,13 @@ Thumbs.db
 .idea/
 .history/
 .eslintcache
+*.tsbuildinfo
 # Build/output
 build/
 dist/
 coverage/
 backend/mcp-permissions.json
+server/data/
 .cache/
 # System
 .DS_Store

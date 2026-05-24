@@ -202,7 +202,7 @@ export function RegisterForm(): JSX.Element {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const { valid, errors: validationErrors } = validateRegistration(formData);
-    
+
     if (!valid) {
       setErrors(validationErrors);
       return;

@@ -40,7 +40,7 @@ spec:
       - name: api-server
         image: YOUR_REGISTRY/safesoundarena-api:latest
         imagePullPolicy: IfNotPresent
-        
+
         ports:
         - name: http
           containerPort: 4000
@@ -48,7 +48,7 @@ spec:
         - name: metrics
           containerPort: 9090
           protocol: TCP
-        
+
         env:
         - name: NODE_ENV
           value: "production"
@@ -56,13 +56,13 @@ spec:
           value: "4000"
         - name: LOG_LEVEL
           value: "info"
-        
+
         envFrom:
         - configMapRef:
             name: safesoundarena-config
         - secretRef:
             name: safesoundarena-secrets
-        
+
         resources:
           requests:
             cpu: "250m"
@@ -70,7 +70,7 @@ spec:
           limits:
             cpu: "1000m"
             memory: "512Mi"
-        
+
         livenessProbe:
           httpGet:
             path: /api/health
@@ -79,7 +79,7 @@ spec:
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
-        
+
         readinessProbe:
           httpGet:
             path: /api/health
@@ -88,7 +88,7 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 2
-        
+
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
@@ -96,21 +96,21 @@ spec:
           capabilities:
             drop:
             - ALL
-        
+
         volumeMounts:
         - name: tmp
           mountPath: /tmp
         - name: config
           mountPath: /app/config
           readOnly: true
-      
+
       volumes:
       - name: tmp
         emptyDir: {}
       - name: config
         configMap:
           name: safesoundarena-config
-      
+
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

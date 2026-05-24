@@ -233,16 +233,65 @@ MIT
 
 ## 🙌 A Special Note
 
-> This project has been comprehensively reviewed, enhanced, and optimized for production excellence. 
-> 
+> This project has been comprehensively reviewed, enhanced, and optimized for production excellence.
+>
 > From DevOps infrastructure to code quality foundations, from security hardening to comprehensive documentation—every aspect has been carefully crafted to make SafeSoundArena a world-class application.
 >
 > **Thank you for being part of this journey. Let's build something amazing together! 🚀**
 
 ---
 
-**Last Updated:** May 2026  
-**Project Status:** ✅ Production Ready  
+**Last Updated:** May 2026
+**Project Status:** ✅ Production Ready
 **Quality Score:** 9.75/10 ⭐⭐⭐⭐⭐
 
-Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+### Run locally
+```bash
+npm install --prefix backend
+npm run dev --prefix backend
+```
+
+### Run with Docker
+```bash
+docker compose -f docker-compose.backend.yml up --build -d
+```
+
+### REST API
+- GET    /api/mcp/permissions/:userId
+- GET    /api/mcp/has-permission/:userId/:role
+- GET    /api/mcp/users
+- POST   /api/mcp/permissions
+- DELETE /api/mcp/permissions
+
+### Features
+- Dynamic permissions (JSON, API, external import)
+- Default roles
+- Logging
+- Docker & GitHub Actions ready
+
+---
+
+## 🧭 AI Command Control Room
+
+The admin AI layer is command-centered: UI or AI agents create commands, policy classifies risk, admins approve or reject sensitive work, agents return answers, and every response follows `{ requestId, error, data }`.
+
+Key files:
+- `server/aiAdminGovernance.js`
+- `server/ai-admin-policy.json`
+- `frontend/pages/admin-ai.jsx`
+- `docs/AI_ADMIN_CONTROL_ROOM.md`
+
+Key API:
+- GET    `/api/admin/ai/healthz`
+- GET    `/api/admin/ai/capabilities`
+- GET    `/api/admin/ai/commands`
+- POST   `/api/admin/ai/commands`
+- POST   `/api/admin/ai/commands/:id/approve`
+- POST   `/api/admin/ai/commands/:id/reject`
+- POST   `/api/admin/ai/commands/:id/dispatch`
+- POST   `/api/admin/ai/commands/:id/answer`
+
+### CI/CD
+- Every push to main runs tests, builds Docker, and pushes to GitHub Container Registry.
+
+---

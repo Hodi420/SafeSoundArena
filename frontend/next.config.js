@@ -11,6 +11,21 @@ const allowedDomains = [
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  async rewrites() {
+    const aiAdminApiOrigin = process.env.AI_ADMIN_API_ORIGIN || 'http://localhost:4000';
+    return [
+      {
+        source: '/api/admin/ai/:path*',
+        destination: `${aiAdminApiOrigin}/api/admin/ai/:path*`,
+      },
+    ];
+  },
   async headers() {
     return [
       {

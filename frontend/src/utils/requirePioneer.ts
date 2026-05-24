@@ -3,23 +3,52 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.PI_JWT_SECRET || 'supersecret';
 
+type PioneerSession = {
+  pi_uid: string;
+  username?: string;
+  isPioneer?: boolean;
+  [key: string]: unknown;
+};
+
+type SafeSoundSession = {
+  isSafeSoundArena?: boolean;
+  [key: string]: unknown;
+};
+
+function readCookie(req: NextApiRequest, name: string) {
+  const cookie = req.headers.cookie || '';
+  return cookie
+    .split(';')
+    .map((entry) => entry.trim())
+    .find((entry) => entry.startsWith(`${name}=`))
+    ?.slice(name.length + 1);
+}
+
+export function requirePioneer(handler: NextApiHandler) {
+  return async (req: NextApiRequest, res: NextApiResponse) => {
+    const token = readCookie(req, 'pioneer_session');
+    if (!token) return res.status(401).json({ error: 'Not authenticated as Pioneer' });
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as PioneerSession;
+      if (!decoded || !decoded.isPioneer || !decoded.pi_uid) {
+        throw new Error('Not a Pioneer session');
+      }
+      (req as NextApiRequest & { pioneer: PioneerSession }).pioneer = decoded;
+      return handler(req, res);
+    } catch (err) {
+      return res.status(401).json({ error: 'Invalid or expired session' });
+    }
+  };
+}
+
 export function requireSafeSound(handler: NextApiHandler) {
   return async (req: NextApiRequest, res: NextApiResponse) => {
-    const cookie = req.headers.cookie || '';
-    const match = cookie.match(/safesound_session=([^;]+)/);
-    if (!match) return res.status(401).json({ error: 'Not authenticated as SafeSoundArena' });
+    const token = readCookie(req, 'safesound_session');
+    if (!token) return res.status(401).json({ error: 'Not authenticated as SafeSoundArena' });
     try {
-<<<<<<< HEAD
-      const decoded = jwt.verify(match[1], JWT_SECRET) as Record<string, unknown>;
+      const decoded = jwt.verify(token, JWT_SECRET) as SafeSoundSession;
       if (!decoded || !decoded.isSafeSoundArena) throw new Error('Not a SafeSoundArena');
-      // Attach SafeSoundArena info to req for downstream use
-      (req as Record<string, unknown>).safesound = decoded;
-=======
-      const decoded = jwt.verify(match[1], JWT_SECRET) as any;
-      if (!decoded || !decoded.isSafeSoundArena) throw new Error('Not a SafeSoundArena');
-      // Attach SafeSoundArena info to req for downstream use
-      (req as any).safesound = decoded;
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+      (req as NextApiRequest & { safesound: SafeSoundSession }).safesound = decoded;
       return handler(req, res);
     } catch (err) {
       return res.status(401).json({ error: 'Invalid or expired session' });

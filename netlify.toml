@@ -1,14 +1,14 @@
 [build]
+  base = "frontend"
   command = "npm run build"
   publish = ".next"
 
-[dev]
-  command = "npm run dev"
-  port = 3000
-
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
   NEXT_PUBLIC_PI_SANDBOX = "false"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 [[redirects]]
   from = "/api/*"

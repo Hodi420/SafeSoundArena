@@ -47,7 +47,7 @@ import { ErrorAlert } from '@/components/ErrorAlert';
 
 const [error, setError] = useState<string | null>(null);
 
-<ErrorAlert 
+<ErrorAlert
   error={error}
   severity="error"
   title="Failed to load data"
@@ -203,7 +203,7 @@ All API errors return consistent format:
 
 3. **Show user-friendly messages:**
    ```tsx
-   const userMessage = error.statusCode === 404 
+   const userMessage = error.statusCode === 404
      ? 'Item not found'
      : 'Something went wrong';
    ```
@@ -240,7 +240,7 @@ All API errors return consistent format:
    ```javascript
    // Bad
    throw new ApiError(`Database error: ${dbError.message}`);
-   
+
    // Good
    logError(dbError, 'DatabaseOperation');
    throw new ApiError('Internal server error');
@@ -258,13 +258,13 @@ describe('ErrorBoundary', () => {
     const ThrowError = () => {
       throw new Error('Test error');
     };
-    
+
     const { container } = render(
       <ErrorBoundary>
         <ThrowError />
       </ErrorBoundary>
     );
-    
+
     expect(container.textContent).toContain('Something went wrong');
   });
 });
@@ -277,7 +277,7 @@ describe('/api/users', () => {
   it('should return 404 for missing user', async () => {
     const response = await fetch('/api/users/999');
     const data = await response.json();
-    
+
     expect(response.status).toBe(404);
     expect(data.success).toBe(false);
     expect(data.error.code).toBe('NOT_FOUND');
@@ -309,4 +309,3 @@ describe('/api/users', () => {
 - `frontend/src/utils/errorUtils.ts` - Error utilities
 - `backend/errorHandler.js` - Backend error middleware
 - `utils/validation.js` - Input validation (prevents many errors)
-
