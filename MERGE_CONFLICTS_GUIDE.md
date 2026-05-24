@@ -75,12 +75,7 @@ These files have 3-4 conflict blocks and should be resolved first:
 # View the conflict
 git diff frontend/src/components/GameWorld.tsx
 
-# Manually edit the file and remove conflict markers:
-# <<<<<<< HEAD
-# your changes
-# =======
-# incoming changes
-# >>>>>>>
+# Manually edit the file and remove the opening, divider, and closing conflict markers.
 
 # After editing, stage the file
 git add frontend/src/components/GameWorld.tsx

@@ -4,6 +4,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 const policy = require('./ai-admin-policy.json');
+const proofLayer = require('./proofLayer');
 
 const router = express.Router();
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -22,6 +23,7 @@ const STATUSES = new Set([
   'proposed'
 ]);
 const RISK_ORDER = ['low', 'medium', 'high', 'critical'];
+const CONFLICT_MARKERS = ['<'.repeat(7), '='.repeat(7), '>'.repeat(7)];
 
 router.use((req, res, next) => {
   req.requestId = req.requestId || crypto.randomUUID();
@@ -63,16 +65,22 @@ function writeCommands(commands) {
 
 function writeAudit(event, req, details = {}) {
   ensureDataDir();
+  const actor = req.headers['x-admin-user'] || req.headers['x-agent-id'] || 'unknown';
   const entry = {
     id: crypto.randomUUID(),
     event,
-    actor: req.headers['x-admin-user'] || req.headers['x-agent-id'] || 'unknown',
+    actor,
     requestId: req.requestId,
     ip: req.ip,
     at: new Date().toISOString(),
     ...details
   };
   fs.appendFileSync(AUDIT_FILE, `${JSON.stringify(entry)}\n`);
+  try {
+    proofLayer.logActivity({ event, auditId: entry.id, ...details }, { actor, requestId: req.requestId });
+  } catch (err) {
+    entry.proofWarning = err.message;
+  }
   return entry;
 }
 
@@ -143,7 +151,6 @@ function walkFiles(root, options = {}) {
 }
 
 function scanConflictMarkers() {
-  const markers = ['<<<<<<<', '=======', '>>>>>>>'];
   const files = walkFiles(REPO_ROOT, { maxFiles: 8000 });
   const matches = [];
   for (const file of files) {
@@ -154,7 +161,7 @@ function scanConflictMarkers() {
     const content = fs.readFileSync(file, 'utf8');
     const lines = content.split(/\r?\n/);
     lines.forEach((line, index) => {
-      if (markers.some(marker => line.includes(marker))) {
+      if (CONFLICT_MARKERS.some(marker => line.includes(marker))) {
         matches.push({
           file: path.relative(REPO_ROOT, file),
           line: index + 1,
@@ -302,6 +309,7 @@ function executeSafeCommand(command, req, dryRun = false) {
           adminTokenConfigured: Boolean(process.env.ADMIN_TOKEN),
           commandCount: commands.length,
           auditCount: audit.length,
+          proofChain: proofLayer.summary(5).chain,
           git: gitStatus
         }
       };
@@ -346,12 +354,15 @@ function executeSafeCommand(command, req, dryRun = false) {
         ...base,
         data: {
           recent: audit.slice(0, command.payload?.limit || 30),
+          proof: proofLayer.summary(command.payload?.limit || 30),
           actorCounts: audit.reduce((acc, entry) => {
             acc[entry.actor] = (acc[entry.actor] || 0) + 1;
             return acc;
           }, {})
         }
       };
+    case 'proof_review':
+      return { ...base, data: proofLayer.summary(command.payload?.limit || 30) };
     case 'question_status':
       return { ...base, data: summarizeCommandQueue(commands) };
     case 'summarize_agent_status':
@@ -392,6 +403,23 @@ function executeSafeCommand(command, req, dryRun = false) {
     case 'request_agent_answer':
     case 'request_code_review':
     case 'request_test_run':
+    case 'create_proof_checkpoint':
+      if (command.command === 'create_proof_checkpoint') {
+        const checkpoint = dryRun
+          ? { preview: true, payload: command.payload, commandId: command.id }
+          : proofLayer.logCheckpoint({
+              label: command.task?.title || command.reason || 'manual-checkpoint',
+              commandId: command.id,
+              target: command.target,
+              payload: command.payload
+            }, {
+              actor: req.headers['x-admin-user'] || req.headers['x-agent-id'] || 'system',
+              requestId: req.requestId
+            }, {
+              algorithm: command.payload?.hashAlgorithm
+            });
+        return { ...base, data: { checkpoint } };
+      }
       return {
         ...base,
         data: {
@@ -568,6 +596,16 @@ function createCommand(req, res) {
   commands.unshift(command);
   writeCommands(commands);
   writeAudit('command.create', req, { commandId: command.id, command: command.command, risk: command.risk });
+  proofLayer.logCheckpoint({
+    label: 'command-created',
+    commandId: command.id,
+    command: command.command,
+    status: command.status,
+    risk: command.risk
+  }, {
+    actor: command.createdBy,
+    requestId: req.requestId
+  });
   return ok(req, res, publicCommand(command), 201);
 }
 
@@ -615,7 +653,13 @@ router.get('/docs', (req, res) => {
       'POST /api/admin/ai/commands/:id/simulate',
       'POST /api/admin/ai/commands/:id/dispatch',
       'POST /api/admin/ai/commands/:id/answer',
-      'GET /api/admin/ai/logs'
+      'GET /api/admin/ai/logs',
+      'GET /api/admin/ai/proof',
+      'GET /api/admin/ai/proof/verify',
+      'GET /api/admin/ai/proof/activity',
+      'GET /api/admin/ai/proof/checkpoints',
+      'POST /api/admin/ai/proof/checkpoints',
+      'GET /api/admin/ai/proof/bot-responses'
     ],
     responseShape: { requestId: 'string', error: null, data: 'any' }
   });
@@ -668,6 +712,12 @@ router.post('/commands/:id/approve', adminRequired, (req, res) => {
   command.updatedAt = new Date().toISOString();
   writeCommands(commands);
   writeAudit('commands.approve', req, { commandId: command.id, command: command.command });
+  proofLayer.logCheckpoint({
+    label: 'command-approved',
+    commandId: command.id,
+    command: command.command,
+    approvedBy: command.approval.approvedBy
+  }, { actor: command.approval.approvedBy, requestId: req.requestId });
   ok(req, res, publicCommand(command));
 });
 
@@ -686,6 +736,12 @@ router.post('/commands/:id/reject', adminRequired, (req, res) => {
   command.updatedAt = new Date().toISOString();
   writeCommands(commands);
   writeAudit('commands.reject', req, { commandId: command.id, command: command.command });
+  proofLayer.logCheckpoint({
+    label: 'command-rejected',
+    commandId: command.id,
+    command: command.command,
+    rejectedBy: command.approval.rejectedBy
+  }, { actor: command.approval.rejectedBy, requestId: req.requestId });
   ok(req, res, publicCommand(command));
 });
 
@@ -723,6 +779,12 @@ router.post('/commands/:id/dispatch', adminRequired, (req, res) => {
   command.updatedAt = new Date().toISOString();
   writeCommands(commands);
   writeAudit('commands.dispatch', req, { commandId: command.id, command: command.command });
+  proofLayer.logCheckpoint({
+    label: 'command-dispatched',
+    commandId: command.id,
+    command: command.command,
+    resultHash: proofLayer.digest(command.result, command.payload?.hashAlgorithm)
+  }, { actor: command.updatedBy, requestId: req.requestId }, { algorithm: command.payload?.hashAlgorithm });
   ok(req, res, publicCommand(command));
 });
 
@@ -742,6 +804,13 @@ router.post('/commands/:id/answer', agentOrAdminRequired, (req, res) => {
   command.updatedAt = command.answer.at;
   writeCommands(commands);
   writeAudit('commands.answer', req, { commandId: command.id, command: command.command });
+  proofLayer.logBotResponse({
+    commandId: command.id,
+    command: command.command,
+    responder: command.answer.responder,
+    responseHash: proofLayer.digest(command.answer, req.body.hashAlgorithm),
+    answer: command.answer
+  }, { actor: command.answer.responder, requestId: req.requestId }, { algorithm: req.body.hashAlgorithm });
   ok(req, res, publicCommand(command));
 });
 
@@ -753,6 +822,47 @@ router.get('/logs', adminRequired, (req, res) => {
 router.get('/audit', adminRequired, (req, res) => {
   const limit = Math.min(Number(req.query.limit || 100), 500);
   ok(req, res, readAudit(limit));
+});
+
+router.get('/proof', adminRequired, (req, res) => {
+  const limit = Math.min(Number(req.query.limit || 20), 200);
+  writeAudit('proof.summary', req, { limit });
+  ok(req, res, proofLayer.summary(limit));
+});
+
+router.get('/proof/verify', adminRequired, (req, res) => {
+  writeAudit('proof.verify', req);
+  ok(req, res, proofLayer.verifyChain());
+});
+
+router.get('/proof/activity', adminRequired, (req, res) => {
+  const limit = Math.min(Number(req.query.limit || 100), 500);
+  writeAudit('proof.activity.list', req, { limit });
+  ok(req, res, proofLayer.readByType('activity', limit));
+});
+
+router.get('/proof/checkpoints', adminRequired, (req, res) => {
+  const limit = Math.min(Number(req.query.limit || 100), 500);
+  writeAudit('proof.checkpoints.list', req, { limit });
+  ok(req, res, proofLayer.readByType('checkpoint', limit));
+});
+
+router.post('/proof/checkpoints', agentOrAdminRequired, (req, res) => {
+  const actor = req.headers['x-admin-user'] || req.headers['x-agent-id'] || 'system';
+  const checkpoint = proofLayer.logCheckpoint({
+    label: req.body.label || 'manual-checkpoint',
+    scope: req.body.scope || 'general',
+    evidence: Array.isArray(req.body.evidence) ? req.body.evidence : [],
+    payload: req.body.payload || {}
+  }, { actor, requestId: req.requestId }, { algorithm: req.body.hashAlgorithm });
+  writeAudit('proof.checkpoint.create', req, { checkpointId: checkpoint.id, hash: checkpoint.hash });
+  ok(req, res, checkpoint, 201);
+});
+
+router.get('/proof/bot-responses', adminRequired, (req, res) => {
+  const limit = Math.min(Number(req.query.limit || 100), 500);
+  writeAudit('proof.botResponses.list', req, { limit });
+  ok(req, res, proofLayer.readByType('bot_response', limit));
 });
 
 router.get('/actions', adminRequired, (req, res) => {

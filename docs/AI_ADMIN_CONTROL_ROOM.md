@@ -106,9 +106,11 @@ UI / AI Agent
 
 - `server/ai-admin-policy.json`: חוקה לפקודות, סיכונים, פעולות אסורות ופעולות שדורשות אישור.
 - `server/aiAdminGovernance.js`: API לניהול פקודות, אישורים, סימולציה, שליחה, תשובות וביקורת.
+- `server/proofLayer.js`: שכבת הוכחות append-only עם activity, checkpoints, bot responses ושרשרת `previousHash`.
 - `server/index.js`: מחבר את ה-API תחת `/api/admin/ai`.
 - `server/data/ai-admin-commands.json`: תור פקודות מקומי.
 - `server/data/ai-admin-audit.jsonl`: יומן ביקורת append-only בסגנון JSONL.
+- `server/data/proof-events.jsonl`: יומן Proof Layer מקומי, לא מנוהל ב-Git.
 
 חוזה תגובה אחיד:
 
@@ -150,6 +152,48 @@ POST /api/admin/ai/commands/:id/simulate
 POST /api/admin/ai/commands/:id/dispatch
 POST /api/admin/ai/commands/:id/answer
 GET  /api/admin/ai/logs?limit=100
+GET  /api/admin/ai/proof?limit=20
+GET  /api/admin/ai/proof/verify
+GET  /api/admin/ai/proof/activity?limit=100
+GET  /api/admin/ai/proof/checkpoints?limit=100
+POST /api/admin/ai/proof/checkpoints
+GET  /api/admin/ai/proof/bot-responses?limit=100
+```
+
+## Proof Layer
+
+כל אירוע Proof נשמר כ-JSONL עם:
+
+- `type`: `activity`, `checkpoint`, או `bot_response`.
+- `payload`: פרטי האירוע.
+- `algorithm`: `sha256` כברירת מחדל, או `sha512` כאשר נשלח `hashAlgorithm`.
+- `previousHash`: hash הרשומה הקודמת בשרשרת.
+- `hash`: digest של הרשומה הנוכחית ללא שדה `hash`.
+
+`writeAudit` מוסיף activity אוטומטי לכל פעולת ניהול. יצירה, אישור, דחייה ושליחת פקודה מוסיפים checkpoints. מענה של bot או agent דרך `/commands/:id/answer` נשמר גם כ-`bot_response`, כולל hash של גוף התשובה.
+
+דוגמת checkpoint עם SHA-512:
+
+```http
+POST /api/admin/ai/proof/checkpoints
+x-agent-token: <AI_AGENT_TOKEN>
+
+{
+  "label": "post-validation",
+  "scope": "local-build",
+  "hashAlgorithm": "sha512",
+  "payload": {
+    "commands": ["npm run test:all", "npm --prefix frontend run build"],
+    "status": "passed"
+  }
+}
+```
+
+בדיקת שלמות:
+
+```http
+GET /api/admin/ai/proof/verify
+x-admin-token: <ADMIN_TOKEN>
 ```
 
 תאימות לאחור:
