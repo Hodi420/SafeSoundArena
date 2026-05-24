@@ -148,6 +148,36 @@ const commandCatalog = [
   },
   {
     app: 'לוגים וביקורת',
+    command: 'proof_review',
+    title: 'בדיקת Proof Layer',
+    description: 'בודק activity, checkpoints, bot responses ושלמות previousHash.',
+    role: 'observer',
+    risk: 'medium',
+    targetType: 'root-mcp',
+    targetName: 'proof-layer',
+    taskTitle: 'בדיקת שרשרת הוכחות',
+    reason: 'לוודא שכל פעולת admin/agent משאירה עקבת הוכחה תקינה',
+    questions: ['האם השרשרת תקינה?', 'אילו checkpoints נוצרו?', 'האם קיימות תשובות bot חתומות?'],
+    answerRequest: 'Return proof chain status, latest checkpoints, bot response hashes, and anomalies.',
+    payload: { limit: 50 }
+  },
+  {
+    app: 'לוגים וביקורת',
+    command: 'create_proof_checkpoint',
+    title: 'יצירת checkpoint',
+    description: 'מוסיף checkpoint append-only עם אופציית SHA-512.',
+    role: 'ops',
+    risk: 'low',
+    targetType: 'root-mcp',
+    targetName: 'proof-layer',
+    taskTitle: 'Checkpoint ידני',
+    reason: 'סימון נקודת ביקורת לפני או אחרי פעולה מנהלית',
+    questions: ['מה נבדק?', 'איזה evidence מצורף?', 'האם נדרש SHA-512?'],
+    answerRequest: 'Return checkpoint id, hash, previousHash, algorithm, and stored payload.',
+    payload: { hashAlgorithm: 'sha512', scope: 'manual-review' }
+  },
+  {
+    app: 'לוגים וביקורת',
     command: 'question_status',
     title: 'סטטוס שאלות פתוחות',
     description: 'בודק אילו פקודות מחכות למענה חוזר מסוכן או מערכת.',
@@ -585,6 +615,74 @@ function compactText(value, max = 120) {
   return text.length > max ? `${text.slice(0, max)}...` : text;
 }
 
+function proofVerificationState(proof, proofError, proofLoading) {
+  if (proofLoading) {
+    return {
+      tone: 'pending',
+      label: 'verification loading',
+      message: 'Proof Layer verification is still loading.',
+      details: []
+    };
+  }
+
+  if (proofError) {
+    return {
+      tone: 'error',
+      label: 'proof endpoint error',
+      message: proofError,
+      details: []
+    };
+  }
+
+  if (!proof) {
+    return {
+      tone: 'pending',
+      label: 'verification pending',
+      message: 'No proof verification response has been loaded yet.',
+      details: []
+    };
+  }
+
+  const chain = proof.verification || proof.chain || proof;
+  const failures = Array.isArray(chain.failures) ? chain.failures : [];
+  const firstFailure = failures[0] || {};
+  const failureCount = failures.length || chain.failureCount || chain.mismatchCount || 0;
+  const responseRequestId = proof.verificationRequestId || proof.requestId;
+
+  if (chain.ok === false) {
+    const reason = firstFailure.reason || chain.reason || chain.message || 'Proof verification failed';
+    return {
+      tone: 'failed',
+      label: 'verification failed',
+      message: reason,
+      details: [
+        failureCount ? `Failures: ${failureCount}` : '',
+        firstFailure.id ? `Entry id: ${firstFailure.id}` : '',
+        firstFailure.checkpointId ? `Checkpoint id: ${firstFailure.checkpointId}` : '',
+        firstFailure.requestId || responseRequestId ? `Request id: ${firstFailure.requestId || responseRequestId}` : '',
+        firstFailure.expected ? `Expected: ${compactText(firstFailure.expected, 48)}` : '',
+        firstFailure.actual ? `Actual: ${compactText(firstFailure.actual, 48)}` : ''
+      ].filter(Boolean)
+    };
+  }
+
+  if (chain.ok === true) {
+    return {
+      tone: 'passed',
+      label: 'verification passed',
+      message: chain.head ? `Head: ${compactText(chain.head, 36)}` : 'Proof chain is intact.',
+      details: [typeof chain.count === 'number' ? `Entries: ${chain.count}` : ''].filter(Boolean)
+    };
+  }
+
+  return {
+    tone: 'pending',
+    label: 'verification pending',
+    message: 'Proof verification has not produced a pass/fail result.',
+    details: []
+  };
+}
+
 function resolveAdminToken() {
   const envToken = process.env.NEXT_PUBLIC_ADMIN_TOKEN || '';
   if (typeof window === 'undefined') return envToken;
@@ -600,6 +698,9 @@ export default function AiAdminControlRoom() {
   const [commands, setCommands] = useState([]);
   const [allCommands, setAllCommands] = useState([]);
   const [audit, setAudit] = useState([]);
+  const [proof, setProof] = useState(null);
+  const [proofError, setProofError] = useState('');
+  const [proofLoading, setProofLoading] = useState(true);
   const [capabilities, setCapabilities] = useState(null);
   const [status, setStatus] = useState('pending_approval');
   const [activeApp, setActiveApp] = useState(initialTemplate.app);
@@ -643,6 +744,7 @@ export default function AiAdminControlRoom() {
   const pendingCount = counts.pending_approval || 0;
   const selectedRequiresApproval = draft.risk === 'high' || draft.risk === 'critical' || selectedTemplate.command.startsWith('propose_');
   const canAutoDispatchDraft = !selectedRequiresApproval && ['low', 'medium'].includes(draft.risk);
+  const proofState = proofVerificationState(proof, proofError, proofLoading);
 
   const filteredCommands = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -674,30 +776,64 @@ export default function AiAdminControlRoom() {
     });
     const payload = await response.json().catch(() => null);
     if (!response.ok || payload?.error) {
-      throw new Error(payload?.error?.message || 'Admin command API failed');
+      throw new Error(payload?.error?.message || payload?.error || 'Admin command API failed');
     }
     return payload?.data ?? payload;
   }
 
+  async function apiEnvelope(path, options = {}) {
+    const response = await fetch(`/api/admin/ai${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-token': adminToken,
+        'x-admin-user': 'dashboard',
+        ...(options.headers || {})
+      }
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok || payload?.error) {
+      throw new Error(payload?.error?.message || 'Admin command API failed');
+    }
+    return payload || {};
+  }
+
   async function load(nextStatus = status) {
     setLoading(true);
+    setProofLoading(true);
+    setProofError('');
     setError('');
     try {
       const query = nextStatus === 'all' ? '' : `?status=${nextStatus}`;
-      const [nextCommands, nextAllCommands, nextAudit, nextCapabilities] = await Promise.all([
+      const [nextCommands, nextAllCommands, nextAudit, nextProof, nextProofVerification, nextCapabilities] = await Promise.all([
         api(`/commands${query}`),
         nextStatus === 'all' ? Promise.resolve(null) : api('/commands'),
         api('/logs?limit=40'),
+        api('/proof?limit=12')
+          .then(data => ({ data, error: '' }))
+          .catch(err => ({ data: null, error: err.message || 'Proof endpoint unavailable' })),
+        apiEnvelope('/proof/verify')
+          .then(payload => ({ payload, error: '' }))
+          .catch(err => ({ payload: null, error: err.message || 'Proof verification endpoint unavailable' })),
         api('/capabilities')
       ]);
       setCommands(Array.isArray(nextCommands) ? nextCommands : []);
       setAllCommands(Array.isArray(nextAllCommands) ? nextAllCommands : Array.isArray(nextCommands) ? nextCommands : []);
       setAudit(Array.isArray(nextAudit) ? nextAudit : []);
+      setProof(nextProof.data || nextProofVerification.payload ? {
+        ...(nextProof.data || {}),
+        verification: nextProofVerification.payload?.data || nextProof.data?.chain || null,
+        verificationRequestId: nextProofVerification.payload?.requestId || null
+      } : null);
+      setProofError(nextProofVerification.error || nextProof.error || '');
       setCapabilities(nextCapabilities || null);
     } catch (err) {
       setError(err.message || 'שגיאה בטעינת מסוף הפיקוד');
+      setProof(null);
+      setProofError('Proof state unavailable while command center data is loading.');
     } finally {
       setLoading(false);
+      setProofLoading(false);
     }
   }
 
@@ -1090,6 +1226,33 @@ export default function AiAdminControlRoom() {
             ))}
           </div>
 
+          <div style={styles.darkPanel}>
+            <h2 style={styles.darkTitle}>Proof Layer</h2>
+            <div style={styles.proofStatus[proofState.tone]}>
+              <strong>{proofState.label}</strong>
+              <div style={styles.proofMessage}>{proofState.message}</div>
+            </div>
+            {proofState.details.length > 0 && (
+              <div style={proofState.tone === 'failed' || proofState.tone === 'error' ? styles.proofFailureBox : styles.proofDetailBox}>
+                {proofState.details.map(detail => (
+                  <div key={detail}>{detail}</div>
+                ))}
+              </div>
+            )}
+            <div style={styles.proofGrid}>
+              <Metric label="activity" value={proof?.activity?.length || 0} tone="neutral" />
+              <Metric label="checkpoints" value={proof?.checkpoints?.length || 0} tone="ok" />
+              <Metric label="bot responses" value={proof?.botResponses?.length || 0} tone="warn" />
+            </div>
+            {proof?.checkpoints?.slice(0, 3).map(entry => (
+              <div key={entry.id} style={styles.auditItem}>
+                <strong>{entry.payload?.label || entry.type}</strong>
+                <div>{entry.algorithm} / {compactText(entry.hash, 18)}</div>
+                <div style={styles.smallId}>{compactText(entry.previousHash, 24)}</div>
+              </div>
+            ))}
+          </div>
+
           <div style={styles.lightPanel}>
             <div style={styles.panelHeader}>
               <h2 style={styles.sectionTitle}>פרטי פקודה / תוצאה</h2>
@@ -1213,6 +1376,16 @@ const styles = {
   darkTitle: { margin: 0, fontSize: 18 },
   darkMuted: { color: '#aab5c4', marginTop: 10 },
   auditItem: { borderTop: '1px solid #2a3546', padding: '9px 0', fontSize: 13 },
+  proofGrid: { display: 'grid', gridTemplateColumns: '1fr', gap: 8, marginTop: 10, marginBottom: 6 },
+  proofStatus: {
+    pending: { marginTop: 10, color: '#fde68a', fontSize: 13 },
+    passed: { marginTop: 10, color: '#a7f3d0', fontSize: 13 },
+    failed: { marginTop: 10, color: '#fecaca', fontSize: 13 },
+    error: { marginTop: 10, color: '#fecaca', fontSize: 13 }
+  },
+  proofMessage: { marginTop: 4, color: '#d1d5db', fontWeight: 500, lineHeight: 1.35 },
+  proofDetailBox: { marginTop: 10, border: '1px solid #374151', background: '#182233', borderRadius: 6, padding: 10, color: '#d1d5db', fontSize: 12, lineHeight: 1.45 },
+  proofFailureBox: { marginTop: 10, border: '1px solid #7f1d1d', background: '#2a1217', borderRadius: 6, padding: 10, color: '#fecaca', fontSize: 12, lineHeight: 1.45 },
   lightPanel: { background: '#fff', border: '1px solid #dfe5ec', padding: 14, borderRadius: 8 },
   panelHeader: { display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' },
   pre: { margin: '12px 0 0', whiteSpace: 'pre-wrap', direction: 'ltr', textAlign: 'left', fontSize: 12, background: '#f5f7fa', border: '1px solid #dfe5ec', borderRadius: 6, padding: 10, maxHeight: 420, overflow: 'auto' },
