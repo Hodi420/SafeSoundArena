@@ -216,6 +216,7 @@ Pull requests are welcome! For major changes:
 All documentation is available in the repository:
 - **[DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md)** - Getting started
 - **[ERROR_HANDLING_GUIDE.md](./ERROR_HANDLING_GUIDE.md)** - Error patterns
+- **[AI_ADMIN_CONTROL_ROOM.md](./docs/AI_ADMIN_CONTROL_ROOM.md)** - AI Control Room Proof Command Layer
 - **[API_DOCUMENTATION.md](./API_DOCUMENTATION.md)** - API reference
 - **[REUSABLE_COMPONENTS_GUIDE.md](./REUSABLE_COMPONENTS_GUIDE.md)** - Component patterns
 - **[NAMING_CONVENTIONS_GUIDE.md](./NAMING_CONVENTIONS_GUIDE.md)** - Code standards
@@ -223,6 +224,60 @@ All documentation is available in the repository:
 - **[TEST_COVERAGE_GUIDE.md](./TEST_COVERAGE_GUIDE.md)** - Testing strategies
 - **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** - Deployment instructions
 - **[MERGE_CONFLICTS_GUIDE.md](./MERGE_CONFLICTS_GUIDE.md)** - Conflict resolution
+
+---
+
+## AI Control Room Proof Command Layer
+
+This repository now includes Phase 1 of a portable AI Admin Control Room under `src/`. It provides a hardened governance router, policy file, and React control room UI for command proofing and human-gated execution review.
+
+Key files:
+- `src/server/aiAdminGovernance.js` - Express governance router.
+- `src/server/aiAdminAudit.js` - canonical JSON, SHA-256 audit hashing, latest hash reads, and chain verification.
+- `src/server/ai-admin-policy.json` - portable command policy.
+- `src/server/index.cjs` - standalone Express entrypoint.
+- `src/ui/AiAdminControlRoom.jsx` - React >=18 control room UI.
+
+Every command created through the governance API receives `proofHash`, `proofVersion`, `createdAt`, and `updatedAt`. The proof hash is derived from stable command fields only: `id`, `command`, `risk`, `role`, `target`, `task`, `payload`, and `createdAt`. Mutable lifecycle fields such as `status`, `answer`, and `updatedAt` are intentionally excluded.
+
+Audit events are hash-linked JSON lines. Each event stores its `previousHash` and SHA-256 `hash`, making tampering visible through:
+
+```http
+GET /audit/verify
+```
+
+Policy consistency can be checked with:
+
+```http
+GET /policy/validate
+```
+
+Set the environment mode with:
+
+```bash
+AI_CONTROL_ROOM_ENV=development
+AI_CONTROL_ROOM_ENV=staging
+AI_CONTROL_ROOM_ENV=production
+```
+
+In production, read-only inspection requires authorization, critical dispatch requires explicit human approval, and commands marked `forbiddenForAiExecution` cannot be dispatched by AI, automation, or agent actors.
+
+Security boundaries:
+- Token values are never returned by any endpoint; responses expose only booleans such as `adminTokenConfigured` and `agentTokenConfigured`.
+- The `adminToken` UI prop remains for backwards compatibility, but production integrations should not put long-lived tokens in public frontend environment variables.
+- Critical operations require admin authorization.
+- Low-risk agent operations require a valid agent token or admin token.
+- The router does not provide unrestricted shell execution and does not perform destructive actions.
+
+Still not included in Phase 1:
+- Real user auth provider
+- PostgreSQL persistence
+- Blockchain anchoring
+- Proof of Humanity verification
+- External worker queue
+- Real GitHub/CI adapters
+
+Full documentation: [docs/AI_ADMIN_CONTROL_ROOM.md](./docs/AI_ADMIN_CONTROL_ROOM.md)
 
 ---
 
