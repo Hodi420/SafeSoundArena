@@ -107,19 +107,69 @@ npm install
 cd frontend && npm install
 ```
 
+> Note: The root package is a workspace-enabled monorepo. Installing in the root will install root dependencies; `cd frontend && npm install` installs frontend dependencies and local frontend tooling.
+
 ### 2. Environment Variables
 - Copy `.env.example` to `.env` (root and frontend if needed)
 - Fill in required secrets (DB, API keys, etc)
 
-### 3. Run Locally
+### 3. Useful NPM Commands
+- Install dependencies:
+  ```bash
+  npm install
+  cd frontend && npm install
+  ```
+- Run backend tests:
+  ```bash
+  npm test
+  ```
+- Run frontend tests (from root):
+  ```bash
+  npm run test:frontend
+  ```
+- Run frontend tests (direct):
+  ```bash
+  cd frontend && npm run test
+  ```
+- Start the frontend development server:
+  ```bash
+  npm run dev
+  ```
+- Build the frontend for production (from root):
+  ```bash
+  npm run build:frontend
+  ```
+- Build the frontend for production (direct):
+  ```bash
+  cd frontend && npm run build
+  ```
+- Start the frontend production server after build:
+  ```bash
+  cd frontend && npm run start
+  ```
+- Lint the frontend code (from root):
+  ```bash
+  npm run lint:frontend
+  ```
+- Lint the frontend code (direct):
+  ```bash
+  cd frontend && npm run lint
+  ```
+
+### 4. Run Locally
 - **Backend:**
   ```bash
-  npm run start   # or node server.js
+  npm run start
   ```
-- **Frontend:**
+- **Frontend development:**
   ```bash
   cd frontend
   npm run dev
+  ```
+- **Frontend production build:**
+  ```bash
+  cd frontend
+  npm run build
   ```
 - Visit: [http://localhost:3000](http://localhost:3000)
 
@@ -130,21 +180,21 @@ cd frontend && npm install
 ### Vercel (Frontend)
 - Connect `frontend/` to Vercel
 - Set environment variables in Vercel dashboard
-- Build command: `npm run build`
+- Build command: `cd frontend && npm run build`
 - Output: `.next`
 
 ### Docker Compose
 - **Production:**
   ```bash
-  docker-compose up --build
+  docker compose up --build
   ```
 - **Development:**
   ```bash
-  docker-compose -f docker-compose.dev.yml up --build
+  docker compose -f docker-compose.dev.yml up --build
   ```
 - **Staging:**
   ```bash
-  docker-compose -f docker-compose.staging.yml up --build
+  docker compose -f docker-compose.staging.yml up --build
   ```
 
 ### Kubernetes
@@ -163,18 +213,29 @@ cd frontend && npm install
 ---
 
 ## 🧪 Testing
-- **Frontend:**
+- **Install dependencies first:**
+  ```bash
+  npm install
+  cd frontend && npm install
+  ```
+- **Frontend tests:**
   ```bash
   cd frontend
   npm run test
   ```
-- **Backend:**
+- **Backend tests:**
   ```bash
-  npm run test
+  npm test
   ```
-- **Linting:**
+- **Linting (frontend):**
   ```bash
+  cd frontend
   npm run lint
+  ```
+- **Build frontend production bundle:**
+  ```bash
+  cd frontend
+  npm run build
   ```
 
 ---
