@@ -1,6 +1,9 @@
 [build]
-  command = "npm run build"
-  publish = ".next"
+  command = "npm ci --no-audit --no-fund && npm run build"
+  publish = ".netlify/output/public"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 [dev]
   command = "npm run dev"
