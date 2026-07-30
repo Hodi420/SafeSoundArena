@@ -7,10 +7,6 @@
   port = 3000
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "24"
   NEXT_PUBLIC_PI_SANDBOX = "false"
 
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
