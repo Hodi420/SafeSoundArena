@@ -10,6 +10,7 @@
     "test": "mocha --exit",
     "start": "cd backend && npm start",
     "dev": "cd frontend && npm run dev",
+    "lint": "npm run lint:frontend",
     "test:frontend": "cd frontend && npm test",
     "build:frontend": "cd frontend && npm run build",
     "lint:frontend": "cd frontend && npm run lint"
