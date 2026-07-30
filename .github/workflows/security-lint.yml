@@ -18,6 +18,20 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
+      - name: Debug git environment
+        run: |
+          echo "--- ls -la .git ---"
+          ls -la .git || true
+          echo "--- cat .git (if file) ---"
+          if [ -f .git ]; then cat .git || true; fi
+          echo "--- git status ---"
+          git status || true
+          echo "--- git rev-parse --git-dir ---"
+          git rev-parse --git-dir || true
+          echo "--- git config --list --show-origin ---"
+          git config --list --show-origin || true
+          echo "--- env GIT/CI/GITHUB vars ---"
+          env | grep -i "GIT\|CI\|GITHUB" || true
       - name: Ensure latest git
         run: git --version
       - name: Set up Node.js
