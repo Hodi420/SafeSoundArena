@@ -2,7 +2,6 @@
 // Replace with real implementation as needed
 
 export const apiClient = {
-<<<<<<< HEAD
   get: async (url: string) => {
     const res = await fetch(url, { method: 'GET', credentials: 'same-origin' });
     if (!res.ok) throw new Error(await res.text());
@@ -33,10 +32,4 @@ export const apiClient = {
     if (!res.ok) throw new Error(await res.text());
     return await res.json();
   }
-=======
-  get: async () => ({}),
-  post: async () => ({}),
-  put: async () => ({}),
-  delete: async () => ({})
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
 };

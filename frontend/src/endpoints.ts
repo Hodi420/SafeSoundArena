@@ -6,6 +6,11 @@ export const API_ENDPOINTS = {
     BUY: (itemId: string) => `/api/marketplace/buy/${itemId}`, // POST - buy item
     SELL: (itemId: string) => `/api/marketplace/sell/${itemId}` // POST - sell item
   },
+  EVENTS: {
+    LIST: '/api/events',
+    JOIN: (eventId: string) => `/api/events/join/${eventId}`,
+    LEAVE: (eventId: string) => `/api/events/leave/${eventId}`,
+  },
   USER: {
     PROFILE: (userId: string) => `/api/user/${userId}` // GET - user profile
   }

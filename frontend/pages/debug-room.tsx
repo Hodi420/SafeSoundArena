@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useRoom } from '../src/context/RoomContext';
+﻿import { useEffect, useState } from 'react';
+import { RoomProvider, useRoom } from '../src/context/RoomContext';
 
 interface LogEvent {
   type: string;
@@ -27,25 +27,27 @@ function getTypeColor(type: string) {
   return typeColors.default;
 }
 
-export default function DebugRoom() {
+function DebugRoomContent() {
   const { roomId } = useRoom();
   const [logs, setLogs] = useState<LogEvent[]>([]);
   const [filter, setFilter] = useState('');
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
   const [live, setLive] = useState(true);
 
-  // Poll logs every second
   useEffect(() => {
     let mounted = true;
     async function fetchLogs() {
       const res = await fetch(`/api/logEvent?roomId=${roomId}`);
       const data = await res.json();
-      if (mounted) setLogs(data.reverse()); // newest first
+      if (mounted) setLogs(data.reverse());
     }
     if (live) {
       fetchLogs();
       const interval = setInterval(fetchLogs, 1000);
-      return () => { mounted = false; clearInterval(interval); };
+      return () => {
+        mounted = false;
+        clearInterval(interval);
+      };
     }
   }, [roomId, live]);
 
@@ -63,13 +65,11 @@ export default function DebugRoom() {
     URL.revokeObjectURL(url);
   }
 
-  // Find all unique event types and users
   const eventTypes = Array.from(new Set(logs.map(l => l.type)));
   const users = Array.from(new Set(logs.map(l => l.userId).filter(Boolean)));
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col md:flex-row">
-      {/* Sidebar filters */}
       <div className="md:w-1/4 w-full p-6 bg-gray-900 border-r-4 border-pink-600 sticky top-0 h-full min-h-screen">
         <h1 className="text-2xl font-bold text-pink-400 mb-4">Debug Room</h1>
         <div className="mb-2 text-blue-400 text-sm break-all">Room ID:<br />{roomId}</div>
@@ -100,8 +100,6 @@ export default function DebugRoom() {
         </div>
         <button className="w-full py-2 rounded bg-green-600 hover:bg-green-700 font-bold" onClick={handleExport}>Export Logs</button>
       </div>
-
-      {/* Main logs area */}
       <div className="flex-1 p-4 overflow-y-auto max-h-screen">
         <div className="sticky top-0 bg-black z-10 pb-2">
           <div className="text-lg font-bold mb-2">Logs ({filteredLogs.length})</div>
@@ -112,7 +110,7 @@ export default function DebugRoom() {
             const color = getTypeColor(log.type);
             const isOpen = expanded[i] || false;
             return (
-              <div key={i} className={`rounded shadow border-l-8 p-4 ${color}`}> 
+              <div key={i} className={`rounded shadow border-l-8 p-4 ${color}`}>
                 <div className="flex items-center justify-between mb-2 cursor-pointer" onClick={() => setExpanded(e => ({ ...e, [i]: !isOpen }))}>
                   <span className="font-bold text-yellow-200 text-base">{log.type}</span>
                   <span className="text-xs text-gray-300">{new Date(log.timestamp).toLocaleTimeString()}</span>
@@ -120,9 +118,7 @@ export default function DebugRoom() {
                 </div>
                 {isOpen && (
                   <>
-                    <pre className="text-xs bg-gray-800 rounded p-2 overflow-x-auto mb-2">
-                      {JSON.stringify(log.payload, null, 2)}
-                    </pre>
+                    <pre className="text-xs bg-gray-800 rounded p-2 overflow-x-auto mb-2">{JSON.stringify(log.payload, null, 2)}</pre>
                     {log.userId && <div className="text-xs text-blue-300">User: {log.userId}</div>}
                   </>
                 )}
@@ -132,5 +128,13 @@ export default function DebugRoom() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DebugRoom() {
+  return (
+    <RoomProvider>
+      <DebugRoomContent />
+    </RoomProvider>
   );
 }

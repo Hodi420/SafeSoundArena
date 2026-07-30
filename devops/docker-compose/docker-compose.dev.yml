@@ -101,7 +101,7 @@ services:
 
   # IPFS Node
   ipfs:
-    image: ipfs/go-ipfs:latest
+    image: ipfs/kubo:release
     container_name: safesoundarena-ipfs-dev
     ports:
       - "5001:5001"

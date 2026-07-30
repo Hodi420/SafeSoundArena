@@ -3,14 +3,20 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "safesoundarena-server",
+    "backend",
     "frontend"
   ],
   "scripts": {
     "test": "mocha --exit",
-    "dev": "cd frontend && npm run dev"
+    "start": "cd backend && npm start",
+    "dev": "cd frontend && npm run dev",
+    "lint": "npm run lint:frontend",
+    "test:frontend": "cd frontend && npm test",
+    "build:frontend": "cd frontend && npm run build",
+    "lint:frontend": "cd frontend && npm run lint"
   },
   "devDependencies": {
+    "eslint": "^8.57.1",
     "mocha": "^10.0.0",
     "sinon": "^20.0.0"
   },

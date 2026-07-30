@@ -2,11 +2,7 @@ import { useRoom } from '../context/RoomContext';
 
 export interface LogEvent {
   type: string;
-<<<<<<< HEAD
   payload: Record<string, unknown>;
-=======
-  payload: any;
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
   userId?: string;
   roomId: string;
   timestamp: string;
@@ -28,3 +24,4 @@ export async function logEvent(event: Omit<LogEvent, 'timestamp'>) {
     console.error('Failed to log event', err);
   }
 }
+

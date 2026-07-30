@@ -8,15 +8,9 @@ import { usePiAuth } from '../hooks/usePiAuth';
 import UserPiKycGuard from '../components/UserPiKycGuard';
 
 export default function BoardsPage() {
-<<<<<<< HEAD
   const [shame, setShame] = useState<Record<string, unknown>[]>([]);
   const [fame, setFame] = useState<Record<string, unknown>[]>([]);
   const [sites, setSites] = useState<Record<string, unknown>[]>([]);
-=======
-  const [shame, setShame] = useState<any[]>([]);
-  const [fame, setFame] = useState<any[]>([]);
-  const [sites, setSites] = useState<any[]>([]);
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,13 +28,8 @@ export default function BoardsPage() {
         setFame(fameData);
         setSites(sitesData);
         setError(null);
-<<<<<<< HEAD
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : 'שגיאת טעינה');
-=======
-      } catch (e: any) {
-        setError(e.message || 'שגיאת טעינה');
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
       } finally {
         setLoading(false);
       }
@@ -49,11 +38,7 @@ export default function BoardsPage() {
   }, []);
 
   // Submit report to API
-<<<<<<< HEAD
   async function handleReport(data: Record<string, unknown>) {
-=======
-  async function handleReport(data: any) {
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
     try {
       setLoading(true);
       await reportUser(data);
@@ -65,13 +50,8 @@ export default function BoardsPage() {
       setShame(shameData);
       setFame(fameData);
       setError(null);
-<<<<<<< HEAD
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'שגיאת דיווח');
-=======
-    } catch (e: any) {
-      setError(e.message || 'שגיאת דיווח');
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
     } finally {
       setLoading(false);
     }
@@ -96,3 +76,4 @@ export default function BoardsPage() {
     </UserPiKycGuard>
   );
 }
+

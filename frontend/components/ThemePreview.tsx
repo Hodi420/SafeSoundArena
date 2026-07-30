@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useThemeStore } from '../store/useThemeStore';
+import { useThemeStore } from '../src/store/useThemeStore';
 import { IconSword, IconShield, IconBolt, IconTrophy } from '@tabler/icons-react';
 
 export const ThemePreview: React.FC = () => {

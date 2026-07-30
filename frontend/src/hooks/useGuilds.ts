@@ -21,9 +21,7 @@ export interface GuildMessage {
 }
 
 export const useGuilds = () => {
-  import { Guild } from '../../types/api';
-
-return useQuery<Guild[]>({
+  return useQuery<Guild[]>({
     queryKey: ['guilds'],
     queryFn: async (): Promise<Guild[]> => {
       const { data } = await apiClient.get(API_ENDPOINTS.GUILDS.LIST);

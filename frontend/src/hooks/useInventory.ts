@@ -37,9 +37,7 @@ export interface Recipe {
 }
 
 export const useInventory = () => {
-  import { InventoryItem } from '../../types/api';
-
-return useQuery<InventoryItem[]>({
+  return useQuery<InventoryItem[]>({
     queryKey: ['inventory'],
     queryFn: async (): Promise<InventoryItem[]> => {
       const { data } = await apiClient.get('/inventory');

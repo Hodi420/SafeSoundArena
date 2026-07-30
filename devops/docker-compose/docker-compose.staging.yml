@@ -99,7 +99,7 @@ services:
 
   # IPFS Node
   ipfs:
-    image: ipfs/go-ipfs:latest
+    image: ipfs/kubo:release
     container_name: safesoundarena-ipfs-staging
     restart: unless-stopped
     ports:
