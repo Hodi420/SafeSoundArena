@@ -37,17 +37,12 @@ export function usePlayers(jsonUrl: string, wsUrl?: string) {
             if (isMounted) setPlayers(data);
           }
           if (isMounted) setError(null);
-<<<<<<< HEAD
         } catch (e: unknown) {
           if (e instanceof Error) {
             if (isMounted) setError(e.message);
           } else {
             if (isMounted) setError('Invalid WebSocket data');
           }
-=======
-        } catch (e: any) {
-          if (isMounted) setError('Invalid WebSocket data');
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
         }
       };
       ws.onerror = (e) => {
@@ -92,4 +87,5 @@ export function usePlayers(jsonUrl: string, wsUrl?: string) {
 
   return { players, loading, error };
 }
+
 

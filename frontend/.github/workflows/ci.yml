@@ -5,7 +5,6 @@ name: Frontend CI
 
 on:
   push:
-<<<<<<< HEAD
     branches: 
       - main
       - master
@@ -18,11 +17,6 @@ on:
       reason:
         description: 'Reason for triggering the workflow'
         required: false
-=======
-    branches: [main, master]
-  pull_request:
-    branches: [main, master]
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
 
 jobs:
   test:
@@ -30,11 +24,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '24'
 
       - name: Install dependencies
         run: |
@@ -54,7 +51,6 @@ jobs:
           name: codecov-frontend
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-<<<<<<< HEAD
 
   debug:
     runs-on: ubuntu-latest
@@ -64,5 +60,4 @@ jobs:
           echo "Branch: ${{ github.ref }}"
           echo "Event: ${{ github.event_name }}"
           echo "Workflow triggered manually: ${{ github.event.inputs.reason }}"
-=======
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+

@@ -25,12 +25,14 @@ describe('BotOperator', () => {
     assert.strictEqual(bot.active, false);
   });
 
-  it('should not operate when inactive', () => {
+  it('should not operate when inactive', async () => {
     const bot = new BotOperator({ active: false });
     let operated = false;
-    bot.operate = () => { operated = true; };
-    bot.active = false;
-    bot.operate();
+    bot.actionExecutor = {
+      executeSoftwareAction: () => { operated = true; },
+      executeHardwareAction: async () => { operated = true; }
+    };
+    await bot.operate({ softwareCommand: 'echo hi' });
     assert.strictEqual(operated, false);
   });
 });

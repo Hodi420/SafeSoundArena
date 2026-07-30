@@ -19,22 +19,6 @@ export interface Event {
   emoji: '🎪' | '⚔️' | '🏆' | '🤝'; // Event type emoji
 }
 
-import { useQuery } from '@tanstack/react-query';
-
-export interface Event {
-  id: string;
-  title: string;
-  description: string;
-  startTime: Date;
-  endTime: Date;
-  capacity: number;
-  participants: number;
-  type: string;
-  status: string;
-  rewards: Array<{ amount: number; type: string }>;
-  emoji: string;
-}
-
 const mockEvents: Event[] = [
   {
     id: '1',

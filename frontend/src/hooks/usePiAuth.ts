@@ -2,11 +2,7 @@
 import { useEffect, useState } from 'react';
 
 declare global {
-<<<<<<< HEAD
   interface Window { Pi: unknown; }
-=======
-  interface Window { Pi: any; }
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
 }
 
 export interface PiProfile {
@@ -23,19 +19,11 @@ export function usePiAuth() {
   useEffect(() => {
     if (window.Pi) {
       window.Pi.authenticate(['username', 'kyc_verified'],
-<<<<<<< HEAD
         function(authData: PiAuthData) {
           setProfile(authData.user);
           setLoading(false);
         },
         function(err: unknown) {
-=======
-        function(authData: any) {
-          setProfile(authData.user);
-          setLoading(false);
-        },
-        function(err: any) {
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
           setError(typeof err === 'string' ? err : JSON.stringify(err));
           setLoading(false);
         }
@@ -48,3 +36,4 @@ export function usePiAuth() {
 
   return { profile, loading, error };
 }
+
