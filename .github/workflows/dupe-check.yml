@@ -17,6 +17,17 @@ jobs:
           persist-credentials: true
       - name: Ensure latest git
         run: git --version
+
+      - name: Debug git environment
+        run: |
+          echo "--- ls -la .git ---"
+          ls -la .git || true
+          echo "--- cat .git (if file) ---"
+          if [ -f .git ]; then cat .git || true; fi
+          echo "--- git status ---"
+          git status || true
+          echo "--- git rev-parse --git-dir ---"
+          git rev-parse --git-dir || true
       - name: Find duplicate/temp files
         run: |
           find . \(
