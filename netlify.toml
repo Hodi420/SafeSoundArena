@@ -1,0 +1,12 @@
+[build]
+  base = "frontend"
+  command = "npm ci --no-audit --no-fund && npm run build"
+  publish = ".next"
+
+[dev]
+  command = "npm run dev"
+  port = 3000
+
+[build.environment]
+  NODE_VERSION = "24"
+  NEXT_PUBLIC_PI_SANDBOX = "false"
