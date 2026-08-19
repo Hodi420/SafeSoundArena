@@ -48,6 +48,7 @@
   },
   "scripts": {
     "test": "jest",
+    "typecheck": "tsc --noEmit",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

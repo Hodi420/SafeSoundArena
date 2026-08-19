@@ -55,7 +55,7 @@ jobs:
 
       - name: Typecheck frontend
         working-directory: frontend
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
       - name: Build frontend
         working-directory: frontend
