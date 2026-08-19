@@ -47,7 +47,11 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v4
-      
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+
       - name: Run SAST
         uses: github/codeql-action/analyze@v3
         
