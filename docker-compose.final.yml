@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  api-server:
+    image: node:24-alpine
+    container_name: safesoundarena-backend
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - ADMIN_TOKEN=dev_admin_token
+    command: sh -c "npm install && node server.js"
+    networks:
+      - sa-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:4000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    image: safesoundarena-frontend:latest
+    container_name: safesoundarena-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+    depends_on:
+      - api-server
+    networks:
+      - sa-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:3000"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+networks:
+  sa-network:
+    driver: bridge

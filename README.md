@@ -1,5 +1,7 @@
 # SafeSoundArena
 
+> **Current operating status (19 August 2026):** Local integration ready on the canonical Windows workspace. Use `backend/app.js` on port `4000`, `frontend` on port `3000`, and `docker-compose.yml` as the only verified Compose path. MSHIX is locally integrated; authentication, shared persistence, external workers and GitHub release checks remain before public production. See [PROJECT_STATUS.md](./PROJECT_STATUS.md) and [docs/OPERATIONAL_HANDOFF.md](./docs/OPERATIONAL_HANDOFF.md).
+
 > **🎉 Project Quality & DevOps Excellence Initiative - 100% Complete!** 🎉
 >
 > *Thank you for this incredible journey of transforming SafeSoundArena into a production-ready, enterprise-grade application.*
@@ -114,7 +116,7 @@ cd frontend && npm install
 ### 3. Run Locally
 - **Backend:**
   ```bash
-  npm run start   # or node server.js
+  npm run start   # canonical backend: backend/app.js on port 4000
   ```
 - **Frontend:**
   ```bash
@@ -215,6 +217,9 @@ Pull requests are welcome! For major changes:
 
 All documentation is available in the repository:
 - **[DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md)** - Getting started
+- **[PQS_CORE_SPEC.md](./PQS_CORE_SPEC.md)** - Official-ready Party Quest System core spec
+- **[CARNIVAL_ARENA_RULES.md](./CARNIVAL_ARENA_RULES.md)** - Original Carnival Arena competitive rules
+- **[OFFICIAL_PLATFORM_READINESS.md](./OFFICIAL_PLATFORM_READINESS.md)** - Legal and platform readiness checklist for disabled-by-default official adapters
 - **[ERROR_HANDLING_GUIDE.md](./ERROR_HANDLING_GUIDE.md)** - Error patterns
 - **[AI_ADMIN_CONTROL_ROOM.md](./docs/AI_ADMIN_CONTROL_ROOM.md)** - AI Control Room Proof Command Layer
 - **[API_DOCUMENTATION.md](./API_DOCUMENTATION.md)** - API reference
@@ -278,6 +283,18 @@ Still not included in Phase 1:
 - Real GitHub/CI adapters
 
 Full documentation: [docs/AI_ADMIN_CONTROL_ROOM.md](./docs/AI_ADMIN_CONTROL_ROOM.md)
+
+---
+
+## PQS Official-Ready Integration Path
+
+This repository includes PQS, an original Competitive Party Quest System under `server/pqs/`, with Carnival Arena as the first mode. PQS is built for a future official MapleStory Worlds, MSU, or VIBE IP integration path without acting as a private server and without using proprietary client code, packets, WZ files, extracted assets, maps, monsters, logos, protected names, or copied game data.
+
+Platform integrations are adapter-based and disabled by default. The placeholders require official permission, live credentials, review approval, and applicable license terms before activation. All current rewards are internal preview rewards only, not tokens, NFTs, wallet transfers, marketplace items, or tradable assets.
+
+PQS logs every match action as an event, runs anti-abuse checks for win trading, AFK leeching, repeated matchups, scripted timing, and suspicious disconnects, and produces a SHA-512 proof hash for each completed match.
+
+Start here: [server/pqs/README.md](./server/pqs/README.md)
 
 ---
 

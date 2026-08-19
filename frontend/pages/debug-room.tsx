@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useRoom } from '../src/context/RoomContext';
+import { RoomProvider, useRoom } from '../src/context/RoomContext';
 
 interface LogEvent {
   type: string;
@@ -27,7 +27,7 @@ function getTypeColor(type: string) {
   return typeColors.default;
 }
 
-export default function DebugRoom() {
+function DebugRoomContent() {
   const { roomId } = useRoom();
   const [logs, setLogs] = useState<LogEvent[]>([]);
   const [filter, setFilter] = useState('');
@@ -132,5 +132,13 @@ export default function DebugRoom() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DebugRoom() {
+  return (
+    <RoomProvider>
+      <DebugRoomContent />
+    </RoomProvider>
   );
 }

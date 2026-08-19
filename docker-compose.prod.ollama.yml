@@ -1,0 +1,356 @@
+version: '3.8'
+
+# SafeSoundArena Production with Standalone Ollama
+# Deploy this for production: docker-compose -f docker-compose.prod.ollama.yml up -d
+# Includes: Ollama LLM, Backend API, Frontend, MongoDB, Redis, Monitoring
+
+services:
+  # ─── Ollama LLM (Standalone Service) ──────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: safesoundarena-ollama
+    restart: unless-stopped
+    
+    # Expose API for backend to connect
+    ports:
+      - '11434:11434'
+    
+    # Persistent model storage
+    volumes:
+      - ollama_models:/root/.ollama
+    
+    networks:
+      - sa-network
+    
+    # Health check to verify service is ready
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # Resource constraints (tune to your hardware)
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 12G
+        reservations:
+          cpus: '2'
+          memory: 8G
+    
+    # Environment
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_NUM_PARALLEL=2        # Parallel inference requests
+      - OLLAMA_NUM_GPU=1              # GPU support (if available)
+    
+    # Optional: GPU support on NVIDIA systems (uncomment for GPU)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "10"
+
+  # ─── MongoDB Database ─────────────────────────────────────────────────────────
+  mongodb:
+    image: mongo:7.0
+    container_name: safesoundarena-db
+    restart: unless-stopped
+    
+    ports:
+      - '27017:27017'
+    
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    
+    networks:
+      - sa-network
+    
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-changeMe123!}
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+  # ─── Redis Cache ─────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: safesoundarena-cache
+    restart: unless-stopped
+    
+    ports:
+      - '6379:6379'
+    
+    command: redis-server --requirepass ${REDIS_PASSWORD:-changeMe456!}
+    
+    volumes:
+      - redis_data:/data
+    
+    networks:
+      - sa-network
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  # ─── Backend API Server ──────────────────────────────────────────────────────
+  api-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: safesoundarena-api
+    restart: unless-stopped
+    
+    ports:
+      - '4000:4000'
+    
+    depends_on:
+      ollama:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - sa-network
+    
+    environment:
+      # Server
+      - NODE_ENV=production
+      - PORT=4000
+      
+      # AI (Ollama)
+      - AI_PROVIDER=ollama
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=mistral
+      
+      # Database
+      - MONGO_URI=mongodb://admin:${MONGO_PASSWORD:-changeMe123!}@mongodb:27017/safesoundarena?authSource=admin
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-changeMe456!}@redis:6379
+      
+      # Security
+      - NODE_ENV=production
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+      - JWT_SECRET=${JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
+      
+      # CORS
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      
+      # Pi Network (optional)
+      - PI_API_KEY=${PI_API_KEY:-}
+      - PI_PIONEER_KEY=${PI_PIONEER_KEY:-}
+      
+      # Logging
+      - LOG_LEVEL=info
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "10"
+
+  # ─── Frontend Web App ────────────────────────────────────────────────────────
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: safesoundarena-web
+    restart: unless-stopped
+    
+    ports:
+      - '3000:3000'
+    
+    depends_on:
+      - api-server
+    
+    networks:
+      - sa-network
+    
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://api-server:4000
+      - NEXT_PUBLIC_DOMAIN=${DOMAIN:-localhost}
+    
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:3000"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '1'
+          memory: 512M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "10"
+
+  # ─── Prometheus Monitoring ───────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: safesoundarena-prometheus
+    restart: unless-stopped
+    
+    ports:
+      - '9090:9090'
+    
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    
+    networks:
+      - sa-network
+    
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # ─── Grafana Dashboards ──────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: safesoundarena-grafana
+    restart: unless-stopped
+    
+    ports:
+      - '3001:3000'
+    
+    depends_on:
+      - prometheus
+    
+    volumes:
+      - ./monitoring/grafana:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    
+    networks:
+      - sa-network
+    
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # ─── Reverse Proxy (Nginx) for SSL/TLS ───────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: safesoundarena-nginx
+    restart: unless-stopped
+    
+    ports:
+      - '80:80'
+      - '443:443'
+    
+    volumes:
+      - ./devops/nginx:/etc/nginx/conf.d
+      - ./devops/ssl:/etc/nginx/ssl
+    
+    depends_on:
+      - api-server
+      - web
+    
+    networks:
+      - sa-network
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 256M
+        reservations:
+          cpus: '0.5'
+          memory: 128M
+
+networks:
+  sa-network:
+    driver: bridge
+
+volumes:
+  ollama_models:
+    driver: local
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local

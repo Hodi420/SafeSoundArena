@@ -48,13 +48,13 @@
   },
   "roles": {
     "auditor": {
-      "commands": ["inspect_status", "list_targets", "read_audit"]
+      "allowedActions": ["inspect_status", "list_targets", "read_audit"]
     },
     "agent": {
-      "commands": ["inspect_status", "list_targets", "run_diagnostic", "prepare_patch"]
+      "allowedActions": ["inspect_status", "list_targets", "run_diagnostic", "prepare_patch"]
     },
     "admin": {
-      "commands": [
+      "allowedActions": [
         "inspect_status",
         "list_targets",
         "read_audit",

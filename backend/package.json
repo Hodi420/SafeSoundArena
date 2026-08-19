@@ -2,10 +2,10 @@
   "name": "safesoundarena-server",
   "version": "1.0.0",
   "description": "Backend server for SafeSoundArena",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -13,16 +13,17 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-rate-limit": "^7.0.0",
+    "helmet": "^7.0.0",
+    "node-fetch": "^2.7.0",
     "socket.io": "^4.8.1",
     "uuid": "^11.1.0",
-    "zustand": "^4.3.0",
-    "helmet": "^7.0.0",
-    "express-rate-limit": "^7.0.0"
+    "zustand": "^4.3.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "24.x"
   }
 }

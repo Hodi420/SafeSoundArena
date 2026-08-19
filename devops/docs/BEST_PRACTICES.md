@@ -9,19 +9,19 @@ Guidelines and best practices for DevOps, Docker, Kubernetes, and monitoring in 
 **Multi-stage builds**
 ```dockerfile
 # ✅ Good: Reduces final image size
-FROM node:18-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:18-alpine
+FROM node:24-alpine
 COPY --from=builder /app/dist ./dist
 CMD ["node", "dist/index.js"]
 
 # ❌ Bad: Large image with build tools
-FROM node:18
+FROM node:24
 COPY . .
 RUN npm install && npm run build
 CMD ["npm", "start"]
@@ -81,13 +81,13 @@ USER appuser
 **Minimal base images**
 ```dockerfile
 # ✅ Good: ~160MB
-FROM node:18-alpine
+FROM node:24-alpine
 
 # ⚠️ Medium: ~350MB
-FROM node:18-slim
+FROM node:24-slim
 
 # ❌ Large: ~900MB
-FROM node:18
+FROM node:24
 ```
 
 ### Performance

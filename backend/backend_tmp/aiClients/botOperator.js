@@ -7,7 +7,7 @@ class BotOperator {
   constructor(config = {}) {
     this.position = config.position || null;
     this.components = config.components || [];
-    this.active = true;
+    this.active = config.active !== undefined ? config.active : true;
     this.actionExecutor = actionExecutor;
   }
 
@@ -30,7 +30,7 @@ class BotOperator {
   }
 
   async operate(context) {
-    if (!this.active) return;
+    if (!this.active) return false;
     // Example logic: log current state
     console.log(`Bot at position: ${this.position}, components: ${this.components.join(', ')}`);
     // 1. תקשורת עם מנגנון קונצנזוס אם נדרש

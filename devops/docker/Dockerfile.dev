@@ -1,7 +1,7 @@
 # SafeSoundArena Development Dockerfile
 # Includes development tools, debugging, and hot-reload capabilities
 
-FROM node:18-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 

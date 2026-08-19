@@ -1,6 +1,21 @@
 # 🏆 SafeSoundArena - Project Status Dashboard
 
-> **Last Updated:** May 2026 | **Overall Status:** ✅ Production Ready
+> **Last Audited:** 19 August 2026 | **Overall Status:** ⚠️ Local integration ready; GitHub merge/deployment pending
+
+> **Audit note:** This document contains historical completion claims from an earlier phase. The current audit below is authoritative for the active desktop workspace. The working tree intentionally contains pre-existing user changes and is not clean; no reset, deletion, commit, push, or PR creation was performed during this audit.
+
+## Current Audit — 19 August 2026
+
+- Active workspace: `C:\Users\idanv\OneDrive\Desktop\SafeSoundArena`
+- Git branch: `codex/phase-1-proof-layer`, synchronized with its GitHub remote branch and one commit ahead of `main`.
+- Local verification: root Mocha `80 passing`, frontend Jest `4/4`, frontend TypeScript `0` errors, frontend production build passed, and `next-app` production build passed.
+- Runtime verification: canonical `backend/app.js` passed health/Jail/MSHIX smoke checks; JailTime JSONL logging passed persistence/reload and live API checks; Docker image/container smoke passed; local Ollama inference passed for chat and embeddings.
+- Runtime contract: root/backend start scripts now use `backend/app.js` on port `4000`; feature endpoints that are not implemented in the active backend intentionally remain visible as `404` rather than hanging.
+- Feature API v1: Events, Marketplace, Quests, Guilds, Notifications, and Challenges are now served by `backend/api/featureRoutes.js` with a file-backed single-node store. This is suitable for Windows/mini-PC development and one-node operation; authentication and a shared database are still required before public production use.
+- MSHIX v1: normalized event hub, safety/lifecycle admission gates, separate Agent Execution Controller boundary, connector routing, idempotency, single-node durable Feature Outbox with retry/replay, bounded dead-letter handling, hash-chained audit integration, local Brain Kernel memory boundary, real Ollama enrichment and read-only `/mshix` dashboard are locally verified. The controller is admission-only; transactional multi-node replay, external workers and real model training remain open work.
+- Merge readiness: no conflict markers remain in the active workspace.
+- GitHub readiness: open PRs and failing Vercel/Netlify checks still require explicit integration/CI work; this branch has no open PR.
+- Release posture: not yet “production deployed”. The official platform adapters remain disabled by default and require explicit permission before activation.
 
 ---
 
@@ -65,19 +80,18 @@
 - ✅ Documentation verified
 - ✅ All configurations production-ready
 
-### Phase 4: Git Preparation (7/7 ✅)
-- ✅ Git status checked and clean
-- ✅ Diffs validated
-- ✅ Linter verification passed
-- ✅ Build testing completed
-- ✅ Commit messages prepared
-- ✅ Feature branches created
-- ✅ Final verification passed
+### Phase 4: Git Preparation (in progress)
+- ✅ Remote, branch ancestry, and GitHub branch state cross-checked
+- ✅ Active conflict markers removed and local diffs inspected
+- ✅ Local tests, type-checks, and builds verified
+- ⏳ Working tree review and commit boundary still require deliberate selection because pre-existing changes are mixed together
+- ⏳ GitHub PR/merge decision is still pending
+- ⏳ Remote CI/deployment checks are not green yet
 
-### Phase 5: Final Verification (3/3 ✅)
-- ✅ All 56 todos verified complete
-- ✅ Session completion report generated
-- ✅ Production readiness confirmed
+### Phase 5: Final Verification (local complete; release pending)
+- ✅ Current local verification recorded above
+- ✅ Audit findings and remaining GitHub blockers identified
+- ⏳ Production deployment and post-deploy verification have not been performed
 
 ---
 

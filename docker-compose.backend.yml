@@ -9,8 +9,8 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4000
-      - ADMIN_TOKEN=changeme
-      - ALLOWED_ORIGINS=*
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
     volumes:
       - ./backend:/usr/src/app
       - ./backend/mcp-permissions.json:/usr/src/app/mcp-permissions.json

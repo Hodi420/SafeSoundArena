@@ -1,61 +1,84 @@
+type WalletPayload = Record<string, unknown>;
+
+interface WalletProvider {
+  connect?: () => Promise<unknown>;
+  sendTransaction?: (payload: WalletPayload) => Promise<unknown>;
+  estimateGas?: (payload: WalletPayload) => Promise<unknown>;
+  getTransactionReceipt?: (transactionId: string) => Promise<unknown>;
+  createWallet?: () => Promise<unknown>;
+  getWalletDetails?: (walletId: string) => Promise<unknown>;
+  updateWallet?: (walletId: string, data: WalletPayload) => Promise<unknown>;
+}
+
+const getWalletProvider = (): WalletProvider => {
+  const globalWallet = globalThis as typeof globalThis & {
+    piNetwork?: WalletProvider;
+    Pi?: WalletProvider;
+  };
+  const provider = globalWallet.piNetwork || globalWallet.Pi;
+
+  if (!provider) {
+    throw new Error('Pi wallet provider is not available');
+  }
+
+  return provider;
+};
+
 export const IDAN_FOR_FILL_CONFIG = {
   PI_API_URL: 'https://api.pinetwork.com',
   APP_WALLET_ADDRESS: 'your_app_wallet_address',
-  PRIVATE_KEY: 'your_private_key',
   NETWORK: 'mainnet',
   CHAIN_ID: 'your_chain_id',
 };
 
 export async function connectWallet() {
-  const walletConnection = await piNetwork.connect();
-  return walletConnection;
+  const provider = getWalletProvider();
+  if (!provider.connect) throw new Error('Wallet connect is not supported');
+  return provider.connect();
 }
 
 export async function fetchBalance(address: string) {
-  const response = await fetch(`${IDAN_FOR_FILL_CONFIG.PI_API_URL}/balance?address=${address}`);
-  const balance = await response.json();
-  return balance;
+  const response = await fetch(`${IDAN_FOR_FILL_CONFIG.PI_API_URL}/balance?address=${encodeURIComponent(address)}`);
+  return response.json();
 }
 
 export async function sendTransaction(from: string, to: string, amount: number) {
-  const transaction = await piNetwork.sendTransaction({from, to, amount});
-  return transaction;
+  const provider = getWalletProvider();
+  if (!provider.sendTransaction) throw new Error('Wallet transactions are not supported');
+  return provider.sendTransaction({ from, to, amount });
 }
 
 export async function fetchHistory(address: string) {
-  const response = await fetch(`${IDAN_FOR_FILL_CONFIG.PI_API_URL}/history?address=${address}`);
-  const history = await response.json();
-  return history;
+  const response = await fetch(`${IDAN_FOR_FILL_CONFIG.PI_API_URL}/history?address=${encodeURIComponent(address)}`);
+  return response.json();
 }
 
 export async function estimateGas(from: string, to: string, amount: number) {
-  const gasEstimate = await piNetwork.estimateGas({from, to, amount});
-  return gasEstimate;
+  const provider = getWalletProvider();
+  if (!provider.estimateGas) throw new Error('Gas estimation is not supported');
+  return provider.estimateGas({ from, to, amount });
 }
 
 export async function getTransactionReceipt(transactionId: string) {
-  const receipt = await piNetwork.getTransactionReceipt(transactionId);
-  return receipt;
+  const provider = getWalletProvider();
+  if (!provider.getTransactionReceipt) throw new Error('Transaction receipts are not supported');
+  return provider.getTransactionReceipt(transactionId);
 }
 
-// Implement additional wallet features here
 export async function createWallet() {
-  // Placeholder for creating a new wallet
-  const newWallet = await piNetwork.createWallet();
-  return newWallet;
+  const provider = getWalletProvider();
+  if (!provider.createWallet) throw new Error('Wallet creation is not supported');
+  return provider.createWallet();
 }
 
 export async function getWalletDetails(walletId: string) {
-  // Placeholder for fetching wallet details
-  const details = await piNetwork.getWalletDetails(walletId);
-  return details;
+  const provider = getWalletProvider();
+  if (!provider.getWalletDetails) throw new Error('Wallet details are not supported');
+  return provider.getWalletDetails(walletId);
 }
 
-export async function updateWallet(walletId: string, data: any) {
-  // Placeholder for updating wallet information
-  const updatedWallet = await piNetwork.updateWallet(walletId, data);
-  return updatedWallet;
+export async function updateWallet(walletId: string, data: WalletPayload) {
+  const provider = getWalletProvider();
+  if (!provider.updateWallet) throw new Error('Wallet updates are not supported');
+  return provider.updateWallet(walletId, data);
 }
-}
-
-// Add more placeholders as needed, all marked with 'IDAN FOR FILL' label

@@ -18,19 +18,16 @@ const openai = new OpenAI({ apiKey });
 async function askOpenAI(prompt, options = {}) {
   try {
     const response = await openai.chat.completions.create({
+      ...options,
       model: options.model || 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: prompt }],
-      temperature: options.temperature || 0.7,
-      ...options
+      temperature: options.temperature !== undefined ? options.temperature : 0.7,
     });
     return response.choices[0].message.content.trim();
   } catch (error) {
-    console.error('OpenAI API error:', error.response?.data || error.message || error);
-    throw error;
-  }
-}
-
-module.exports = { askOpenAI };
+    const errorMsg = error.response?.data?.error?.message || error.message || 'Unknown error';
+    const errorCode = error.response?.status || 'UNKNOWN';
+    console.error(`OpenAI API error [${errorCode}]: ${errorMsg}`);
     throw error;
   }
 }

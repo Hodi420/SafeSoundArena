@@ -10,6 +10,17 @@ const {
   readLatestAuditHash,
   verifyAuditChain,
 } = require('./aiAdminAudit');
+const {
+  AGENT_STATES,
+  AgentLifecycleController,
+  AgentLifecycleError,
+  GlobalSafetyController,
+} = require('./agentLifecycle');
+const { AgentOrchestrator } = require('./agentOrchestrator');
+const {
+  loadAgentRuntimeState,
+  persistAgentRuntimeState,
+} = require('./agentRuntimePersistence');
 
 const DEFAULT_POLICY_PATH = path.join(__dirname, 'ai-admin-policy.json');
 const DEFAULT_AUDIT_LOG_PATH = path.join(process.cwd(), 'ai-admin-audit-log.jsonl');
@@ -275,6 +286,31 @@ function policyList(policy, key) {
   return Array.isArray(policy[key]) ? policy[key] : [];
 }
 
+function roleCommands(policy, role) {
+  const roleConfig = policy.roles && policy.roles[role];
+  if (!roleConfig) {
+    return [];
+  }
+  return Array.isArray(roleConfig)
+    ? roleConfig
+    : Array.isArray(roleConfig.allowedActions)
+      ? roleConfig.allowedActions
+      : Array.isArray(roleConfig.commands)
+        ? roleConfig.commands
+        : [];
+}
+
+function roleAllowsCommand(policy, role, commandName) {
+  return roleCommands(policy, role).includes(commandName);
+}
+
+function optionalAgentId(value) {
+  if (value === undefined || value === null || String(value).trim() === '') {
+    return null;
+  }
+  return String(value).trim();
+}
+
 function commandPolicy(policy, commandName) {
   return policy.commands && policy.commands[commandName] ? policy.commands[commandName] : null;
 }
@@ -328,6 +364,7 @@ function commandProofPayload(command) {
     command: command.command,
     risk: command.risk,
     role: command.role,
+    agentId: command.agentId,
     target: command.target,
     task: command.task,
     payload: command.payload,
@@ -348,6 +385,7 @@ function publicCommand(command) {
     command: command.command,
     risk: command.risk,
     role: command.role,
+    agentId: command.agentId,
     target: command.target,
     task: command.task,
     payload: command.payload,
@@ -383,7 +421,9 @@ function validatePolicy(policy) {
 
   Object.keys(roles).forEach((roleName) => {
     const roleConfig = roles[roleName];
-    const roleCommands = Array.isArray(roleConfig) ? roleConfig : roleConfig.commands || [];
+    const roleCommands = Array.isArray(roleConfig)
+      ? roleConfig
+      : roleConfig.allowedActions || roleConfig.commands || [];
     roleCommands.forEach((commandName) => {
       if (!categorizedCommands.has(commandName)) {
         warnings.push({
@@ -472,14 +512,13 @@ function validatePolicy(policy) {
 
 function asyncRoute(handler) {
   return (req, res) => {
-    Promise.resolve(handler(req, res)).catch(() => {
+    Promise.resolve(handler(req, res)).catch((error) => {
       const requestId = req.aiAdminRequestId || requestIdFor(req);
-      sendApiResponse(
-        res,
-        500,
-        requestId,
-        makeError('AI_ADMIN_INTERNAL_ERROR', 'Control room request failed.')
-      );
+      if (error instanceof AgentLifecycleError || (error && error.status && error.code)) {
+        sendApiResponse(res, error.status, requestId, makeError(error.code, error.message, error.details));
+        return;
+      }
+      sendApiResponse(res, 500, requestId, makeError('AI_ADMIN_INTERNAL_ERROR', 'Control room request failed.'));
     });
   };
 }
@@ -498,6 +537,59 @@ function createAiAdminGovernanceRouter(options) {
     adminToken: resolveToken(config.adminToken, process.env.AI_ADMIN_TOKEN, process.env.ADMIN_TOKEN),
     agentToken: resolveToken(config.agentToken, process.env.AI_AGENT_TOKEN, process.env.AGENT_TOKEN),
   };
+  const persistenceEnabled = config.persistenceEnabled === true;
+  const runtimeStatePath =
+    config.runtimeStatePath ||
+    process.env.AI_ADMIN_RUNTIME_STATE_PATH ||
+    path.join(process.cwd(), 'ai-admin-runtime-state.json');
+  const persistedState = persistenceEnabled ? loadAgentRuntimeState(runtimeStatePath) : null;
+  const lifecycle =
+    config.lifecycleController ||
+    new AgentLifecycleController({
+      initialAgents: config.initialAgents || [],
+      initialState: persistedState?.lifecycle,
+      heartbeatTimeoutMs: config.heartbeatTimeoutMs,
+      leaseSweepIntervalMs: config.leaseSweepIntervalMs,
+      autoStartLeaseMonitor: config.autoStartLeaseMonitor === true,
+    });
+  const safety =
+    config.safetyController ||
+    new GlobalSafetyController({
+      enabled: String(process.env.GLOBAL_AI_ENABLED || 'true').toLowerCase() !== 'false',
+      initialState: persistedState?.safety,
+    });
+  function persistRuntimeState() {
+    if (!persistenceEnabled) {
+      return null;
+    }
+    return persistAgentRuntimeState(runtimeStatePath, {
+      lifecycle: lifecycle.exportState(),
+      safety: safety.getState(),
+    });
+  }
+  if (persistenceEnabled) {
+    lifecycle.setOnChange(persistRuntimeState);
+  }
+  if (persistenceEnabled) {
+    safety.setOnChange(persistRuntimeState);
+  }
+  if (persistenceEnabled && !persistedState) {
+    persistRuntimeState();
+  }
+  const orchestrator =
+    config.orchestrator ||
+    new AgentOrchestrator({
+      lifecycleController: lifecycle,
+      safetyController: safety,
+      maxChildrenPerParent: config.maxChildrenPerParent || process.env.AGENT_MAX_CHILDREN_PER_PARENT,
+      maxTotalAgents: config.maxTotalAgents || process.env.AGENT_MAX_TOTAL_AGENTS,
+      maxChildDepth: config.maxChildDepth || process.env.AGENT_MAX_CHILD_DEPTH,
+    });
+  if (config.runtime && typeof config.runtime === 'object') {
+    config.runtime.lifecycle = lifecycle;
+    config.runtime.safety = safety;
+    config.runtime.orchestrator = orchestrator;
+  }
   let policy = loadPolicy(policyPath);
 
   if (Array.isArray(config.initialCommands)) {
@@ -554,6 +646,15 @@ function createAiAdminGovernanceRouter(options) {
         agentTokenConfigured: Boolean(tokens.agentToken),
         policyVersion: currentPolicy().version || null,
         proofVersion: COMMAND_PROOF_VERSION,
+        lifecycleVersion: 'agent-lifecycle-v1',
+        agentCount: lifecycle.listAgents().length,
+        lease: lifecycle.getLeaseConfig(),
+        orchestration: orchestrator.getCapacity(),
+        persistence: {
+          enabled: persistenceEnabled,
+          stateLoaded: Boolean(persistedState),
+        },
+        globalAiEnabled: safety.isEnabled(),
       });
     })
   );
@@ -597,12 +698,66 @@ function createAiAdminGovernanceRouter(options) {
       const activePolicy = currentPolicy();
       const risk = deriveRisk(activePolicy, commandName, body.risk);
       const flags = commandFlags(activePolicy, commandName, risk);
+      const role = String(body.role || (auth.actorType === 'admin' ? 'admin' : 'agent')).trim();
+      const agentId = optionalAgentId(body.agentId);
+      if (!activePolicy.roles || !activePolicy.roles[role]) {
+        sendApiResponse(
+          res,
+          403,
+          requestId,
+          makeError('ROLE_NOT_DEFINED', `Role "${role}" is not defined in the active policy.`)
+        );
+        return;
+      }
+
+      if (agentId && agentId.length > 128) {
+        sendApiResponse(
+          res,
+          400,
+          requestId,
+          makeError('INVALID_AGENT_ID', 'agentId must be 128 characters or fewer.')
+        );
+        return;
+      }
+
+      if (agentId && auth.actorType === 'agent' && auth.actor.id !== agentId) {
+        sendApiResponse(
+          res,
+          403,
+          requestId,
+          makeError('AGENT_IDENTITY_MISMATCH', 'An agent token may only create work for its own agentId.')
+        );
+        return;
+      }
+
+      if (!safety.isEnabled()) {
+        sendApiResponse(
+          res,
+          503,
+          requestId,
+          makeError('GLOBAL_AI_DISABLED', 'Global AI execution is disabled by the safety switch.')
+        );
+        return;
+      }
+      if (!roleAllowsCommand(activePolicy, role, commandName)) {
+        sendApiResponse(
+          res,
+          403,
+          requestId,
+          makeError(
+            'ROLE_ACTION_NOT_ALLOWED',
+            `Role "${role}" is not allowed to request command "${commandName}".`
+          )
+        );
+        return;
+      }
       const now = new Date().toISOString();
       const command = {
         id: body.id || randomId('cmd'),
         command: commandName,
         risk,
-        role: body.role || auth.actorType || 'agent',
+        role,
+        agentId,
         target: body.target || 'default',
         task: body.task || '',
         payload: body.payload === undefined ? {} : body.payload,
@@ -659,6 +814,250 @@ function createAiAdminGovernanceRouter(options) {
     })
   );
 
+  router.get(
+    '/agents',
+    asyncRoute(async (req, res) => {
+      const requestId = req.aiAdminRequestId;
+      const auth = authorizeReadOnly(req, res, requestId, tokens, controlRoomEnv);
+      if (!auth) {
+        return;
+      }
+
+      sendApiResponse(res, 200, requestId, null, {
+        agents: lifecycle.listAgents(),
+        lease: lifecycle.getLeaseConfig(),
+      });
+    })
+  );
+
+  router.get(
+    '/agents/:id',
+    asyncRoute(async (req, res) => {
+      const requestId = req.aiAdminRequestId;
+      const auth = authorizeReadOnly(req, res, requestId, tokens, controlRoomEnv);
+      if (!auth) {
+        return;
+      }
+
+      sendApiResponse(res, 200, requestId, null, {
+        agent: lifecycle.getAgent(req.params.id),
+      });
+    })
+  );
+
+  router.get(
+    '/agents/:id/children',
+    asyncRoute(async (req, res) => {
+      const requestId = req.aiAdminRequestId;
+      const auth = authorizeReadOnly(req, res, requestId, tokens, controlRoomEnv);
+      if (!auth) {
+        return;
+      }
+
+      sendApiResponse(res, 200, requestId, null, {
+        parentAgentId: req.params.id,
+        children: orchestrator.listChildren(req.params.id),
+        capacity: orchestrator.getCapacity(),
+      });
+    })
+  );
+
+  router.post(
+    '/agents',
+    asyncRoute(async (req, res) => {
+      const requestId = req.aiAdminRequestId;
+      const auth = requireAdmin(req, res, requestId, tokens);
+      if (!auth) {
+        return;
+      }
+
+      const agent = lifecycle.registerAgent(req.body || {});
+      audit('agent.registered', auth, requestId, {
+        agentId: agent.agentId,
+        status: agent.status,
+      });
+      sendApiResponse(res, 201, requestId, null, { agent });
+    })
+  );
+
+  router.post(
+    '/agents/:id/children',
+    asyncRoute(async (req, res) => {
+      const requestId = req.aiAdminRequestId;
+      const auth = requireAgentOrAdmin(req, res, requestId, tokens);
+      if (!auth) {
+        return;
+      }
+      if (auth.actorType === 'agent' && auth.actor.id !== req.params.id) {
+        sendApiResponse(
+          res,
+          403,
+          requestId,
+          makeError('AGENT_IDENTITY_MISMATCH', 'An agent token may only spawn children for itself.')
+        );
+        return;
+      }
+
+      const result = orchestrator.spawnChildAgent(req.params.id, req.body || {});
+      audit('agent.child_spawned', auth, requestId, {
+        parentAgentId: result.parent.agentId,
+        childAgentId: result.agent.agentId,
+        capacity: result.capacity,
+      });
+      sendApiResponse(res, 201, requestId, null, result);
+    })
+  );
+
+  router.post(
+    '/agents/:id/children/:childId/stop',
+    asyncRoute(async (req, res) => {
+      const requestId = req.aiAdminRequestId;
+      const auth = requireAgentOrAdmin(req, res, requestId, tokens);
+      if (!auth) {
+        return;
+      }
+      if (auth.actorType === 'agent' && auth.actor.id !== req.params.id) {
+        sendApiResponse(
+          res,
+          403,
+          requestId,
+          makeError('AGENT_IDENTITY_MISMATCH', 'An agent token may only stop children for itself.')
+        );
+        return;
+      }
+
+      const result = orchestrator.stopChildAgent(req.params.id, req.params.childId, {
+        reason: req.body?.reason,
+        actor: auth.actor,
+        requestId,
+      });
+      audit('agent.child_stopped', auth, requestId, {
+        parentAgentId: result.parent.agentId,
+        childAgentId: result.agent.agentId,
+        status: result.agent.status,
+      });
+      sendApiResponse(res, 200, requestId, null, result);
+    })
+  );
+
+  router.post(
+    '/agents/:id/transition',
+    asyncRoute(async (req, res) => {
+      const requestId = req.aiAdminRequestId;
+      const auth = requireAdmin(req, res, requestId, tokens);
+      if (!auth) {
+        return;
+      }
+
+      const targetState = req.body?.state || req.body?.to;
+      if (
+        !safety.isEnabled() &&
+        ['STARTING', 'ACTIVE', 'RESUMING'].includes(String(targetState || '').toUpperCase())
+      ) {
+        sendApiResponse(
+          res,
+          503,
+          requestId,
+          makeError('GLOBAL_AI_DISABLED', 'Global AI execution is disabled by the safety switch.')
+        );
+        return;
+      }
+      const agent = lifecycle.transitionAgent(req.params.id, targetState, {
+        reason: req.body?.reason,
+        actor: auth.actor,
+        requestId,
+        checkpointId: req.body?.checkpointId,
+      });
+      audit('agent.state_changed', auth, requestId, {
+        agentId: agent.agentId,
+        status: agent.status,
+        latestTransition: agent.history[agent.history.length - 1],
+      });
+      sendApiResponse(res, 200, requestId, null, { agent });
+    })
+  );
+
+  router.post(
+    '/agents/:id/heartbeat',
+    asyncRoute(async (req, res) => {
+      const requestId = req.aiAdminRequestId;
+      const auth = requireAgentOrAdmin(req, res, requestId, tokens);
+      if (!auth) {
+        return;
+      }
+
+      if (auth.actorType === 'agent' && auth.actor.id !== req.params.id) {
+        sendApiResponse(
+          res,
+          403,
+          requestId,
+          makeError(
+            'AGENT_IDENTITY_MISMATCH',
+            'An agent token may only send heartbeats for its own agentId.'
+          )
+        );
+        return;
+      }
+
+      const agent = lifecycle.heartbeat(req.params.id, req.body?.metadata);
+      audit('agent.heartbeat', auth, requestId, {
+        agentId: agent.agentId,
+        status: agent.status,
+        lastHeartbeatAt: agent.lastHeartbeatAt,
+      });
+      sendApiResponse(res, 200, requestId, null, { agent });
+    })
+  );
+
+  router.post(
+    '/agents/leases/sweep',
+    asyncRoute(async (req, res) => {
+      const requestId = req.aiAdminRequestId;
+      const auth = requireAdmin(req, res, requestId, tokens);
+      if (!auth) {
+        return;
+      }
+
+      const changed = lifecycle.sweepHeartbeats();
+      audit('agent.lease_sweep', auth, requestId, {
+        changedAgentIds: changed.map((agent) => agent.agentId),
+        lease: lifecycle.getLeaseConfig(),
+      });
+      sendApiResponse(res, 200, requestId, null, {
+        changed,
+        lease: lifecycle.getLeaseConfig(),
+      });
+    })
+  );
+
+  router.get(
+    '/safety',
+    asyncRoute(async (req, res) => {
+      const requestId = req.aiAdminRequestId;
+      const auth = authorizeReadOnly(req, res, requestId, tokens, controlRoomEnv);
+      if (!auth) {
+        return;
+      }
+
+      sendApiResponse(res, 200, requestId, null, safety.getState());
+    })
+  );
+
+  router.post(
+    '/safety/global',
+    asyncRoute(async (req, res) => {
+      const requestId = req.aiAdminRequestId;
+      const auth = requireAdmin(req, res, requestId, tokens);
+      if (!auth) {
+        return;
+      }
+
+      const state = safety.setEnabled(req.body?.enabled, { actor: auth.actor });
+      audit('safety.global_switch_changed', auth, requestId, state);
+      sendApiResponse(res, 200, requestId, null, state);
+    })
+  );
+
   router.post(
     '/commands/:id/assess',
     asyncRoute(async (req, res) => {
@@ -674,6 +1073,18 @@ function createAiAdminGovernanceRouter(options) {
       }
 
       const activePolicy = currentPolicy();
+      if (!roleAllowsCommand(activePolicy, command.role, command.command)) {
+        sendApiResponse(
+          res,
+          403,
+          requestId,
+          makeError(
+            'ROLE_ACTION_NOT_ALLOWED',
+            `Role "${command.role}" is no longer allowed to assess command "${command.command}".`
+          )
+        );
+        return;
+      }
       const flags = commandFlags(activePolicy, command.command, command.risk);
       const now = new Date().toISOString();
       command.assessment = {
@@ -791,6 +1202,74 @@ function createAiAdminGovernanceRouter(options) {
         : requireAgentOrAdmin(req, res, requestId, tokens);
       if (!auth) {
         return;
+      }
+
+      if (!safety.isEnabled()) {
+        sendApiResponse(
+          res,
+          503,
+          requestId,
+          makeError('GLOBAL_AI_DISABLED', 'Global AI execution is disabled by the safety switch.')
+        );
+        return;
+      }
+
+      const activePolicy = currentPolicy();
+      if (!roleAllowsCommand(activePolicy, command.role, command.command)) {
+        sendApiResponse(
+          res,
+          403,
+          requestId,
+          makeError(
+            'ROLE_ACTION_NOT_ALLOWED',
+            `Role "${command.role}" is no longer allowed to dispatch command "${command.command}".`
+          )
+        );
+        return;
+      }
+
+      if (command.agentId) {
+        const targetAgent = lifecycle.getAgent(command.agentId);
+        if (auth.actorType === 'agent' && auth.actor.id !== command.agentId) {
+          sendApiResponse(
+            res,
+            403,
+            requestId,
+            makeError(
+              'AGENT_IDENTITY_MISMATCH',
+              'An agent token may only dispatch work for its own agentId.'
+            )
+          );
+          return;
+        }
+
+        if (targetAgent.status === AGENT_STATES.JAILED) {
+          sendApiResponse(
+            res,
+            423,
+            requestId,
+            makeError(
+              'AGENT_JAILED',
+              `Agent "${command.agentId}" is jailed and cannot receive work.`,
+              { agentId: command.agentId, status: targetAgent.status }
+            )
+          );
+          return;
+        }
+
+        if (!lifecycle.canAcceptWork(command.agentId)) {
+          sendApiResponse(
+            res,
+            409,
+            requestId,
+            makeError(
+              'AGENT_NOT_DISPATCHABLE',
+              `Agent "${command.agentId}" is not dispatchable in state ${targetAgent.status}.`,
+              { agentId: command.agentId, status: targetAgent.status }
+            )
+          );
+          return;
+        }
       }
 
       const requestedActorType = String(

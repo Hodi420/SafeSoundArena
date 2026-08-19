@@ -1,8 +1,8 @@
 // Utility functions for interacting with the Community Boards API
-export async function getBoard(board: 'shame' | 'fame' | 'sites') {
+export async function getBoard<T = unknown>(board: 'shame' | 'fame' | 'sites'): Promise<T> {
   const res = await fetch(`/api/boards/${board}`);
   if (!res.ok) throw new Error('Failed to fetch board');
-  return await res.json();
+  return await res.json() as T;
 }
 
 export async function reportUser(data: { username: string; type: string; description: string; evidence: string[] }) {

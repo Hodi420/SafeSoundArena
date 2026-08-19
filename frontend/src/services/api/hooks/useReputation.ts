@@ -4,7 +4,7 @@ import { useToast } from '../../../components/ToastContext';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../client';
 import { API_ENDPOINTS } from '../endpoints';
-import { Reputation, FactionReputation } from '../../types/api';
+import { Reputation, FactionReputation } from '../../../types/api';
 
 /**
  * useFactions - advanced navigation logic for FactionSelector.

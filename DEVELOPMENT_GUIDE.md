@@ -1,5 +1,7 @@
 # SafeSoundArena - Code Quality & DevOps Guide
 
+> **Current audit (19 August 2026):** The active desktop workspace is `C:\Users\idanv\OneDrive\Desktop\SafeSoundArena`. Root tests, frontend tests, production builds, frontend/next-app TypeScript checks, Docker image builds, and local container smoke checks pass. The canonical runtime is `backend/app.js` on port `4000`, the frontend uses a runtime `/api` proxy, and the first feature API group is connected through a file-backed single-node store. GitHub integration is still pending: the active branch is one commit ahead of `main`, has no open PR, and remote deployment checks are not yet green. Authentication and shared persistence remain required before public Production. Sections below that describe “0%”, “29 conflicts”, or “production ready” are historical planning notes and should not override the current audit.
+
 ## 📚 Complete Documentation Index
 
 ### 🏗️ DevOps & Infrastructure

@@ -18,6 +18,53 @@ The API response contract remains:
 
 Critical actions stay human-gated. Low-risk agent operations require a valid agent token or admin token. Admin operations require a valid admin token.
 
+## Agent Lifecycle Controller
+
+The Control Room now includes an in-memory lifecycle controller for the first safety gate. An Agent must be registered before it can be moved through an explicitly allowed state transition:
+
+```text
+REGISTERED -> STARTING -> ACTIVE
+ACTIVE -> PAUSING -> PAUSED -> RESUMING -> ACTIVE
+ACTIVE -> JAILED | FAILED | UNHEALTHY | LOST | STOPPING
+UNHEALTHY -> RECOVERING | LOST | STOPPING | KILLED
+FAILED/LOST -> RECOVERING or ROLLING_BACK
+STOPPING -> STOPPED
+```
+
+Additional terminal and safety states are supported: `CANCELLED` and `KILLED`. Invalid transitions return a structured `409 INVALID_AGENT_TRANSITION` response and do not mutate state. Each transition records actor, reason, request ID, timestamp and optional checkpoint ID in the Agent history.
+
+The lifecycle API is mounted below the Control Room base path:
+
+```http
+GET  /agents
+GET  /agents/:id
+POST /agents
+POST /agents/:id/transition
+POST /agents/:id/heartbeat
+POST /agents/leases/sweep
+GET  /agents/:id/children
+POST /agents/:id/children
+POST /agents/:id/children/:childId/stop
+```
+
+Registration, state transitions and manual lease sweeps require an admin token. Heartbeats require an agent or admin token; an agent token must also identify the same agent with `x-agent-id`. Active agents are checked against `AGENT_HEARTBEAT_TIMEOUT_MS`; the first missed lease moves the agent to `UNHEALTHY`, and the next missed lease moves it to `LOST`. The monitor can be enabled with `AGENT_LEASE_MONITOR=true` and runs every `AGENT_LEASE_SWEEP_INTERVAL_MS`.
+
+Pause/resume requires a checkpoint handoff. The `PAUSING -> PAUSED` transition must include a non-empty `checkpointId`; `PAUSED -> RESUMING` reuses that ID, or accepts it only when the supplied ID matches. The ID is currently an auditable pointer supplied by the worker/adapter, not a durable snapshot. A real checkpoint store and restore adapter belong to the persistence/rollback phase.
+
+The canonical `backend/app.js` enables local JSON persistence through `AI_ADMIN_RUNTIME_STATE_PATH` (under `SAFESOUND_DATA_DIR` by default). The state file is replaced through a temporary file and rename, and is loaded on restart. `src/server/index.cjs` remains persistence-off unless `persistenceEnabled: true` is passed. This is single-node persistence; database locking, multi-node coordination and real rollback adapters remain later phases.
+
+## Server-side Role Enforcement
+
+Command creation now checks the requested role against `policy.roles[role].allowedActions`. A command that is not allowed for the selected role is rejected with `403 ROLE_ACTION_NOT_ALLOWED`; the same check is repeated during assessment and dispatch so a policy reload cannot silently widen permissions. The runtime accepts the previous `commands` field as a compatibility fallback, but the canonical policy schema is `allowedActions`. The admin token may intentionally request a lower-privilege policy role, while agent-token requests default to the `agent` role.
+
+Commands may include an optional `agentId` to bind work to a registered lifecycle agent. Agent-token requests and dispatches must identify that same agent. Dispatch is rejected for `JAILED` agents with `423 AGENT_JAILED`, and for every other non-`ACTIVE` state with `409 AGENT_NOT_DISPATCHABLE`.
+
+Child-agent orchestration is bounded and registration-only at this stage. `AGENT_MAX_CHILDREN_PER_PARENT`, `AGENT_MAX_TOTAL_AGENTS` and `AGENT_MAX_CHILD_DEPTH` cap fan-out, total live registrations and nesting depth. Spawning requires an `ACTIVE` parent and the global safety switch; stopping a child releases its live-agent slot. It does not start an external worker process or queue yet.
+
+## Global Safety Switch
+
+`GLOBAL_AI_ENABLED` defaults to `true` for development and can be set to `false` before startup. The runtime also exposes the admin-gated endpoint `POST /safety/global` and the read endpoint `GET /safety`. When disabled, new commands, dispatches and transitions into `STARTING`, `ACTIVE` or `RESUMING` are rejected with `503 GLOBAL_AI_DISABLED`. This switch is currently process-local; durable storage and an external kill path remain required before multi-node production use.
+
 ## Audit Hash Chain
 
 Audit events are appended as JSON lines. Each event includes:
@@ -200,6 +247,7 @@ Still not included:
 - Blockchain anchoring
 - Proof of Humanity verification
 - External worker queue
+- External worker execution and durable orchestration state
 - Real GitHub/CI adapters
 
 Before integrating with a real project, add a durable database, a real identity provider, scoped authorization, production audit storage, rate limiting, and project-specific command adapters.

@@ -9,18 +9,6 @@
  * - תיעוד API
  * - תואם דוקר
  */
-// Import users/roles from external source (e.g., LDAP, API, CSV)
-function importExternalUsers(usersArr) {
-  usersArr.forEach(({ userId, roles }) => {
-    if (!permissions[userId]) permissions[userId] = [];
-    roles.forEach(role => {
-      if (!permissions[userId].includes(role)) permissions[userId].push(role);
-    });
-  });
-  savePermissions();
-}
-
-// Example: importExternalUsers([{userId: 'ldapUser', roles: ['read','write']}]);
 /**
  * Example usage:
  *
@@ -60,6 +48,18 @@ function savePermissions() {
   } catch (e) {
     console.error('[MCP] Failed to save permissions:', e);
   }
+}
+
+// Import users/roles from external source (e.g., LDAP, API, CSV)
+// Must be defined after permissions and savePermissions are declared
+function importExternalUsers(usersArr) {
+  usersArr.forEach(({ userId, roles }) => {
+    if (!permissions[userId]) permissions[userId] = [];
+    roles.forEach(role => {
+      if (!permissions[userId].includes(role)) permissions[userId].push(role);
+    });
+  });
+  savePermissions();
 }
 
 function addPermission(userId, role) {
@@ -122,6 +122,7 @@ module.exports = {
   getUserRoles,
   setDefaultRoles,
   getAllUsers,
+  importExternalUsers,
   permissions, // for debugging
   savePermissions,
   loadPermissions

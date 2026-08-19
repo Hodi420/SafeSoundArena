@@ -1,0 +1,7 @@
+{
+  "name": "default-agent",
+  "version": "1.0.0",
+  "description": "Default agent configuration",
+  "providers": [],
+  "settings": {}
+}

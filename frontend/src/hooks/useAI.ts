@@ -16,11 +16,7 @@ export interface ChatMessage {
 export interface AIContext {
   currentQuest?: string;
   recentAchievements: string[];
-<<<<<<< HEAD
   userPreferences: Record<string, unknown>;
-=======
-  userPreferences: Record<string, any>;
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
   emotionalState: string;
 }
 

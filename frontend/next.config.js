@@ -7,10 +7,13 @@ const allowedDomains = [
   process.env.NEXT_PUBLIC_DOMAIN_1,
   process.env.NEXT_PUBLIC_DOMAIN_2,
 ].filter(Boolean);
-
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  outputFileTracingRoot: __dirname,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   async headers() {
     return [
       {

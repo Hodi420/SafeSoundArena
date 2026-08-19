@@ -1,88 +1,57 @@
-# Multi-stage build for production
+# Multi-stage build for production - optimized for layer caching and minimal image size
+
 # Builder stage
-FROM node:18-alpine AS runner
+FROM node:24-alpine AS builder
 
-# הגבלות זמן ריצה
-RUN apk add --no-cache tini
-ENTRYPOINT ["/sbin/tini", "--"]
-
-# הרצה עם הרשאות מוגבלות
-USER nodejs
-
-# הגבלות משאבים
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:${PORT}', (res) => { \
-    if (res.statusCode === 200) process.exit(0); \
-    else process.exit(1); \
-  }).on('error', () => process.exit(1))"
-
-# אבטחת תהליכים
-RUN sysctl -w kernel.yama.ptrace_scope=1
-RUN sysctl -w kernel.kptr_restrict=2
-
-# הגבלות משאבים
-RUN apk add --no-cache dumb-init
-RUN addgroup -S nodejs && adduser -S nodejs -G nodejs
-USER nodejs
-
-# הגדרות אבטחה
-ENV NODE_ENV=production
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
 ENV NODE_OPTIONS='--max-old-space-size=512 --heapsnapshot-signal=SIGUSR2'
 
-# הרשאות קבצים
-RUN chown -R nodejs:nodejs /app
-RUN find /app -type d -exec chmod 755 {} \; 
-RUN find /app -type f -exec chmod 644 {} \;
 WORKDIR /app
+
+# Copy dependency manifests first for better layer caching
 COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npm run build
-
-# Runner stage
-FROM node:18-alpine AS runner
-
-# הגבלות זמן ריצה
-RUN apk add --no-cache tini
-ENTRYPOINT ["/sbin/tini", "--"]
-
-# הרצה עם הרשאות מוגבלות
-USER nodejs
-
-# הגבלות משאבים
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:${PORT}', (res) => { \
-    if (res.statusCode === 200) process.exit(0); \
-    else process.exit(1); \
-  }).on('error', () => process.exit(1))"
-
-# אבטחת תהליכים
-RUN sysctl -w kernel.yama.ptrace_scope=1
-RUN sysctl -w kernel.kptr_restrict=2
-WORKDIR /app
-
-# Add non-root user for security
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-# Copy built files from builder
-COPY --from=builder /app .
-COPY --from=builder /app/package*.json ./
 
 # Install production dependencies only
-RUN npm ci --only=production
+RUN npm ci --omit=dev --no-audit --no-fund
 
-# Set security policies
-COPY seccomp.json /seccomp.json
+# Copy application code
+COPY . .
 
-# Set non-root user
-USER appuser
+# Runner stage - minimal attack surface
+FROM node:24-alpine
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s \
-  CMD curl -f http://localhost:3000/health || exit 1
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+ENV NODE_OPTIONS='--max-old-space-size=512 --heapsnapshot-signal=SIGUSR2'
 
-# Expose port
-EXPOSE 3000
+# Install only runtime dependencies (curl for healthcheck, tini for signal handling)
+RUN apk add --no-cache tini curl && \
+    apk add --no-cache --virtual .build-deps ca-certificates && \
+    rm -rf /var/cache/apk/*
 
-# Start application
-CMD ["npm", "start"]
+WORKDIR /app
+
+# Create non-root user early for security
+RUN addgroup -S nodejs && \
+    adduser -S nodejs -G nodejs
+
+# Copy built application from builder stage
+COPY --from=builder --chown=nodejs:nodejs /app .
+
+# Keep the single-node feature state writable without running the service as root.
+RUN mkdir -p /app/data && chown -R nodejs:nodejs /app/data
+
+# Set non-root user for runtime
+USER nodejs
+
+# Healthcheck - uses curl instead of Node for lower overhead
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:${PORT:-4000}/api/health || exit 1
+
+# Use tini to handle signals properly
+ENTRYPOINT ["/sbin/tini", "--"]
+
+EXPOSE 4000
+
+CMD ["node", "backend/app.js"]
