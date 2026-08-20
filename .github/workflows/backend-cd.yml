@@ -3,6 +3,9 @@
 
 name: Backend CD
 
+env:
+  IMAGE_NAME: hodi420/safesoundarena
+
 on:
   push:
     branches: [ main ]
@@ -27,6 +30,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Docker image
-        run: docker build -t ghcr.io/${{ github.repository }}/backend:latest .
+        run: docker build -t ghcr.io/${{ env.IMAGE_NAME }}/backend:latest .
       - name: Push Docker image
-        run: docker push ghcr.io/${{ github.repository }}/backend:latest
+        run: docker push ghcr.io/${{ env.IMAGE_NAME }}/backend:latest
