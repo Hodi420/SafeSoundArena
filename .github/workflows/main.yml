@@ -59,11 +59,14 @@ jobs:
         uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Build image for container scan
+        run: docker build --tag safesoundarena-security:${{ github.sha }} .
           
       - name: Run container scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}'
+          image-ref: 'safesoundarena-security:${{ github.sha }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
