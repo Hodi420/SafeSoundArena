@@ -28,7 +28,7 @@ ENV NODE_OPTIONS='--max-old-space-size=512 --heapsnapshot-signal=SIGUSR2'
 # Install only runtime dependencies (curl for healthcheck, tini for signal handling)
 RUN apk add --no-cache tini curl && \
     apk add --no-cache --virtual .build-deps ca-certificates && \
-    rm -rf /var/cache/apk/*
+    rm -rf /var/cache/apk/* /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 WORKDIR /app
 
