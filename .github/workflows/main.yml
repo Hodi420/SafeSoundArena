@@ -75,6 +75,9 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     needs: [test, security-scan]
     steps:
       - uses: actions/checkout@v4
