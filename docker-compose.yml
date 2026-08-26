@@ -74,7 +74,7 @@ services:
       - sa-network
 
   ipfs:
-    image: ipfs/go-ipfs:latest
+    image: ipfs/kubo:latest
     ports:
       - '5001:5001'
       - '8080:8080'

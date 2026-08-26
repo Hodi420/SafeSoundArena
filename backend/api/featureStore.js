@@ -14,14 +14,17 @@ function clone(value) {
 }
 
 function createSeedState() {
+  const now = new Date();
+  const futureStart = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const futureEnd = new Date(now.getTime() + 9 * 24 * 60 * 60 * 1000).toISOString();
   return {
     events: [
       {
         id: 'event-carnival',
         title: 'Carnival Arena',
         description: 'Compete in the next SafeSoundArena activity cycle.',
-        startTime: '2026-08-20T18:00:00.000Z',
-        endTime: '2026-08-20T20:00:00.000Z',
+        startTime: futureStart,
+        endTime: futureEnd,
         capacity: 100,
         type: 'tournament',
         rewards: [{ amount: 100, type: 'Pi' }],
