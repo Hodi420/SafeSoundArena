@@ -1,0 +1,19 @@
+# Project-scoped documentation MCPs only; no credentials or runtime access.
+# Send generic documentation questions, never source files, secrets or user data.
+# Existing GitHub/Notion connections and global settings are not changed here.
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+enabled = true
+required = false
+startup_timeout_sec = 20
+tool_timeout_sec = 30
+enabled_tools = ["search_openai_docs", "list_openai_docs", "fetch_openai_doc", "list_api_endpoints", "get_openapi_spec"]
+
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"
+enabled = true
+required = false
+startup_timeout_sec = 20
+tool_timeout_sec = 30
+enabled_tools = ["resolve-library-id", "query-docs"]

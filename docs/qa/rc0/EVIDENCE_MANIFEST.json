@@ -1,0 +1,23 @@
+{
+  "submissionId": "SSA-RC0-QA-20260827-v1",
+  "inventoryDate": "2026-08-27",
+  "runId": "rc0-20260827-01",
+  "testedRevision": "e33cfd88d127c5e7cd1a7266295aa924b9935b3b",
+  "evidenceRootRelativeToRepository": "temp/rc0-20260827-01",
+  "disposition": "LOCAL_REVIEW_ONLY_NOT_UPLOADED",
+  "note": "Hashes identify existing original files, not a digital signature, secret scan, new test run, or release approval. temp is Git-ignored. E07-E10 are one-shot audit sources, not a rerunnable deployment recipe. snapshot/ is incomplete; use snapshot-02/source only.",
+  "files": [
+    { "id": "E01", "path": "unit-result.json", "bytes": 520, "sha256": "5ad8b51ad86c0a804baed8b6a6ecef3dfdd771539f7c2d8ecf9bfa0bd216bc6f", "role": "machine_result_and_exit", "deliveryTier": "review_evidence" },
+    { "id": "E02", "path": "unit-output.log", "bytes": 3736, "sha256": "9d8825b6a8a38635ee5ab2f5efeb9d29ecdbdb69b3ce56a0473b5b45d760b9a7", "role": "test_titles_and_isolation_precheck", "deliveryTier": "review_evidence" },
+    { "id": "E03", "path": "snapshot-02/source/rc0-manifest.json", "bytes": 20037, "sha256": "c132d11d210cf44862aeee3e6a4d415a61ae7c332983acb45ae7402e9b800cb8", "role": "source_and_dependency_inventory", "deliveryTier": "review_evidence" },
+    { "id": "E04", "path": "container-created-03.json", "bytes": 476, "sha256": "63443df3ba102e2f232a5fd4aba339113788bf0fda472a6d73a360af5da4649c", "role": "condensed_container_preflight_not_final_state", "deliveryTier": "review_evidence" },
+    { "id": "E05", "path": "prepared-image.json", "bytes": 698, "sha256": "387d9b88b2d6e78be8e928f46418303c78fb9febe499e329dc5136e849706c27", "role": "local_packaging_provenance_image_already_removed", "deliveryTier": "review_evidence" },
+    { "id": "E06", "path": "REPORT.md", "bytes": 6760, "sha256": "510ad80ea66e7877630b0b3be41de1433cdc26e70c012fcbd1591b9bdfe20a20", "role": "original_narrative_and_cleanup_summary_not_raw_cleanup_transcript", "deliveryTier": "review_evidence" },
+    { "id": "E07", "path": "check.cjs", "bytes": 4411, "sha256": "c0580e88ebf48bd6228a9b9165b2dcf4e497a18f5319d95a246ed8b26e61c715", "role": "reviewed_in_container_runner_source", "deliveryTier": "local_audit_only" },
+    { "id": "E08", "path": "stage.cjs", "bytes": 7569, "sha256": "b2e0113672ea774a175a0ff7d7f5105a58b75b8231e1395745d8092d0ca66eb6", "role": "one_shot_staging_source", "deliveryTier": "local_audit_only" },
+    { "id": "E09", "path": "control.cjs", "bytes": 9220, "sha256": "166563925b4470897521373fd02cf7801dc4e3ae6318352235e06c972e266437", "role": "one_shot_host_controller_source_not_ready_for_rerun", "deliveryTier": "local_audit_only" },
+    { "id": "E10", "path": "runner-copy-check.cjs", "bytes": 4411, "sha256": "c0580e88ebf48bd6228a9b9165b2dcf4e497a18f5319d95a246ed8b26e61c715", "role": "runner_copied_back_for_identity_check", "deliveryTier": "local_audit_only" }
+  ],
+  "excluded": ["snapshot/", ".env*", "real runtime state", "real audit or permission data", "node_modules", "volumes", "Docker images", "entire repository"],
+  "remoteHandoffRequirements": ["authorized recipient and channel", "review redaction and access", "transfer only an explicit allowlist", "record new hash for any redacted derivative", "preserve original evidence"]
+}

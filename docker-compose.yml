@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - '4000:4000'
+      - '127.0.0.1:4000:4000'
     environment:
       - PI_API_KEY=${PI_API_KEY}
       - NODE_ENV=${NODE_ENV:-production}
@@ -62,7 +62,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - '3000:3000'
+      - '127.0.0.1:3000:3000'
     environment:
       - NEXT_PUBLIC_API_URL=/api
       - BACKEND_URL=http://api-server:4000
@@ -76,8 +76,8 @@ services:
   ipfs:
     image: ipfs/kubo:latest
     ports:
-      - '5001:5001'
-      - '8080:8080'
+      - '127.0.0.1:5001:5001'
+      - '127.0.0.1:8080:8080'
     volumes:
       - ipfs_data:/data/ipfs
     networks:

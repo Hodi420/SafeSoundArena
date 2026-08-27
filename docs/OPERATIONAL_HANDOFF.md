@@ -4,7 +4,17 @@
 
 `C:\Users\idanv\OneDrive\Desktop\SafeSoundArena`
 
-## מה כבר מוכן
+## עדכון QA — 27 באוגוסט 2026
+
+**לפני מעבר למיני־PC:** לקרוא את [מפת הפרויקט](PROJECT_FILE_MAP.md), [בדיקת המוכנות](MINI_PC_READINESS.md) ו־[גבול מסירת Git/MCP](GIT_MCP_HANDOFF.md). הוגדרו חיבורי תיעוד, לא חיבור למכשיר. סקירת המקור מצאה חסמים; לא בוצעה התקנה או קבלת מערכת על יעד חדש.
+
+**ההגשה העדכנית:** [חבילת QA של RC-0](qa/rc0/README.md), הכוללת STP/STD/STR, מלאי בדיקות, עקיבות וממצאים. 46/46 בדיקות יחידה ואחסון נבחרות עברו בסביבה מבודדת; API/UI, בדיקות מערכת, CI ופריסה לא אומתו מחדש. מסמכי ההגשה ממתינים לסקירה, ואינם אישור שחרור.
+
+הפקודות והאימותים בהמשך מתעדים מסלול תפעולי קודם. הם **אינם מתכון להרצה מבודדת של RC-0**: אין לבצע כעת העתקת `.env` עם overwrite, `up --build`, restart, הורדות או שימוש בנתוני השירותים הקיימים מכוח מסמך זה. להרצת API + Frontend נדרשים קודם [תנאי הכניסה ב־STP](qa/rc0/STP.md) ונתוני דמה נפרדים. דגלי PQS/auto-enrich ופרסום loopback לבדם אינם הוכחה לחסימת יציאה חיצונית.
+
+ראיות ההרצה המקוריות נשמרות ללא שינוי תחת `temp/rc0-20260827-01`; [STR](qa/rc0/STR.md) מפריד ביניהן לבין תכנון ההמשך. שינוי Compose הקיים לא נערך בחידוד זה. אין להשתמש ב־image האריזה או בסקריפטי ה־scratch כ־artifact/Runbook למסירה.
+
+## בסיס תפעולי קודם — לא אימות חוזר
 
 - Backend קנוני: `backend/app.js`, פורט `4000`.
 - Frontend קנוני: `frontend`, פורט `3000`.
@@ -23,7 +33,7 @@
 - בדיקת readiness: `scripts/validate-runtime-config.ps1`.
 - Runtime אחיד: Node `24.x LTS`; Docker images ו־CI עודכנו בהתאם.
 
-## שער הפעלה אחרון — 2026-08-19
+## שער הפעלה היסטורי — 2026-08-19
 
 - שלושת עצי התלויות אומתו ללא vulnerabilities: root/workspaces, `frontend` standalone ו־`next-app`.
 - Root Mocha: `80 passing`; Frontend Jest: `4/4`; TypeScript, lint ו־production builds עברו. ה־lint מסתיים עם `0 errors` ו־`60 warnings` קיימים שאינם חוסמים את ההפעלה.

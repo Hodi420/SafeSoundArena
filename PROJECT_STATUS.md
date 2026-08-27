@@ -1,10 +1,27 @@
 # 🏆 SafeSoundArena - Project Status Dashboard
 
-> **Last Audited:** 19 August 2026 | **Overall Status:** ⚠️ Local integration ready; GitHub merge/deployment pending
+> **Latest QA evidence:** 27 August 2026 | **Status:** 46 selected unit/storage tests passed; full RC-0 and release remain unverified.
 
-> **Audit note:** This document contains historical completion claims from an earlier phase. The current audit below is authoritative for the active desktop workspace. The working tree intentionally contains pre-existing user changes and is not clean; no reset, deletion, commit, push, or PR creation was performed during this audit.
+> **Scope note:** The 19 August audit and older completion claims below are historical, not a fresh run or current release approval. The active QA handoff separates execution evidence, source observations, planned tests and approval gates. Pre-existing user changes are preserved.
 
-## Current Audit — 19 August 2026
+## Repository handoff and mini-PC assessment — 27 August 2026
+
+- [Project file map](docs/PROJECT_FILE_MAP.md): 614 tracked paths at the starting revision, with canonical and legacy runtime boundaries.
+- [Git and MCP handoff](docs/GIT_MCP_HANDOFF.md): the user authorized a scoped commit/push to the existing branch. Documentation MCPs were configured per project and passed live read-only protocol/query checks; existing GitHub and Notion access was verified. No global permissions were changed.
+- [Mini-PC readiness](docs/MINI_PC_READINESS.md): static assessment completed; `NOT_READY_FOR_DEPLOYMENT`. Hardware/OS are unknown, and packaging, isolation, state/restart, UI/auth and artifact/CI gates remain open. No target installation or application test was run in this handoff.
+- The pre-existing Compose loopback change is included unchanged in the handoff. Git publication is separate from PR/merge, release approval, image publication and deployment; final remote verification is recorded in the linked Notion hub.
+
+## QA evidence and earlier documentation refinement — 27 August 2026
+
+- [RC-0 QA submission](docs/qa/rc0/README.md): STP, STD, STR, 46-case inventory, traceability/findings and evidence hashes. Documentation review is pending; no release approval is recorded.
+- Tested revision: `e33cfd88d127c5e7cd1a7266295aa924b9935b3b`, branch `codex/phase-1-proof-layer`; run `rc0-20260827-01`.
+- Verified result: 46 selected unit/storage tests passed, 0 failures/pending, exit code 0, in an offline, read-only, no-host-mount container with synthetic fixtures. This is not a coverage percentage or the full project test suite.
+- Not rerun: HTTP/UI, authentication as a system, Socket.IO, full root/frontend suites, builds/typecheck, remote CI, real models, service restart/restore, deployment and post-deploy checks. Existing services were not used for the unit run.
+- The original evidence is preserved under `temp/rc0-20260827-01` (Git-ignored). [STR](docs/qa/rc0/STR.md) distinguishes raw test evidence from narrative cleanup records and source-derived findings.
+- During the earlier QA documentation refinement, the pre-existing `docker-compose.yml` loopback change remained untouched and no application code, test rerun, commit, push, PR or deployment was performed. The later user-authorized Git handoff is tracked separately above.
+- SSA-1/SSA-2 remain in progress. Auth, persistence, CI and release tasks are not closed by this unit result or by preparing QA documents.
+
+## Historical audit — 19 August 2026 (not rerun in full)
 
 - Active workspace: `C:\Users\idanv\OneDrive\Desktop\SafeSoundArena`
 - Git branch: `codex/phase-1-proof-layer`, synchronized with its GitHub remote branch and one commit ahead of `main`.
