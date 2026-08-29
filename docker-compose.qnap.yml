@@ -1,0 +1,74 @@
+# Additive QNAP safety layer for the canonical docker-compose.yml.
+# This file does not make the services LAN-accessible. Use it only together with
+# the canonical file and an explicit, untracked NAS environment file.
+
+x-qnap-logging: &qnap-logging
+  driver: json-file
+  options:
+    max-size: ${SAFESOUND_QNAP_LOG_MAX_SIZE:-10m}
+    max-file: ${SAFESOUND_QNAP_LOG_MAX_FILES:-3}
+
+services:
+  api-server:
+    profiles: [qnap]
+    platform: ${SAFESOUND_QNAP_PLATFORM:?Set SAFESOUND_QNAP_PLATFORM to linux/amd64 or linux/arm64}
+    image: safesoundarena-api:${SAFESOUND_QNAP_RELEASE_ID:?Set SAFESOUND_QNAP_RELEASE_ID to an immutable release identifier}
+    ports:
+      - '127.0.0.1:4000:4000'
+    environment:
+      - GLOBAL_AI_ENABLED=${GLOBAL_AI_ENABLED:-false}
+      - MSHIX_BRAIN_AUTO_ENRICH=${MSHIX_BRAIN_AUTO_ENRICH:-false}
+      # QNAP/Linux containers must not inherit the Windows-only host.docker.internal default.
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://127.0.0.1:11434}
+    restart: unless-stopped
+    logging: *qnap-logging
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          body="$$(curl -fsS http://127.0.0.1:4000/api/health)" &&
+          printf '%s' "$$body" |
+          grep -Eq '"status"[[:space:]]*:[[:space:]]*"ok"'
+      interval: 20s
+      timeout: 8s
+      retries: 5
+      start_period: 45s
+
+  frontend:
+    profiles: [qnap]
+    platform: ${SAFESOUND_QNAP_PLATFORM:?Set SAFESOUND_QNAP_PLATFORM to linux/amd64 or linux/arm64}
+    image: safesoundarena-frontend:${SAFESOUND_QNAP_RELEASE_ID:?Set SAFESOUND_QNAP_RELEASE_ID to an immutable release identifier}
+    ports:
+      - '127.0.0.1:3000:3000'
+    restart: unless-stopped
+    logging: *qnap-logging
+    healthcheck:
+      test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1:3000/ || exit 1"]
+      interval: 20s
+      timeout: 8s
+      retries: 5
+      start_period: 45s
+
+  # Kubo is excluded from the baseline QNAP profile. It starts only when the
+  # separate qnap-ipfs profile is explicitly selected and preflighted.
+  ipfs:
+    profiles: [qnap-ipfs]
+    platform: ${SAFESOUND_QNAP_PLATFORM:?Set SAFESOUND_QNAP_PLATFORM to linux/amd64 or linux/arm64}
+    image: ${SAFESOUND_QNAP_IPFS_IMAGE:-ipfs/kubo:latest}
+    ports:
+      - '127.0.0.1:5001:5001'
+      - '127.0.0.1:8080:8080'
+    restart: unless-stopped
+    logging: *qnap-logging
+    healthcheck:
+      test: [CMD-SHELL, "ipfs id >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+
+volumes:
+  feature_data:
+    name: ${SAFESOUND_QNAP_FEATURE_VOLUME:?Set a stable feature-data volume name}
+  ipfs_data:
+    name: ${SAFESOUND_QNAP_IPFS_VOLUME:?Set a stable IPFS volume name}
