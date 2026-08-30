@@ -16,6 +16,7 @@
     "node": "24.x"
   },
   "overrides": {
+    "qs": "6.16.0",
     "mocha": {
       "serialize-javascript": "7.1.0"
     }
