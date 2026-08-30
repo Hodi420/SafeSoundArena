@@ -22,8 +22,11 @@ COPY . .
 FROM node:24-alpine
 
 ARG NODE_ENV=production
+ARG SAFESOUND_BUILD_REVISION=unknown
 ENV NODE_ENV=${NODE_ENV}
 ENV NODE_OPTIONS='--max-old-space-size=512 --heapsnapshot-signal=SIGUSR2'
+
+LABEL org.opencontainers.image.revision="${SAFESOUND_BUILD_REVISION}"
 
 # Install only runtime dependencies (curl for healthcheck, tini for signal handling)
 RUN apk add --no-cache tini curl && \

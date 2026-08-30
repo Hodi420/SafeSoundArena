@@ -4,6 +4,8 @@
 FROM node:24-alpine AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+ARG NEXT_PUBLIC_SOCKET_URL=http://localhost:4000
+ENV NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL}
 
 RUN apk update && apk upgrade
 
@@ -17,6 +19,11 @@ RUN npm run build
 FROM node:24-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+ARG SAFESOUND_BUILD_REVISION=unknown
+ARG NEXT_PUBLIC_SOCKET_URL=http://localhost:4000
+
+LABEL org.opencontainers.image.revision="${SAFESOUND_BUILD_REVISION}" \
+      io.safesoundarena.next-public-socket-url="${NEXT_PUBLIC_SOCKET_URL}"
 
 # Install wget for healthcheck
 RUN apk add --no-cache wget

@@ -4,6 +4,7 @@
 
 - [מפת הקבצים והפרויקט](PROJECT_FILE_MAP.md) — runtime קנוני, legacy, packages, בדיקות ונתונים; baseline של 614 קבצים במעקב.
 - [מוכנות למיני־PC](MINI_PC_READINESS.md) — סקירה סטטית, 14 פערים/שערים ופרטי היעד הנדרשים; עדיין לא אישור פריסה.
+- [QNAP NAS fallback preflight](QNAP_NAS_CHECKLIST.md) — פרופיל run-only, בדיקות repository/staged/running ורשימת מפעיל; המיני־PC נשאר יעד ההרצה הראשי.
 - [מסירת Git וחיבורי MCP](GIT_MCP_HANDOFF.md) — גבול הדחיפה, חיבורים שנבדקו, החרגות וגבולות CI.
 - [חבילת הגשה ל־QA / RC-0](qa/rc0/README.md) — תוכנית, תרחישים, תוצאות, עקיבות וממצאים, מעודכן ל־2026-08-27. 46 בדיקות יחידה נבחרות עברו; אין אישור RC מלא או שחרור.
 - [Operational Handoff](OPERATIONAL_HANDOFF.md) — מסלול תפעולי קנוני והבחנה בין אימות היסטורי להרצה מבודדת חדשה.

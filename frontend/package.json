@@ -50,7 +50,7 @@
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint ."
   },

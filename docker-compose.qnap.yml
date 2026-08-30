@@ -1,6 +1,7 @@
-# Additive QNAP safety layer for the canonical docker-compose.yml.
+# Additive, run-only QNAP safety layer for the canonical docker-compose.yml.
 # This file does not make the services LAN-accessible. Use it only together with
-# the canonical file and an explicit, untracked NAS environment file.
+# the canonical file, preloaded images, and an explicit untracked NAS env file.
+# !reset requires Docker Compose 2.24.4+ and deliberately removes on-NAS builds.
 
 x-qnap-logging: &qnap-logging
   driver: json-file
@@ -11,16 +12,23 @@ x-qnap-logging: &qnap-logging
 services:
   api-server:
     profiles: [qnap]
+    build: !reset null
     platform: ${SAFESOUND_QNAP_PLATFORM:?Set SAFESOUND_QNAP_PLATFORM to linux/amd64 or linux/arm64}
     image: safesoundarena-api:${SAFESOUND_QNAP_RELEASE_ID:?Set SAFESOUND_QNAP_RELEASE_ID to an immutable release identifier}
+    pull_policy: never
     ports:
       - '127.0.0.1:4000:4000'
     environment:
+      - NODE_OPTIONS=--max-old-space-size=384 --heapsnapshot-signal=SIGUSR2
       - GLOBAL_AI_ENABLED=${GLOBAL_AI_ENABLED:-false}
       - MSHIX_BRAIN_AUTO_ENRICH=${MSHIX_BRAIN_AUTO_ENRICH:-false}
       # QNAP/Linux containers must not inherit the Windows-only host.docker.internal default.
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://127.0.0.1:11434}
     restart: unless-stopped
+    cpus: 1.0
+    mem_limit: 640m
+    mem_reservation: 256m
+    pids_limit: 128
     logging: *qnap-logging
     healthcheck:
       test:
@@ -28,7 +36,7 @@ services:
         - >-
           body="$$(curl -fsS http://127.0.0.1:4000/api/health)" &&
           printf '%s' "$$body" |
-          grep -Eq '"status"[[:space:]]*:[[:space:]]*"ok"'
+          grep -Eq '^[[:space:]]*\{[[:space:]]*"status"[[:space:]]*:[[:space:]]*"ok"[[:space:]]*,'
       interval: 20s
       timeout: 8s
       retries: 5
@@ -36,11 +44,19 @@ services:
 
   frontend:
     profiles: [qnap]
+    build: !reset null
     platform: ${SAFESOUND_QNAP_PLATFORM:?Set SAFESOUND_QNAP_PLATFORM to linux/amd64 or linux/arm64}
     image: safesoundarena-frontend:${SAFESOUND_QNAP_RELEASE_ID:?Set SAFESOUND_QNAP_RELEASE_ID to an immutable release identifier}
+    pull_policy: never
     ports:
       - '127.0.0.1:3000:3000'
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=256
     restart: unless-stopped
+    cpus: 0.75
+    mem_limit: 384m
+    mem_reservation: 128m
+    pids_limit: 128
     logging: *qnap-logging
     healthcheck:
       test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1:3000/ || exit 1"]
@@ -55,10 +71,15 @@ services:
     profiles: [qnap-ipfs]
     platform: ${SAFESOUND_QNAP_PLATFORM:?Set SAFESOUND_QNAP_PLATFORM to linux/amd64 or linux/arm64}
     image: ${SAFESOUND_QNAP_IPFS_IMAGE:-ipfs/kubo:latest}
+    pull_policy: never
     ports:
       - '127.0.0.1:5001:5001'
       - '127.0.0.1:8080:8080'
     restart: unless-stopped
+    cpus: 0.5
+    mem_limit: 384m
+    mem_reservation: 128m
+    pids_limit: 128
     logging: *qnap-logging
     healthcheck:
       test: [CMD-SHELL, "ipfs id >/dev/null 2>&1 || exit 1"]

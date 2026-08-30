@@ -2,3 +2,10 @@ node_modules
 .next
 npm-debug.log
 Dockerfile*
+.env*
+**/.env*
+.git
+.gitignore
+coverage
+*.log
+*.local

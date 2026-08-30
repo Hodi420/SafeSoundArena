@@ -11,9 +11,12 @@ npm-debug.log
 yarn-error.log
 
 # Development
-.env
-.env.local
-.env.*.local
+.env*
+**/.env*
+qnap.env.example
+**/api/data
+**/mcp-permissions.json
+**/ai-admin-audit-log.jsonl
 .vscode
 .idea
 *.swp
@@ -55,7 +58,26 @@ desktop.ini
 examples
 templates
 temp
+.codex
 .codex-runtime
+agents
+ai
+aiClients
+blockchain
+devops
+frontend
+k8s
+lobbies
+mini-mcps
+monitoring
+next-app
+root-mcp
+server
+backend/backend_tmp
+votes.json
+themes.json
+profiles.json
+admin_levels.json
 *.docx
 Dockerfile.quick
 docker-compose*.yml
