@@ -6,9 +6,9 @@
 
 ## עדכון QA — 27 באוגוסט 2026
 
-**לפני מעבר למיני־PC:** לקרוא את [מפת הפרויקט](PROJECT_FILE_MAP.md), [בדיקת המוכנות](MINI_PC_READINESS.md) ו־[גבול מסירת Git/MCP](GIT_MCP_HANDOFF.md). הוגדרו חיבורי תיעוד, לא חיבור למכשיר. סקירת המקור מצאה חסמים; לא בוצעה התקנה או קבלת מערכת על יעד חדש.
+**לפני מעבר למיני־PC:** לקרוא את [מפת הפרויקט](PROJECT_FILE_MAP.md), [בדיקת המוכנות](MINI_PC_READINESS.md), [Runbook ה־Ubuntu](MINI_PC_RUNBOOK.md) ו־[גבול מסירת Git/MCP](GIT_MCP_HANDOFF.md). הוגדרו חיבורי תיעוד ותצורת יעד מדורגת, לא חיבור למכשיר. סקירת המקור מצאה חסמים; לא בוצעה התקנה או קבלת מערכת על יעד חדש.
 
-**ארכיטקטורת היעד:** המיני־PC עם Ubuntu נשאר שרת ההרצה הראשי, וה־QNAP משמש אחסון וגיבוי. [QNAP NAS preflight and operator checklist](QNAP_NAS_CHECKLIST.md) שומר מסלול fallback נפרד בלבד. `docker-compose.qnap.yml` מסיר build/pull אוטומטיים ומחייב preflight מדורג; הוא אינו אישור פריסה או הוכחת בידוד רשת.
+**ארכיטקטורת היעד:** המיני־PC עם Ubuntu נשאר שרת ההרצה הראשי, וה־QNAP משמש אחסון וגיבוי. docker-compose.minipc.yml מפעיל API + Frontend בלבד תחת minipc, ללא build/pull על היעד, עם רשת פנימית, loopback, מגבלות ו־preflight מדורג. [QNAP NAS preflight and operator checklist](QNAP_NAS_CHECKLIST.md) שומר מסלול fallback נפרד בלבד. שני המסלולים אינם אישור פריסה או הוכחת בידוד רשת מלאה.
 
 **ההגשה העדכנית:** [חבילת QA של RC-0](qa/rc0/README.md), הכוללת STP/STD/STR, מלאי בדיקות, עקיבות וממצאים. 46/46 בדיקות יחידה ואחסון נבחרות עברו בסביבה מבודדת; API/UI, בדיקות מערכת, CI ופריסה לא אומתו מחדש. מסמכי ההגשה ממתינים לסקירה, ואינם אישור שחרור.
 

@@ -2,7 +2,7 @@
 
 > **Current operating status (19 August 2026):** Local integration ready on the canonical Windows workspace. Use `backend/app.js` on port `4000`, `frontend` on port `3000`, and `docker-compose.yml` as the only verified Compose path. MSHIX is locally integrated; authentication, shared persistence, external workers and GitHub release checks remain before public production. See [PROJECT_STATUS.md](./PROJECT_STATUS.md) and [docs/OPERATIONAL_HANDOFF.md](./docs/OPERATIONAL_HANDOFF.md).
 >
-> **Deployment preparation:** the Ubuntu Mini-PC remains the primary runtime and the QNAP is the storage/backup target. The additive [QNAP fallback checklist](./docs/QNAP_NAS_CHECKLIST.md) and `docker-compose.qnap.yml` are gated preflight artifacts only—not proof of LAN isolation or deployment approval.
+> **Deployment preparation:** the Ubuntu Mini-PC remains the primary runtime and the QNAP is the storage/backup target. The additive [Mini-PC runbook](./docs/MINI_PC_RUNBOOK.md), docker-compose.minipc.yml, and [QNAP fallback checklist](./docs/QNAP_NAS_CHECKLIST.md) are gated preflight artifacts only—not proof of isolation or deployment approval.
 
 > **🎉 Project Quality & DevOps Excellence Initiative - 100% Complete!** 🎉
 >

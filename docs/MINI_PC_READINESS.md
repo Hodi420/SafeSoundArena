@@ -1,8 +1,18 @@
 # SafeSoundArena — בדיקת מוכנות למיני־PC
 
-תאריך סקירה: 2026-08-27 · סוג ראיה: קריאת מקור ותצורה בלבד · החלטה: **NOT_READY_FOR_DEPLOYMENT**.
+תאריך סקירה: 2026-08-27 · עדכון הכנה: 2026-08-30 · סוג ראיה: קריאת מקור ותצורה בלבד · החלטה: **NOT_READY_FOR_DEPLOYMENT**.
 
 יש בפרויקט מסלול Linux containers שניתן להכין למיני־PC, אבל אין כרגע בסיס להבטיח "ללא בעיות" על המכשיר. חומרה, מערכת הפעלה ויעד גישה לא נמסרו; לא בוצעו build, התקנה, SSH, הפעלת שירותים או בדיקות על מיני־PC. קיימים גם חסמי אריזה, בידוד, תפקוד ועמידות מפורטים להלן.
+
+### עדכון הכנה מ־2026-08-30
+
+הסקר המקורי להלן נשמר כראיית מצב היסטורית. מאז נוספה שכבת minipc, קובץ
+minipc.env.example, סקריפט scripts/minipc-preflight.sh ו־Runbook ל־Ubuntu.
+הם מחריגים IPFS מה־baseline, מונעים build/pull על היעד, כוללים רשת internal,
+loopback, restart/log/resource limits, health סמנטי, identity של image ו־Linux
+runbook. הם **לא** משנים את החלטת NOT_READY_FOR_DEPLOYMENT: חומרת היעד,
+גרסאות Ubuntu/Docker, גישת SSH, image בפועל, בדיקות target, auth, state
+coverage, backup/restore וקבלת מערכת עדיין חסרים.
 
 ## בסיס הסקירה והיקף
 

@@ -1,0 +1,81 @@
+# Additive, run-only Ubuntu Mini-PC safety layer for docker-compose.yml.
+# It deliberately removes on-target builds and registry pulls. Use it only with
+# preloaded, reviewed images and an untracked .env.minipc file. The minipc
+# profile is private by default: the application network is internal and host
+# ports bind to IPv4 loopback for local use or an SSH tunnel.
+# !reset requires Docker Compose 2.24.4+.
+
+x-minipc-logging: &minipc-logging
+  driver: json-file
+  options:
+    max-size: ${SAFESOUND_MINIPC_LOG_MAX_SIZE:-20m}
+    max-file: ${SAFESOUND_MINIPC_LOG_MAX_FILES:-5}
+
+services:
+  api-server:
+    profiles: [minipc]
+    build: !reset null
+    platform: ${SAFESOUND_MINIPC_PLATFORM:?Set SAFESOUND_MINIPC_PLATFORM to linux/amd64 or linux/arm64}
+    image: safesoundarena-api:${SAFESOUND_MINIPC_RELEASE_ID:?Set SAFESOUND_MINIPC_RELEASE_ID to an immutable release identifier}
+    pull_policy: never
+    ports:
+      - '127.0.0.1:4000:4000'
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=768 --heapsnapshot-signal=SIGUSR2
+      - GLOBAL_AI_ENABLED=${GLOBAL_AI_ENABLED:-false}
+      - MSHIX_BRAIN_AUTO_ENRICH=${MSHIX_BRAIN_AUTO_ENRICH:-false}
+      # Do not inherit the Docker Desktop-only host.docker.internal default.
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://127.0.0.1:11434}
+    restart: unless-stopped
+    cpus: 2.0
+    mem_limit: 1024m
+    mem_reservation: 384m
+    pids_limit: 256
+    logging: *minipc-logging
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          body="$$(curl -fsS http://127.0.0.1:4000/api/health)" &&
+          printf '%s' "$$body" |
+          grep -Eq '^[[:space:]]*\{[[:space:]]*"status"[[:space:]]*:[[:space:]]*"ok"[[:space:]]*,'
+      interval: 20s
+      timeout: 8s
+      retries: 5
+      start_period: 45s
+
+  frontend:
+    profiles: [minipc]
+    build: !reset null
+    platform: ${SAFESOUND_MINIPC_PLATFORM:?Set SAFESOUND_MINIPC_PLATFORM to linux/amd64 or linux/arm64}
+    image: safesoundarena-frontend:${SAFESOUND_MINIPC_RELEASE_ID:?Set SAFESOUND_MINIPC_RELEASE_ID to an immutable release identifier}
+    pull_policy: never
+    ports:
+      - '127.0.0.1:3000:3000'
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=384
+    restart: unless-stopped
+    cpus: 1.0
+    mem_limit: 512m
+    mem_reservation: 192m
+    pids_limit: 192
+    logging: *minipc-logging
+    healthcheck:
+      test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1:3000/ || exit 1"]
+      interval: 20s
+      timeout: 8s
+      retries: 5
+      start_period: 45s
+
+  # The base Compose file has an unprofiled legacy IPFS service. It is moved
+  # behind a profile that this private Mini-PC overlay never selects.
+  ipfs:
+    profiles: [minipc-ipfs-not-approved]
+
+networks:
+  sa-network:
+    internal: true
+
+volumes:
+  feature_data:
+    name: ${SAFESOUND_MINIPC_FEATURE_VOLUME:?Set a stable feature-data volume name}
