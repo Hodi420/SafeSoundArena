@@ -19,9 +19,7 @@ export interface Reputation {
 }
 
 export const useReputation = (userId: string) => {
-  import { Reputation } from '../../types/api';
-
-return useQuery<Reputation>({
+  return useQuery<Reputation>({
     queryKey: ['reputation', userId],
     queryFn: async (): Promise<Reputation> => {
       const { data } = await apiClient.get(API_ENDPOINTS.REPUTATION.USER(userId));

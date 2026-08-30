@@ -22,8 +22,8 @@ function checkPrerequisites() {
   console.log(`${colors.bright}Checking prerequisites...${colors.reset}`);
   
   // Check Node.js version
-  const nodeVersion = process.version;
-  if (nodeVersion.split('.')[0] < 16) {
+  const nodeMajor = parseInt(process.version.slice(1), 10);
+  if (nodeMajor < 16) {
     throw new Error('Node.js 16+ is required');
   }
   

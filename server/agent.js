@@ -16,6 +16,18 @@ const AGENT_CAPABILITIES = [
   'open_game', 'move_file', 'delete_temp', 'run_update',
   'fetch_github', 'query_openai', 'query_ollama', 'fetch_url'
 ];
+const AGENT_API_KEY = process.env.AGENT_API_KEY || config.apiKey || null;
+const ALLOW_UNAUTHENTICATED_AGENT =
+  String(process.env.AGENT_ALLOW_UNAUTHENTICATED || '').toLowerCase() === 'true';
+const ENABLE_LOCAL_EXECUTION =
+  String(process.env.AGENT_ENABLE_LOCAL_EXECUTION || '').toLowerCase() === 'true';
+const LOCAL_EXECUTION_COMMANDS = new Set([
+  'open_game',
+  'move_file',
+  'delete_temp',
+  'run_update',
+  'fetch_github'
+]);
 
 // Rate limiting: 60 requests per minute per IP
 const limiter = rateLimit({
@@ -106,7 +118,10 @@ app.get('/analogy', (req, res) => {
 
 // Basic API key check middleware (optional, demo)
 function apiKeyCheck(req, res, next) {
-  if (config.apiKey && req.headers['x-api-key'] !== config.apiKey) {
+  if (!AGENT_API_KEY && !ALLOW_UNAUTHENTICATED_AGENT) {
+    return res.status(503).json({ error: 'Agent API key is not configured' });
+  }
+  if (AGENT_API_KEY && req.headers['x-api-key'] !== AGENT_API_KEY) {
     return res.status(401).json({ error: 'Invalid API key' });
   }
   next();
@@ -124,6 +139,9 @@ function sendError(res, code, message, req, details) {
 app.post('/api/agent', apiKeyCheck, (req, res) => {
   const { command, args, targetPath, confirm, apiKey } = req.body;
   if (!isAllowed(command)) return res.status(403).json({ error: 'Command not allowed' });
+  if (LOCAL_EXECUTION_COMMANDS.has(command) && !ENABLE_LOCAL_EXECUTION) {
+    return res.status(403).json({ error: 'Local execution commands are disabled' });
+  }
   if (targetPath && isRestrictedPath(targetPath)) return res.status(403).json({ error: 'Target path restricted' });
   if (!isActiveHour()) return res.status(403).json({ error: 'Outside active hours' });
   if (config.requireConfirmation.includes(command) && !confirm) {
@@ -270,7 +288,7 @@ app.get('/settings', (req, res) => {
   }
 });
 
-app.post('/set', (req, res) => {
+app.post('/set', apiKeyCheck, (req, res) => {
   try {
     const updates = req.body;
     const configPath = path.resolve('agent-config.json');
@@ -284,7 +302,7 @@ app.post('/set', (req, res) => {
 });
 
 // Webhook trigger endpoint
-app.post('/webhook', (req, res) => {
+app.post('/webhook', apiKeyCheck, (req, res) => {
   try {
     const event = req.body;
     if (!config.webhookUrl) return sendError(res, 400, 'No webhookUrl configured', req);
@@ -314,7 +332,7 @@ app.post('/webhook', (req, res) => {
 });
 
 // Self-update endpoint (stub)
-app.post('/self-update', (req, res) => {
+app.post('/self-update', apiKeyCheck, (req, res) => {
   // In real use: git pull, npm install, restart process, etc.
   res.json({ ok: true, message: 'Self-update triggered (stub)', requestId: req.requestId });
 });

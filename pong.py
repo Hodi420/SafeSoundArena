@@ -116,8 +116,13 @@ def load_scores():
     if os.path.exists(scores_file):
         with open(scores_file, 'r', encoding='utf-8') as f:
             for line in f:
-                name, val = line.strip().split(':')
-                scores[name] = int(val)
+                parts = line.strip().split(':', 1)
+                if len(parts) == 2:
+                    name, val = parts
+                    try:
+                        scores[name] = int(val)
+                    except ValueError:
+                        pass
     return scores
 
 def save_scores(scores):

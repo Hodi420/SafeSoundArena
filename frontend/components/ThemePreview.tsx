@@ -1,7 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useThemeStore } from '../store/useThemeStore';
-import { IconSword, IconShield, IconBolt, IconTrophy } from '@tabler/icons-react';
+
+type IconProps = {
+  className?: string;
+};
+
+const IconSword = ({ className }: IconProps) => <span className={className}>S</span>;
+const IconShield = ({ className }: IconProps) => <span className={className}>D</span>;
+const IconBolt = ({ className }: IconProps) => <span className={className}>P</span>;
+const IconTrophy = ({ className }: IconProps) => <span className={className}>T</span>;
 
 export const ThemePreview: React.FC = () => {
   const { uiStyle } = useThemeStore();
@@ -140,4 +148,4 @@ export const ThemePreview: React.FC = () => {
       </section>
     </div>
   );
-}; 
+};

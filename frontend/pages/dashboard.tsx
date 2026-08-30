@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { ReputationBar, FactionSelector, Marketplace, GuildPanel, NotificationCenter, ChallengeTracker } from '../src/components';
 import AppWalletDemo from '../src/components/AppWalletDemo';
-import FragmentModules from "../components/FragmentModules";
 
 export default function Dashboard() {
   // For demo: mock user id
@@ -80,9 +79,6 @@ export default function Dashboard() {
               </button>
             </div>
           </div>
-        </div>
-        <div className="mt-8">
-          <FragmentModules />
         </div>
       </div>
     </div>

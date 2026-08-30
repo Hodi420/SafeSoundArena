@@ -1,0 +1,34 @@
+# Quick production Dockerfile for SafeSoundArena API Server
+FROM node:24-alpine
+
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apk add --no-cache tini curl
+
+# Create non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Copy files
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY . .
+COPY --chown=appuser:appgroup seccomp.json /seccomp.json
+
+# Set permissions
+RUN chown -R appuser:appgroup /app
+
+# Expose port
+EXPOSE 4000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:4000/api/health || exit 1
+
+# Switch to non-root user
+USER appuser
+
+# Start with tini as PID 1
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["node", "server.js"]

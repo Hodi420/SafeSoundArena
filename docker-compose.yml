@@ -1,39 +1,83 @@
-version: '3.8'
-
 services:
   api-server:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - '4000:4000'
+      - '127.0.0.1:4000:4000'
     environment:
       - PI_API_KEY=${PI_API_KEY}
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=4000
+      - ADMIN_TOKEN=${ADMIN_TOKEN:?ADMIN_TOKEN is required}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:?ALLOWED_ORIGINS is required}
+      - SAFESOUND_DATA_DIR=/app/data
+      - AI_CONTROL_ROOM_ENV=${AI_CONTROL_ROOM_ENV:-production}
+      - GLOBAL_AI_ENABLED=${GLOBAL_AI_ENABLED:-true}
+      - AI_ADMIN_TOKEN=${AI_ADMIN_TOKEN:-}
+      - AI_AGENT_TOKEN=${AI_AGENT_TOKEN:-}
+      - AI_ADMIN_AUDIT_LOG_PATH=${AI_ADMIN_AUDIT_LOG_PATH:-/app/data/ai-admin-audit-log.jsonl}
+      - AI_ADMIN_PERSISTENCE=${AI_ADMIN_PERSISTENCE:-true}
+      - AI_ADMIN_RUNTIME_STATE_PATH=${AI_ADMIN_RUNTIME_STATE_PATH:-/app/data/ai-admin-runtime-state.json}
+      - AGENT_LEASE_MONITOR=${AGENT_LEASE_MONITOR:-true}
+      - AGENT_HEARTBEAT_TIMEOUT_MS=${AGENT_HEARTBEAT_TIMEOUT_MS:-60000}
+      - AGENT_LEASE_SWEEP_INTERVAL_MS=${AGENT_LEASE_SWEEP_INTERVAL_MS:-15000}
+      - AGENT_MAX_CHILDREN_PER_PARENT=${AGENT_MAX_CHILDREN_PER_PARENT:-3}
+      - AGENT_MAX_TOTAL_AGENTS=${AGENT_MAX_TOTAL_AGENTS:-16}
+      - AGENT_MAX_CHILD_DEPTH=${AGENT_MAX_CHILD_DEPTH:-1}
+      - MSHIX_MAX_EVENT_BYTES=${MSHIX_MAX_EVENT_BYTES:-65536}
+      - MSHIX_EVENT_HISTORY_LIMIT=${MSHIX_EVENT_HISTORY_LIMIT:-500}
+      - MSHIX_HANDLER_TIMEOUT_MS=${MSHIX_HANDLER_TIMEOUT_MS:-5000}
+      - MSHIX_ALLOW_UNAUTHENTICATED_DEV=${MSHIX_ALLOW_UNAUTHENTICATED_DEV:-false}
+      - MSHIX_BRAIN_AUTO_ENRICH=${MSHIX_BRAIN_AUTO_ENRICH:-false}
+      - MSHIX_BRAIN_STORE_PAYLOAD=${MSHIX_BRAIN_STORE_PAYLOAD:-false}
+      - MSHIX_BRAIN_CHAT_MODEL=${MSHIX_BRAIN_CHAT_MODEL:-qwen3:4b}
+      - MSHIX_BRAIN_EMBED_MODEL=${MSHIX_BRAIN_EMBED_MODEL:-embeddinggemma:300m}
+      - MSHIX_BRAIN_MAX_MEMORIES=${MSHIX_BRAIN_MAX_MEMORIES:-10000}
+      - MSHIX_BRAIN_QUEUE_LIMIT=${MSHIX_BRAIN_QUEUE_LIMIT:-100}
+      - MSHIX_BRAIN_STORE_PATH=${MSHIX_BRAIN_STORE_PATH:-/app/data/mshix-brain-memory.jsonl}
+      - MSHIX_OUTBOX_PATH=${MSHIX_OUTBOX_PATH:-/app/data/mshix-outbox.jsonl}
+      - MSHIX_OUTBOX_MAX_ENTRIES=${MSHIX_OUTBOX_MAX_ENTRIES:-10000}
+      - MSHIX_OUTBOX_MAX_ATTEMPTS=${MSHIX_OUTBOX_MAX_ATTEMPTS:-10}
+      - MSHIX_OUTBOX_RETRY_BASE_MS=${MSHIX_OUTBOX_RETRY_BASE_MS:-1000}
+      - MSHIX_OUTBOX_DISPATCH_LEASE_MS=${MSHIX_OUTBOX_DISPATCH_LEASE_MS:-30000}
+      - MSHIX_OUTBOX_REPLAY_INTERVAL_MS=${MSHIX_OUTBOX_REPLAY_INTERVAL_MS:-5000}
+      - MSHIX_OUTBOX_REPLAY_BATCH=${MSHIX_OUTBOX_REPLAY_BATCH:-100}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen3:4b}
+      - OLLAMA_REQUEST_TIMEOUT_MS=${OLLAMA_REQUEST_TIMEOUT_MS:-30000}
     volumes:
-      - .:/app
+      - feature_data:/app/data
     networks:
       - sa-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - '3000:3000'
+      - '127.0.0.1:3000:3000'
     environment:
-      - NEXT_PUBLIC_API_URL=http://api-server:4000
+      - NEXT_PUBLIC_API_URL=/api
+      - BACKEND_URL=http://api-server:4000
+      - NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL:-http://localhost:4000}
     depends_on:
-      - api-server
-    volumes:
-      - ./frontend:/app
+      api-server:
+        condition: service_healthy
     networks:
       - sa-network
 
   ipfs:
-    image: ipfs/go-ipfs:latest
+    image: ipfs/kubo:latest
     ports:
-      - '5001:5001'
-      - '8080:8080'
+      - '127.0.0.1:5001:5001'
+      - '127.0.0.1:8080:8080'
     volumes:
       - ipfs_data:/data/ipfs
     networks:
@@ -45,9 +89,4 @@ networks:
 
 volumes:
   ipfs_data: {}
-
-healthcheck:
-  test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
-  interval: 10s
-  timeout: 5s
-  retries: 3
+  feature_data: {}

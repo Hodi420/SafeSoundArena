@@ -1,0 +1,38 @@
+services:
+  api-server:
+    image: safesoundarena-api-server:latest
+    ports:
+      - '4000:4000'
+    environment:
+      - PI_API_KEY=${PI_API_KEY:-}
+      - NODE_ENV=production
+      - PORT=4000
+      - ADMIN_TOKEN=${ADMIN_TOKEN:?ADMIN_TOKEN is required}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:?ALLOWED_ORIGINS is required}
+      - SAFESOUND_DATA_DIR=/app/data
+    volumes:
+      - feature_data:/app/data
+    networks:
+      - sa-network
+    restart: unless-stopped
+
+  web:
+    image: safesoundarena-frontend:latest
+    ports:
+      - '3000:3000'
+    environment:
+      - NEXT_PUBLIC_API_URL=/api
+      - BACKEND_URL=http://api-server:4000
+    depends_on:
+      api-server:
+        condition: service_started
+    networks:
+      - sa-network
+    restart: unless-stopped
+
+networks:
+  sa-network:
+    driver: bridge
+
+volumes:
+  feature_data: {}

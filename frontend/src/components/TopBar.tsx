@@ -6,11 +6,11 @@ const NAV_LABELS = ['Dashboard', 'Bots', 'Marketplace', 'Settings'];
 
 export function TopBar({
   active = 'Dashboard',
-  onNav = () => {},
+  onNav = (_label: string) => {},
   onProfile = () => {},
   onThemeToggle = () => {},
   onNotifications = () => {},
-  onSearch = () => {},
+  onSearch = (_query: string) => {},
   notificationCount = 0,
   avatarUrl = '',
   isDark = false,

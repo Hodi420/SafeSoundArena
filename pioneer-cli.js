@@ -1,156 +1,301 @@
 #!/usr/bin/env node
 
 /**
- * Pioneer Pathways CLI
+ * SafeSoundArena Pioneer CLI Helper
+ * Quick commands for common setup and development tasks
  *
- * A command-line tool to scaffold game modules for Pioneer Pathways with Pi Network authentication and automated testing:
- * - Authentication against Pi API
- * - Scrolls
- * - Bots
- * - Scenes
- * - Bridge integration
- * - Automated tests (unit & integration via Jest)
- *
- * Usage:
- *  $ pioneer-cli login --api-key <API_KEY>
- *  $ pioneer-cli create-scroll <name>
- *  $ pioneer-cli generate-bot <username>
- *  $ pioneer-cli create-scene <world>
- *  $ pioneer-cli deploy-bridge
- *  $ pioneer-cli test                    # Run unit & integration tests
+ * Usage: node pioneer-cli.js [command]
  */
 
-const { Command } = require('commander');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
-const axios = require('axios');
 const { spawn } = require('child_process');
 
-const CONFIG_DIR = path.join(os.homedir(), '.pioneer-cli');
-const AUTH_FILE = path.join(CONFIG_DIR, 'auth.json');
-const PI_API_BASE = 'https://api.minepi.com';
+const commands = {
+  // Setup commands
+  'setup': {
+    description: 'Run interactive setup wizard',
+    run: () => spawn('node', ['setup-wizard.js'], { stdio: 'inherit' }),
+  },
+  'db:init': {
+    description: 'Initialize database with sample data',
+    run: () => spawn('node', ['db-init.js'], {
+      stdio: 'inherit',
+      env: { ...process.env, SEED_DATA: 'true' },
+    }),
+  },
+  'db:clear': {
+    description: 'Clear database (remove all data)',
+    run: () => spawn('node', ['db-init.js'], {
+      stdio: 'inherit',
+      env: { ...process.env, SEED_DATA: 'false' },
+    }),
+  },
 
-// Ensure config directory exists
-if (!fs.existsSync(CONFIG_DIR)) fs.mkdirSync(CONFIG_DIR, { recursive: true });
+  // Development commands
+  'dev': {
+    description: 'Start both backend and frontend in development',
+    run: () => {
+      console.log('Starting backend and frontend...\n');
+      const backend = spawn('npm', ['start'], { stdio: 'inherit' });
+      setTimeout(() => {
+        const frontend = spawn('npm', ['run', 'dev'], {
+          stdio: 'inherit',
+          cwd: path.join(process.cwd(), 'frontend'),
+        });
+      }, 2000);
+    },
+  },
+  'docker:up': {
+    description: 'Start Docker Compose services',
+    run: () => spawn('docker', ['compose', 'up', '--build'], { stdio: 'inherit' }),
+  },
+  'docker:down': {
+    description: 'Stop Docker Compose services',
+    run: () => spawn('docker', ['compose', 'down'], { stdio: 'inherit' }),
+  },
 
-const program = new Command();
-program
-  .name('pioneer-cli')
-  .description('CLI to scaffold Pioneer Pathways game modules with Pi authentication')
-  .version('0.3.0');
+  // Testing commands
+  'test': {
+    description: 'Run all tests',
+    run: () => spawn('npm', ['test'], { stdio: 'inherit' }),
+  },
+  'lint': {
+    description: 'Run ESLint with auto-fix',
+    run: () => spawn('npm', ['run', 'lint', '--', '--fix'], { stdio: 'inherit' }),
+  },
 
-// Utility to write files
-function writeFile(dir, filename, content) {
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, filename), content);
-  console.log(`Created: ${path.join(dir, filename)}`);
+  // Status commands
+  'status': {
+    description: 'Check setup status and environment',
+    run: checkStatus,
+  },
+  'info': {
+    description: 'Show project information',
+    run: showInfo,
+  },
+
+  // Help
+  'help': {
+    description: 'Show this help message',
+    run: showHelp,
+  },
+};
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+
+function log(message, color = 'reset') {
+  const colors = {
+    reset: '\x1b[0m',
+    bright: '\x1b[1m',
+    green: '\x1b[32m',
+    yellow: '\x1b[33m',
+    cyan: '\x1b[36m',
+    red: '\x1b[31m',
+  };
+  console.log(`${colors[color]}${message}${colors.reset}`);
 }
 
-// Load auth token
-function getAuth() {
-  if (!fs.existsSync(AUTH_FILE)) return null;
-  const data = JSON.parse(fs.readFileSync(AUTH_FILE));
-  return data.token;
+function checkFileExists(filePath) {
+  return fs.existsSync(filePath);
 }
 
-// Save auth token
-function saveAuth(token) {
-  fs.writeFileSync(AUTH_FILE, JSON.stringify({ token }, null, 2));
-  console.log('Authentication token saved to', AUTH_FILE);
-}
+function readEnv() {
+  const envPath = path.join(process.cwd(), '.env');
+  if (!fs.existsSync(envPath)) return null;
 
-// Pi API login command
-program
-  .command('login')
-  .description('Authenticate with Pi Network API using API key')
-  .requiredOption('--api-key <key>', 'Pi Network API key')
-  .action(async (options) => {
-    try {
-      const response = await axios.post(`${PI_API_BASE}/auth`, { apiKey: options.apiKey });
-      const token = response.data.token;
-      saveAuth(token);
-    } catch (err) {
-      console.error('Login failed:', err.response?.data || err.message);
-      process.exit(1);
+  const content = fs.readFileSync(envPath, 'utf-8');
+  const env = {};
+  content.split('\n').forEach(line => {
+    const [key, value] = line.split('=');
+    if (key && !key.startsWith('#')) {
+      env[key.trim()] = value ? value.trim() : '';
     }
   });
+  return env;
+}
 
-// Authentication guard
-async function requireAuth() {
-  const token = getAuth();
-  if (!token) {
-    console.error('Error: Not authenticated. Please run `pioneer-cli login --api-key <API_KEY>` first.');
+// ─── Status Check ────────────────────────────────────────────────────────────
+
+async function checkStatus() {
+  log('\n╔════════════════════════════════════════════════════════════╗', 'bright');
+  log('║              SafeSoundArena Setup Status                   ║', 'bright');
+  log('╚════════════════════════════════════════════════════════════╝\n', 'bright');
+
+  const checks = [];
+
+  // Node.js
+  const nodeVersion = process.version;
+  checks.push({
+    name: 'Node.js',
+    status: true,
+    value: nodeVersion,
+  });
+
+  // npm
+  const hasNpm = require('child_process').execSync('npm --version', { encoding: 'utf-8' }).trim();
+  checks.push({
+    name: 'npm',
+    status: !!hasNpm,
+    value: hasNpm,
+  });
+
+  // Dependencies installed
+  const nodeModulesExists = checkFileExists(path.join(process.cwd(), 'node_modules'));
+  checks.push({
+    name: 'Dependencies (node_modules)',
+    status: nodeModulesExists,
+    value: nodeModulesExists ? 'installed' : 'missing',
+  });
+
+  // .env file
+  const envExists = checkFileExists('.env');
+  checks.push({
+    name: '.env configuration',
+    status: envExists,
+    value: envExists ? 'configured' : 'not configured',
+  });
+
+  // Database
+  const env = readEnv();
+  const mongoUri = env?.MONGO_URI;
+  checks.push({
+    name: 'Database (MONGO_URI)',
+    status: !!mongoUri,
+    value: mongoUri ? '✓ set' : '✗ not set',
+  });
+
+  // Display results
+  checks.forEach(check => {
+    const icon = check.status ? '✓' : '✗';
+    const color = check.status ? 'green' : 'red';
+    log(`  ${icon} ${check.name.padEnd(30)} ${check.value}`, color);
+  });
+
+  // Recommendations
+  const allPassed = checks.every(c => c.status);
+  log('\n' + (allPassed ? 'All checks passed! ✓' : 'Some issues found:'), allPassed ? 'green' : 'yellow');
+
+  if (!nodeModulesExists) {
+    log('  → Run: npm install', 'yellow');
+  }
+  if (!envExists) {
+    log('  → Run: node setup-wizard.js', 'yellow');
+  }
+
+  log('\nNext steps:', 'bright');
+  if (envExists && mongoUri) {
+    log('  1. npm start         # Start backend', 'cyan');
+    log('  2. cd frontend && npm run dev  # Start frontend', 'cyan');
+  } else {
+    log('  1. node setup-wizard.js  # Configure environment', 'cyan');
+  }
+  log('');
+}
+
+// ─── Project Info ────────────────────────────────────────────────────────────
+
+function showInfo() {
+  log('\n╔════════════════════════════════════════════════════════════╗', 'bright');
+  log('║           SafeSoundArena Project Information               ║', 'bright');
+  log('╚════════════════════════════════════════════════════════════╝\n', 'bright');
+
+  // Read package.json
+  const pkgPath = path.join(process.cwd(), 'package.json');
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+
+  log('Project Details:', 'bright');
+  log(`  Name:        ${pkg.name}`);
+  log(`  Version:     ${pkg.version}`);
+  log(`  Description: ${pkg.description || 'Production-ready gaming platform'}`);
+
+  log('\nDependencies:', 'bright');
+  Object.keys(pkg.dependencies || {}).forEach(dep => {
+    log(`  • ${dep}: ${pkg.dependencies[dep]}`);
+  });
+
+  log('\nScripts:', 'bright');
+  Object.keys(pkg.scripts || {}).slice(0, 5).forEach(script => {
+    log(`  • ${script}: ${pkg.scripts[script].substring(0, 60)}...`);
+  });
+
+  log('\nDirectories:', 'bright');
+  const dirs = ['frontend', 'backend', 'server', 'blockchain', 'k8s', 'devops'];
+  dirs.forEach(dir => {
+    const exists = fs.existsSync(dir);
+    const icon = exists ? '✓' : '✗';
+    const color = exists ? 'green' : 'reset';
+    log(`  ${icon} ${dir}`, color);
+  });
+
+  log('\nDocumentation:', 'bright');
+  log('  • DEVELOPMENT_GUIDE.md', 'cyan');
+  log('  • PIONEER_SETUP_GUIDE.md', 'cyan');
+  log('  • API_DOCUMENTATION.md', 'cyan');
+  log('  • DEPLOYMENT_GUIDE.md', 'cyan');
+  log('');
+}
+
+// ─── Help ────────────────────────────────────────────────────────────────────
+
+function showHelp() {
+  log('\n╔════════════════════════════════════════════════════════════╗', 'bright');
+  log('║           SafeSoundArena Pioneer CLI v1.0                  ║', 'bright');
+  log('╚════════════════════════════════════════════════════════════╝\n', 'bright');
+
+  log('USAGE:', 'bright');
+  log('  node pioneer-cli.js [command]\n');
+
+  log('SETUP COMMANDS:', 'bright');
+  log('  setup            ' + commands.setup.description);
+  log('  db:init          ' + commands['db:init'].description);
+  log('  db:clear         ' + commands['db:clear'].description);
+
+  log('\nDEVELOPMENT COMMANDS:', 'bright');
+  log('  dev              ' + commands.dev.description);
+  log('  docker:up        ' + commands['docker:up'].description);
+  log('  docker:down      ' + commands['docker:down'].description);
+
+  log('\nTESTING COMMANDS:', 'bright');
+  log('  test             ' + commands.test.description);
+  log('  lint             ' + commands.lint.description);
+
+  log('\nINFO COMMANDS:', 'bright');
+  log('  status           ' + commands.status.description);
+  log('  info             ' + commands.info.description);
+  log('  help             ' + commands.help.description);
+
+  log('\nEXAMPLES:', 'bright');
+  log('  # Interactive setup wizard');
+  log('  node pioneer-cli.js setup\n', 'cyan');
+  log('  # Start development servers');
+  log('  node pioneer-cli.js dev\n', 'cyan');
+  log('  # Check setup status');
+  log('  node pioneer-cli.js status\n', 'cyan');
+
+  log('\nFOR MORE HELP:', 'bright');
+  log('  • Read: PIONEER_SETUP_GUIDE.md', 'cyan');
+  log('  • Read: DEVELOPMENT_GUIDE.md', 'cyan');
+  log('  • Issues: https://github.com/Hodi420/SafeSoundArena/issues\n', 'cyan');
+}
+
+// ─── Main ────────────────────────────────────────────────────────────────────
+
+function main() {
+  const cmd = process.argv[2] || 'help';
+
+  if (!commands[cmd]) {
+    log(`✗ Unknown command: ${cmd}\n`, 'red');
+    log('Run "node pioneer-cli.js help" for available commands\n', 'yellow');
     process.exit(1);
   }
-  return token;
+
+  const command = commands[cmd];
+  command.run();
 }
 
-// create-scroll command
-program
-  .command('create-scroll <title>')
-  .description('Generate a new Scroll smart contract (Solidity) and metadata JSON with Pi ownership')
-  .action(async (title) => {
-    const token = await requireAuth();
-    let profile;
-    try {
-      profile = (await axios.get(`${PI_API_BASE}/user/profile`, { headers: { Authorization: `Bearer ${token}` } })).data;
-    } catch (err) {
-      console.error('Failed to fetch profile:', err.response?.data || err.message);
-      process.exit(1);
-    }
+if (require.main === module) {
+  main();
+}
 
-    const id = title.replace(/\s+/g, '_');
-    const solContent = `// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ncontract Scroll_${id} {\n    string public title = "${title}";\n    address public owner = ${profile.address};\n    // Add your scroll logic here\n}`;
-    const meta = {
-      scrollId: id,
-      title,
-      owner: profile.username,
-      auth_level: profile.verified ? 'verified' : 'unverified'
-    };
-    writeFile('scrolls', `Scroll_${id}.sol`, solContent);
-    writeFile('scrolls', `Scroll_${id}.json`, JSON.stringify(meta, null, 2));
-  });
-
-// generate-bot command
-program
-  .command('generate-bot <username>')
-  .description('Generate configuration for a personal bot')
-  .action((username) => {
-    const config = {
-      username,
-      personality: "aggressive",
-      state: {},
-      expressions: []
-    };
-    writeFile('bots', `${username}_bot.json`, JSON.stringify(config, null, 2));
-  });
-
-// create-scene command
-program
-  .command('create-scene <world>')
-  .description('Scaffold a new interactive scene component (React/TSX)')
-  .action((world) => {
-    const component = `import React from 'react';\n\nexport default function Scene_${world}() {\n  return (\n    <div className=\"scene-container\">\n      <h2>Scene: ${world}</h2>\n      {/* Add interactive elements, avatars, and logic here */}\n    </div>\n  );\n}\n`;
-    writeFile('scenes', `Scene_${world}.tsx`, component);
-  });
-
-// deploy-bridge command
-program
-  .command('deploy-bridge')
-  .description('Deploy a blockchain bridge contract (Rust/CosmWasm stub)')
-  .action(() => {
-    const rustCode = `// Auto-generated BridgeManager.rs\npub struct BridgeManager;\n\nimpl BridgeManager {\n    pub fn deploy() {\n        // Bridge deployment logic here\n    }\n}\n`;
-    writeFile('bridge', 'BridgeManager.rs', rustCode);
-  });
-
-// test command
-program
-  .command('test')
-  .description('Run unit & integration tests (Jest)')
-  .action(() => {
-    const testProc = spawn('npx', ['jest'], { stdio: 'inherit' });
-    testProc.on('close', (code) => process.exit(code));
-  });
-
-program.parse(process.argv);
+module.exports = { commands, checkStatus, showInfo, showHelp };

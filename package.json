@@ -3,20 +3,38 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "safesoundarena-server",
+    "backend",
     "frontend"
   ],
   "scripts": {
-    "test": "mocha --exit",
-    "dev": "cd frontend && npm run dev"
+    "test": "mocha --exit \"test/**/*.js\" \"backend/**/*.test.js\"",
+    "dev": "cd frontend && npm run dev",
+    "start": "node backend/app.js",
+    "lint": "eslint . --fix"
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "overrides": {
+    "qs": "6.16.0",
+    "mocha": {
+      "serialize-javascript": "7.1.0"
+    }
   },
   "devDependencies": {
-    "mocha": "^10.0.0",
-    "sinon": "^20.0.0"
+    "mocha": "11.3.0",
+    "sinon": "^22.1.0"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.14.1"
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.22.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.24.0",
+    "node-fetch": "^2.7.0",
+    "socket.io": "^4.7.2"
   }
 }

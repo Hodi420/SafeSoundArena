@@ -1,0 +1,84 @@
+{
+  "version": "proof-command-layer-phase-1",
+  "commands": {
+    "inspect_status": {
+      "description": "Read current project or service status.",
+      "defaultRisk": "low"
+    },
+    "list_targets": {
+      "description": "List configured command targets.",
+      "defaultRisk": "low"
+    },
+    "read_audit": {
+      "description": "Inspect audit metadata and verification state.",
+      "defaultRisk": "low"
+    },
+    "run_diagnostic": {
+      "description": "Run a bounded diagnostic adapter without making changes.",
+      "defaultRisk": "low"
+    },
+    "prepare_patch": {
+      "description": "Prepare a proposed patch for human review.",
+      "defaultRisk": "low"
+    },
+    "open_pull_request": {
+      "description": "Open a pull request after human review.",
+      "defaultRisk": "high"
+    },
+    "deploy_preview": {
+      "description": "Deploy to a non-production preview environment.",
+      "defaultRisk": "high"
+    },
+    "deploy_production": {
+      "description": "Deploy to production.",
+      "defaultRisk": "critical"
+    },
+    "rotate_secret": {
+      "description": "Rotate a production secret through an external secret manager.",
+      "defaultRisk": "critical"
+    },
+    "run_shell": {
+      "description": "Unrestricted shell execution is intentionally forbidden.",
+      "defaultRisk": "critical"
+    },
+    "delete_resource": {
+      "description": "Delete or destroy project resources.",
+      "defaultRisk": "critical"
+    }
+  },
+  "roles": {
+    "auditor": {
+      "allowedActions": ["inspect_status", "list_targets", "read_audit"]
+    },
+    "agent": {
+      "allowedActions": ["inspect_status", "list_targets", "run_diagnostic", "prepare_patch"]
+    },
+    "admin": {
+      "allowedActions": [
+        "inspect_status",
+        "list_targets",
+        "read_audit",
+        "run_diagnostic",
+        "prepare_patch",
+        "open_pull_request",
+        "deploy_preview",
+        "deploy_production",
+        "rotate_secret"
+      ]
+    }
+  },
+  "allowedReadOnly": ["inspect_status", "list_targets", "read_audit"],
+  "allowedLowRiskWithAgentToken": [
+    "inspect_status",
+    "list_targets",
+    "run_diagnostic",
+    "prepare_patch"
+  ],
+  "requiresHumanApproval": [
+    "open_pull_request",
+    "deploy_preview",
+    "deploy_production",
+    "rotate_secret"
+  ],
+  "forbiddenForAiExecution": ["run_shell", "delete_resource"]
+}

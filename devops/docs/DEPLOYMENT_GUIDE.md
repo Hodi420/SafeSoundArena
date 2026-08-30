@@ -29,7 +29,7 @@ This guide covers how to deploy SafeSoundArena in different environments.
 - 20GB disk space
 
 ### For Local Development
-- Node.js 18+
+- Node.js 24.x LTS
 - npm 9+
 - MongoDB (optional, for local development)
 

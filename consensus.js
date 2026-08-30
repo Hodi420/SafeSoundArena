@@ -41,7 +41,10 @@ function color(text, style) {
 
 const { logQuery } = require('./analytics');
 let io = null;
-try { io = require('socket.io')(3001, { cors: { origin: '*' } }); } catch { io = null; }
+// Only start the socket server when running directly, not when required as a module
+if (require.main === module) {
+  try { io = require('socket.io')(3001, { cors: { origin: '*' } }); } catch { io = null; }
+}
 
 // Helper: get pioneerKey from process.env (for CLI) or from Pi Browser UA (for web/API)
 function getPioneerKeyFromEnvOrRequest() {
@@ -64,11 +67,12 @@ async function getConsensus(prompt, userId = 'anonymous', pioneerKey = null) {
     }
   }));
 
-  // Tally identical answers (weighted)
+  // Tally identical answers (weighted) — skip error responses
   const tally = {};
   for (const provider of providers) {
     const answer = results[provider];
     if (!answer) continue;
+    if (typeof answer === 'string' && answer.startsWith('[ERROR')) continue;
     tally[answer] = (tally[answer] || 0) + (weights[provider] || 1);
   }
 

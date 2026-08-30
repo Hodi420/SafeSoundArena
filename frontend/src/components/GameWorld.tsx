@@ -1,5 +1,4 @@
 import { motion, AnimatePresence } from 'framer-motion';
-<<<<<<< HEAD
 import { useBattleAction, useCharacter, useActiveBattle, useJoinBattle } from '../hooks/useCombat';
 import { useWeather } from '../hooks/useWeather';
 import { useInventory } from '../hooks/useInventory';
@@ -9,16 +8,6 @@ import { EMOJIS } from '../parameters/emojis';
 export default function GameWorld() {
 
   const { data: character } = useCharacter('current');
-=======
-import useCombat from '../hooks/useCombat';
-import useWeather from '../hooks/useWeather';
-import useInventory from '../hooks/useInventory';
-import useMiniGames from '../hooks/useMiniGames';
-import { EMOJIS } from '../parameters/emojis';
-
-export default function GameWorld() {
-  const { data: character } = useCombat('current');
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
   const { data: weather } = useWeather();
   const { data: inventory } = useInventory();
   const { data: miniGames } = useMiniGames();
@@ -34,11 +23,7 @@ export default function GameWorld() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="text-blue-400">
-<<<<<<< HEAD
                Lvl {(character as any)?.level}
-=======
-              {(character as any)?.element && (EMOJIS.ELEMENTS as any)[(character as any).element]} Lvl {(character as any)?.level}
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
             </div>
             <div className="flex items-center">
               <span className="text-red-400">❤️ {(character as any)?.health}/{(character as any)?.maxHealth}</span>
@@ -64,11 +49,7 @@ export default function GameWorld() {
 
           <div className="flex items-center space-x-6">
             <div className="text-2xl">
-<<<<<<< HEAD
               {(weather as any)?.current}
-=======
-              {(weather as any)?.current && (EMOJIS.WEATHER as any)[(weather as any).current]}
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
             </div>
             <div className="flex items-center space-x-2">
               {((inventory ?? []) as any[]).slice(0, 3).map((item) => (
@@ -156,17 +137,10 @@ export default function GameWorld() {
         animate={{ y: 0 }}
       >
         <button className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700">
-<<<<<<< HEAD
           ☰
         </button>
         <button className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700">
           ⚙️
-=======
-          {EMOJIS.UI.MENU}
-        </button>
-        <button className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700">
-          {EMOJIS.UI.SETTINGS}
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
         </button>
       </motion.div>
     </div>

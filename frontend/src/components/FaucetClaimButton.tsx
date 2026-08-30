@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ethers } from 'ethers';
+import { BrowserProvider, Contract, formatUnits, type Signer } from 'ethers';
 
 // --- CONFIGURATION SECTION --- //
 const CONTRACT_ADDRESS = 'PASTE_YOUR_DEPLOYED_CONTRACT_ADDRESS_HERE';
@@ -21,8 +21,8 @@ function formatTime(seconds: number) {
 }
 
 export default function FaucetClaimButton() {
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
-  const [signer, setSigner] = useState<ethers.Signer | null>(null);
+  const [provider, setProvider] = useState<BrowserProvider | null>(null);
+  const [signer, setSigner] = useState<Signer | null>(null);
   const [account, setAccount] = useState<string>('');
   const [cooldown, setCooldown] = useState<number>(0);
   const [lastClaim, setLastClaim] = useState<number>(0);
@@ -35,28 +35,20 @@ export default function FaucetClaimButton() {
   // Connect wallet on mount
   useEffect(() => {
     if ((window as any).ethereum) {
-      const ethProvider = new ethers.providers.Web3Provider((window as any).ethereum);
+      const ethProvider = new BrowserProvider((window as any).ethereum);
       setProvider(ethProvider);
-<<<<<<< HEAD
       (async () => {
-        const accounts: string[] = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
-        setAccount(accounts[0]);
-        setSigner(ethProvider.getSigner());
+        const accounts: string[] = await ethProvider.send('eth_requestAccounts', []);
+        setAccount(accounts[0] ?? '');
+        setSigner(await ethProvider.getSigner(accounts[0]));
       })();
-=======
-      const accounts: string[] = (window as any).ethereum.request({ method: 'eth_requestAccounts' });
-      accounts.then(accounts => {
-        setAccount(accounts[0]);
-        setSigner(ethProvider.getSigner());
-      });
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
     }
   }, []);
 
   // Fetch cooldown, lastClaim, reward
   const fetchData = useCallback(async () => {
     if (!provider || !account) return;
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
+    const contract = new Contract(CONTRACT_ADDRESS, ABI, provider);
     const [cd, lc, rw] = await Promise.all([
       contract.COOLDOWN(),
       contract.lastClaim(account),
@@ -64,7 +56,7 @@ export default function FaucetClaimButton() {
     ]);
     setCooldown(Number(cd));
     setLastClaim(Number(lc));
-    setReward(ethers.utils.formatUnits(rw, 18));
+    setReward(formatUnits(rw, 18));
   }, [provider, account]);
 
   useEffect(() => {
@@ -93,7 +85,7 @@ export default function FaucetClaimButton() {
     setError(null);
     setSuccess(false);
     try {
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer!);
+      const contract = new Contract(CONTRACT_ADDRESS, ABI, signer!);
       const tx = await contract.claim();
       await tx.wait();
       setSuccess(true);

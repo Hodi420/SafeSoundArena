@@ -4,7 +4,8 @@ import Script from 'next/script';
 export default function ExternalSDKs() {
   return (
     <>
-      {/* Pi Network SDK */}
+      {/* Pi Network SDK - DISABLED for Brave browser testing */}
+      {/* Uncomment when Pi SDK Brave compatibility is confirmed
       <Script
         src="https://sdk.minepi.com/pi-sdk.js"
         strategy="afterInteractive"
@@ -14,6 +15,7 @@ export default function ExternalSDKs() {
           }
         }}
       />
+      */}
       {/* Add more SDKs below as needed */}
       {/* Example:
       <Script src="https://example.com/other-sdk.js" strategy="afterInteractive" />

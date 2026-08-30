@@ -19,9 +19,9 @@ services:
     depends_on:
       - redis
       - clickhouse
-    command: npm run dev
+    command: node server.js
 
-  frontend:
+  web:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
@@ -106,6 +106,24 @@ services:
     networks:
       - sa-network
 
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - '11434:11434'
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - sa-network
+    command: serve
+    # Optional: for GPU support on Linux, uncomment:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
 networks:
   sa-network:
     driver: bridge
@@ -114,4 +132,5 @@ volumes:
   redis_data:
   clickhouse_data:
   prometheus_data:
-  grafana_data: 
+  grafana_data:
+  ollama_data:

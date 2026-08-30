@@ -1,6 +1,38 @@
 # 🏆 SafeSoundArena - Project Status Dashboard
 
-> **Last Updated:** May 2026 | **Overall Status:** ✅ Production Ready
+> **Latest QA evidence:** 27 August 2026 | **Status:** 46 selected unit/storage tests passed; full RC-0 and release remain unverified.
+
+> **Scope note:** The 19 August audit and older completion claims below are historical, not a fresh run or current release approval. The active QA handoff separates execution evidence, source observations, planned tests and approval gates. Pre-existing user changes are preserved.
+
+## Repository handoff and mini-PC assessment — 27 August 2026
+
+- [Project file map](docs/PROJECT_FILE_MAP.md): 614 tracked paths at the starting revision, with canonical and legacy runtime boundaries.
+- [Git and MCP handoff](docs/GIT_MCP_HANDOFF.md): the user authorized a scoped commit/push to the existing branch. Documentation MCPs were configured per project and passed live read-only protocol/query checks; existing GitHub and Notion access was verified. No global permissions were changed.
+- [Mini-PC readiness](docs/MINI_PC_READINESS.md): static assessment completed; `NOT_READY_FOR_DEPLOYMENT`. Hardware/OS are unknown, and packaging, isolation, state/restart, UI/auth and artifact/CI gates remain open. No target installation or application test was run in this handoff.
+- The pre-existing Compose loopback change is included unchanged in the handoff. Git publication is separate from PR/merge, release approval, image publication and deployment; final remote verification is recorded in the linked Notion hub.
+
+## QA evidence and earlier documentation refinement — 27 August 2026
+
+- [RC-0 QA submission](docs/qa/rc0/README.md): STP, STD, STR, 46-case inventory, traceability/findings and evidence hashes. Documentation review is pending; no release approval is recorded.
+- Tested revision: `e33cfd88d127c5e7cd1a7266295aa924b9935b3b`, branch `codex/phase-1-proof-layer`; run `rc0-20260827-01`.
+- Verified result: 46 selected unit/storage tests passed, 0 failures/pending, exit code 0, in an offline, read-only, no-host-mount container with synthetic fixtures. This is not a coverage percentage or the full project test suite.
+- Not rerun: HTTP/UI, authentication as a system, Socket.IO, full root/frontend suites, builds/typecheck, remote CI, real models, service restart/restore, deployment and post-deploy checks. Existing services were not used for the unit run.
+- The original evidence is preserved under `temp/rc0-20260827-01` (Git-ignored). [STR](docs/qa/rc0/STR.md) distinguishes raw test evidence from narrative cleanup records and source-derived findings.
+- During the earlier QA documentation refinement, the pre-existing `docker-compose.yml` loopback change remained untouched and no application code, test rerun, commit, push, PR or deployment was performed. The later user-authorized Git handoff is tracked separately above.
+- SSA-1/SSA-2 remain in progress. Auth, persistence, CI and release tasks are not closed by this unit result or by preparing QA documents.
+
+## Historical audit — 19 August 2026 (not rerun in full)
+
+- Active workspace: `C:\Users\idanv\OneDrive\Desktop\SafeSoundArena`
+- Git branch: `codex/phase-1-proof-layer`, synchronized with its GitHub remote branch and one commit ahead of `main`.
+- Local verification: root Mocha `80 passing`, frontend Jest `4/4`, frontend TypeScript `0` errors, frontend production build passed, and `next-app` production build passed.
+- Runtime verification: canonical `backend/app.js` passed health/Jail/MSHIX smoke checks; JailTime JSONL logging passed persistence/reload and live API checks; Docker image/container smoke passed; local Ollama inference passed for chat and embeddings.
+- Runtime contract: root/backend start scripts now use `backend/app.js` on port `4000`; feature endpoints that are not implemented in the active backend intentionally remain visible as `404` rather than hanging.
+- Feature API v1: Events, Marketplace, Quests, Guilds, Notifications, and Challenges are now served by `backend/api/featureRoutes.js` with a file-backed single-node store. This is suitable for Windows/mini-PC development and one-node operation; authentication and a shared database are still required before public production use.
+- MSHIX v1: normalized event hub, safety/lifecycle admission gates, separate Agent Execution Controller boundary, connector routing, idempotency, single-node durable Feature Outbox with retry/replay, bounded dead-letter handling, hash-chained audit integration, local Brain Kernel memory boundary, real Ollama enrichment and read-only `/mshix` dashboard are locally verified. The controller is admission-only; transactional multi-node replay, external workers and real model training remain open work.
+- Merge readiness: no conflict markers remain in the active workspace.
+- GitHub readiness: open PRs and failing Vercel/Netlify checks still require explicit integration/CI work; this branch has no open PR.
+- Release posture: not yet “production deployed”. The official platform adapters remain disabled by default and require explicit permission before activation.
 
 ---
 
@@ -65,19 +97,18 @@
 - ✅ Documentation verified
 - ✅ All configurations production-ready
 
-### Phase 4: Git Preparation (7/7 ✅)
-- ✅ Git status checked and clean
-- ✅ Diffs validated
-- ✅ Linter verification passed
-- ✅ Build testing completed
-- ✅ Commit messages prepared
-- ✅ Feature branches created
-- ✅ Final verification passed
+### Phase 4: Git Preparation (in progress)
+- ✅ Remote, branch ancestry, and GitHub branch state cross-checked
+- ✅ Active conflict markers removed and local diffs inspected
+- ✅ Local tests, type-checks, and builds verified
+- ⏳ Working tree review and commit boundary still require deliberate selection because pre-existing changes are mixed together
+- ⏳ GitHub PR/merge decision is still pending
+- ⏳ Remote CI/deployment checks are not green yet
 
-### Phase 5: Final Verification (3/3 ✅)
-- ✅ All 56 todos verified complete
-- ✅ Session completion report generated
-- ✅ Production readiness confirmed
+### Phase 5: Final Verification (local complete; release pending)
+- ✅ Current local verification recorded above
+- ✅ Audit findings and remaining GitHub blockers identified
+- ⏳ Production deployment and post-deploy verification have not been performed
 
 ---
 

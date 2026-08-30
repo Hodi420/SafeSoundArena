@@ -7,25 +7,109 @@ const http = require('http');
 const socketIo = require('socket.io');
 const fs = require('fs');
 const path = require('path');
-const { getStats } = require('./analytics');
+const multer = require('multer');
+const jwt = require('jsonwebtoken');
+const { getStats, loadAnalytics, saveAnalytics } = require('./analytics');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, { cors: { origin: '*' } });
+const io = socketIo(server, { cors: { origin: process.env.ALLOWED_ORIGINS?.split(',') || ['*'] } });
 global.io = io;
 
 const PORT = process.env.PORT || 3000;
+const PI_JWT_SECRET = process.env.PI_JWT_SECRET;
+const ADMIN_LEVELS_FILE = path.join(__dirname, 'admin_levels.json');
 
+// ─── Admin levels ────────────────────────────────────────────────────────────
+function loadAdminLevels() {
+  try {
+    return JSON.parse(fs.readFileSync(ADMIN_LEVELS_FILE, 'utf8'));
+  } catch {
+    return { superadmin: [], the70: [], the300: [] };
+  }
+}
+
+/**
+ * Returns the highest role for a given Pi username.
+ * Checks admin_levels.json: superadmin > the70 > the300 > user
+ */
+function getUserRole(piUsername) {
+  if (!piUsername) return null;
+  const levels = loadAdminLevels();
+  if (Array.isArray(levels.superadmin) && levels.superadmin.includes(piUsername)) return 'superadmin';
+  if (Array.isArray(levels.the70) && levels.the70.includes(piUsername)) return 'the70';
+  if (Array.isArray(levels.the300) && levels.the300.includes(piUsername)) return 'the300';
+  return 'user';
+}
+
+// ─── Pi identity resolution ───────────────────────────────────────────────────
+/**
+ * Resolves the authenticated Pi username from the request.
+ *
+ * Priority:
+ *  1. JWT in Authorization: Bearer <token>  — verified with PI_JWT_SECRET (production)
+ *  2. x-pi-username header                  — only trusted in dev (PI_JWT_SECRET not set)
+ *
+ * Returns null if unauthenticated.
+ */
+function getPiUsername(req) {
+  const authHeader = req.headers['authorization'];
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7);
+    if (PI_JWT_SECRET) {
+      try {
+        const payload = jwt.verify(token, PI_JWT_SECRET);
+        if (payload && payload.username) return String(payload.username);
+      } catch (err) {
+        // Invalid / expired token — treat as unauthenticated
+        return null;
+      }
+    }
+  }
+
+  // Fallback: raw header — only trusted when PI_JWT_SECRET is not configured (dev)
+  if (!PI_JWT_SECRET && req.headers['x-pi-username']) {
+    console.warn('[dashboard] WARNING: trusting x-pi-username header without JWT verification (dev mode). Set PI_JWT_SECRET in production.');
+    return String(req.headers['x-pi-username']);
+  }
+
+  return null;
+}
+
+/**
+ * Returns a stable key for file-keyed data (profiles, analytics, votes).
+ * Falls back to User-Agent for Pi Browser sessions without a username.
+ */
+function getPiUserKey(req) {
+  const username = getPiUsername(req);
+  if (username) return username;
+  const ua = req.headers['user-agent'] || '';
+  if (ua.includes('PiBrowser')) return ua;
+  return null;
+}
+
+// ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'secret-key',
+  secret: process.env.SESSION_SECRET || (() => {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('SESSION_SECRET must be set in production');
+    }
+    console.warn('[dashboard] WARNING: SESSION_SECRET not set — using insecure default (dev only)');
+    return 'dev-only-insecure-secret';
+  })(),
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  },
 }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Simple login/logout for demo
+// ─── Auth routes ──────────────────────────────────────────────────────────────
 app.post('/api/login', (req, res) => {
   const { userId } = req.body;
   if (userId) req.session.userId = userId;
@@ -34,44 +118,32 @@ app.post('/api/login', (req, res) => {
 app.post('/api/logout', (req, res) => {
   req.session.destroy(() => res.json({ ok: true }));
 });
-// Helper: get unique pioneer key (from Pi Browser UA + session)
-function getPiUserKey(req) {
-  // Use Pi username if present (from Pi SDK)
-  if (req.headers['x-pi-username']) return String(req.headers['x-pi-username']);
-  const ua = req.headers['user-agent'] || '';
-  if (!ua.includes('PiBrowser')) return null;
-  return ua;
-}
 
+// ─── Identity endpoint ────────────────────────────────────────────────────────
 app.get('/api/me', (req, res) => {
-  const pioneerKey = getPioneerKey(req);
-  res.json({ pioneer: !!pioneerKey, pioneerKey });
+  const piUsername = getPiUsername(req);
+  const role = getUserRole(piUsername);
+  res.json({
+    pioneer: !!piUsername,
+    piUsername,
+    role,
+  });
 });
 
-// Per-user analytics
-// Expose user role
-app.get('/api/me', (req, res) => {
-  const piUsername = req.headers['x-pi-username'];
-  const adminLevels = loadAdminLevels();
-  function getUserRole(piUsername) {
-    // TO DO: implement actual role logic
-    return 'admin';
-  }
-  res.json({ piUsername, role: getUserRole(piUsername) });
-});
-
-// --- Voting Storage ---
+// ─── Voting Storage ───────────────────────────────────────────────────────────
 function loadVotes() {
   try {
-    return JSON.parse(fs.readFileSync(__dirname + '/votes.json', 'utf8'));
+    return JSON.parse(fs.readFileSync(path.join(__dirname, 'votes.json'), 'utf8'));
   } catch (e) {
     return { votes: [] };
   }
-  const userQueries = data.queries.filter(q => q.pioneerKey === userKey || q.piUsername === userKey);
-  res.json({ queries: userQueries });
-});
+}
 
-// Profile management
+function saveVotes(data) {
+  fs.writeFileSync(path.join(__dirname, 'votes.json'), JSON.stringify(data, null, 2), 'utf8');
+}
+
+// ─── Profile management ───────────────────────────────────────────────────────
 const PROFILES_FILE = path.join(__dirname, 'profiles.json');
 function loadProfiles() {
   if (!fs.existsSync(PROFILES_FILE)) return {};
@@ -94,13 +166,13 @@ const upload = multer({ dest: path.join(__dirname, 'public/themes') });
 
 app.get('/api/my-profile', (req, res) => {
   const userKey = getPiUserKey(req);
-  if (!userKey) return res.status(403).json({ error: 'Not a Pi Browser pioneer' });
+  if (!userKey) return res.status(403).json({ error: 'Not authenticated' });
   const profiles = loadProfiles();
   res.json(profiles[userKey] || { displayName: '', email: '' });
 });
 app.post('/api/my-profile', (req, res) => {
   const userKey = getPiUserKey(req);
-  if (!userKey) return res.status(403).json({ error: 'Not a Pi Browser pioneer' });
+  if (!userKey) return res.status(403).json({ error: 'Not authenticated' });
   const { displayName, email } = req.body;
   const profiles = loadProfiles();
   profiles[userKey] = { displayName, email };
@@ -108,48 +180,40 @@ app.post('/api/my-profile', (req, res) => {
   res.json({ ok: true });
 });
 
-// Voting endpoints
+// ─── Voting endpoints ─────────────────────────────────────────────────────────
 function recalculateConsensus(timestamp) {
-  // Get votes
   const votes = loadVotes().votes.filter(v => v.timestamp === timestamp);
   if (!votes.length) return;
   const agree = votes.filter(v => v.vote === 'agree').length;
   const disagree = votes.filter(v => v.vote === 'disagree').length;
-  // Only update if there is a clear majority
   let newConsensus = null;
   if (agree > disagree) newConsensus = 'agree';
   else if (disagree > agree) newConsensus = 'disagree';
-  // Update analytics.json
   if (newConsensus) {
     const analytics = loadAnalytics();
     const q = analytics.queries.find(q => String(q.timestamp) === String(timestamp));
     if (q && q.consensus !== newConsensus) {
       q.consensus = newConsensus;
       saveAnalytics(analytics);
-      if (global.io) {
-        global.io.emit('consensusUpdate', { timestamp, consensus: newConsensus });
-      }
+      if (global.io) global.io.emit('consensusUpdate', { timestamp, consensus: newConsensus });
     }
   }
 }
 
 app.post('/api/vote', (req, res) => {
-  const piUsername = req.headers['x-pi-username'];
+  const piUsername = getPiUsername(req);
   if (!piUsername) return res.status(403).json({ error: 'Not authenticated' });
   const { timestamp, vote } = req.body;
-  if (!timestamp || !['agree','disagree'].includes(vote)) return res.status(400).json({ error: 'Invalid vote' });
+  if (!timestamp || !['agree', 'disagree'].includes(vote)) return res.status(400).json({ error: 'Invalid vote' });
   const votes = loadVotes();
-  // Remove any previous vote by this user for this query
   votes.votes = votes.votes.filter(v => !(v.timestamp === timestamp && v.piUsername === piUsername));
   votes.votes.push({ timestamp, piUsername, vote });
   saveVotes(votes);
   recalculateConsensus(timestamp);
-  // Emit vote update to all clients
-  if (global.io) {
-    global.io.emit('voteUpdate', { timestamp });
-  }
+  if (global.io) global.io.emit('voteUpdate', { timestamp });
   res.json({ ok: true });
 });
+
 app.get('/api/votes/:timestamp', (req, res) => {
   const timestamp = req.params.timestamp;
   const votes = loadVotes().votes.filter(v => v.timestamp === timestamp);
@@ -158,29 +222,38 @@ app.get('/api/votes/:timestamp', (req, res) => {
   res.json({ agree, disagree });
 });
 
-// GDPR: export/delete
+// ─── Per-user analytics ───────────────────────────────────────────────────────
+app.get('/api/my-analytics', (req, res) => {
+  const userKey = getPiUserKey(req);
+  if (!userKey) return res.status(403).json({ error: 'Not authenticated' });
+  const data = loadAnalytics();
+  const userQueries = data.queries.filter(q => q.pioneerKey === userKey || q.piUsername === userKey);
+  res.json({ queries: userQueries });
+});
+
+// ─── GDPR: export / delete ────────────────────────────────────────────────────
 app.get('/api/export-my-data', (req, res) => {
   const userKey = getPiUserKey(req);
-  if (!userKey) return res.status(403).json({ error: 'Not a Pi Browser pioneer' });
+  if (!userKey) return res.status(403).json({ error: 'Not authenticated' });
   const data = loadAnalytics();
   const userQueries = data.queries.filter(q => q.pioneerKey === userKey || q.piUsername === userKey);
   const profiles = loadProfiles();
   res.json({ profile: profiles[userKey] || null, queries: userQueries });
 });
+
 app.post('/api/delete-my-data', (req, res) => {
   const userKey = getPiUserKey(req);
-  if (!userKey) return res.status(403).json({ error: 'Not a Pi Browser pioneer' });
-  // Delete analytics
+  if (!userKey) return res.status(403).json({ error: 'Not authenticated' });
   const data = loadAnalytics();
   data.queries = data.queries.filter(q => q.pioneerKey !== userKey && q.piUsername !== userKey);
   saveAnalytics(data);
-  // Delete profile
   const profiles = loadProfiles();
   delete profiles[userKey];
   saveProfiles(profiles);
   res.json({ ok: true });
 });
 
+// ─── Analytics ────────────────────────────────────────────────────────────────
 app.get('/api/analytics', (req, res) => {
   res.json(getStats());
 });
@@ -194,6 +267,7 @@ app.get('/api/analytics/raw', (req, res) => {
   }
 });
 
+// ─── Frontend ─────────────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });

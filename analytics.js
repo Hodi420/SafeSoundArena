@@ -73,4 +73,4 @@ function getProviderUsage(queries) {
   return usage;
 }
 
-module.exports = { logQuery, getStats };
+module.exports = { logQuery, getStats, loadAnalytics, saveAnalytics };

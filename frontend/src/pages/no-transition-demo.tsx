@@ -1,15 +1,14 @@
-// Removed: No-transition demo page. This file is intentionally left blank for production.
-  <div className="flex-center min-h-screen bg-gray-100">
-    <div className="p-10 bg-white rounded shadow">
-      <h2 className="text-2xl font-bold mb-2">No Transition Page</h2>
-      <p>This page disables the animated page transition.</p>
-    </div>
-  </div>
-);
+function NoTransitionDemo() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
+      <section className="rounded-lg bg-white p-8 text-center shadow">
+        <h1 className="mb-2 text-2xl font-bold text-gray-900">No Transition Page</h1>
+        <p className="text-gray-600">Animated page transitions are disabled here.</p>
+      </section>
+    </main>
+  );
+}
 
-<<<<<<< HEAD
 (NoTransitionDemo as { disableTransition?: boolean }).disableTransition = true;
-=======
-(NoTransitionDemo as any).disableTransition = true;
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
 
+export default NoTransitionDemo;
