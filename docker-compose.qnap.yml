@@ -1,5 +1,6 @@
 # Additive, run-only QNAP safety layer for the canonical docker-compose.yml.
-# This file does not make the services LAN-accessible. Use it only together with
+# It requests IPv4-loopback publishing, but LAN isolation is accepted only after
+# the Engine 28+ gate and a negative second-host test. Use it only together with
 # the canonical file, preloaded images, and an explicit untracked NAS env file.
 # !reset requires Docker Compose 2.24.4+ and deliberately removes on-NAS builds.
 
