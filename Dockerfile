@@ -28,8 +28,11 @@ ENV NODE_OPTIONS='--max-old-space-size=512 --heapsnapshot-signal=SIGUSR2'
 
 LABEL org.opencontainers.image.revision="${SAFESOUND_BUILD_REVISION}"
 
-# Install only runtime dependencies (curl for healthcheck, tini for signal handling)
-RUN apk add --no-cache tini curl && \
+# Fail closed unless the runtime includes the patched OpenSSL floor.
+RUN apk add --no-cache \
+      'libcrypto3>=3.5.8-r0' \
+      'libssl3>=3.5.8-r0' \
+      tini curl && \
     apk add --no-cache --virtual .build-deps ca-certificates && \
     rm -rf /var/cache/apk/* /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 

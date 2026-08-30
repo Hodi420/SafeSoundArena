@@ -25,8 +25,11 @@ ARG NEXT_PUBLIC_SOCKET_URL=http://localhost:4000
 LABEL org.opencontainers.image.revision="${SAFESOUND_BUILD_REVISION}" \
       io.safesoundarena.next-public-socket-url="${NEXT_PUBLIC_SOCKET_URL}"
 
-# Install wget for healthcheck
-RUN apk add --no-cache wget
+# Fail closed unless the runtime includes the patched OpenSSL floor.
+RUN apk add --no-cache \
+      'libcrypto3>=3.5.8-r0' \
+      'libssl3>=3.5.8-r0' \
+      wget
 
 # Security hardening
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
