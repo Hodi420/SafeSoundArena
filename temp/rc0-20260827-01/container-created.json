@@ -1,0 +1,17 @@
+{
+  "id": "fd50dd23fef4e8ce5e193cfdb81933a368876b044780b036d6365f15ceb9239d",
+  "name": "ssa-rc0-unit-20260827-02",
+  "image": "sha256:bb264c2c70cecddaf517e2b548fb6217cc030b0a338b4d0fc3edf4cad9fa0837",
+  "state": "created",
+  "network": "none",
+  "readonlyRootfs": true,
+  "noHostMounts": true,
+  "healthcheckDisabled": true,
+  "publishedPorts": 0,
+  "uid": "65534:65534",
+  "cpuLimit": 1,
+  "memoryLimitMiB": 512,
+  "pidLimit": 64,
+  "noRestart": true,
+  "appMasked": true
+}

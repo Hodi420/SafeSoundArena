@@ -1,0 +1,906 @@
+{
+  "createdAt": "2026-08-27T12:57:42.523Z",
+  "revision": "e33cfd88d127c5e7cd1a7266295aa924b9935b3b",
+  "workingTree": "M docker-compose.yml",
+  "composeSha256": "e1e49876961c50100fd283f901b950f11707916827dd6f3717b1dc5197d1b8e0",
+  "expectedTests": 46,
+  "tests": [
+    "backend/api/featureStore.test.js",
+    "test/agentExecutionController.test.js",
+    "test/agentLifecycle.test.js",
+    "test/agentOrchestrator.test.js",
+    "test/safetyGate1.test.js",
+    "test/mshix.test.js",
+    "test/mshixOutbox.test.js",
+    "test/mshixBrainKernel.test.js",
+    "test/jailtimeEvents.test.js",
+    "test/pqs.test.js"
+  ],
+  "files": [
+    {
+      "path": "backend/api/featureStore.js",
+      "sha256": "a500af6cdbe928c53722517292c8680b1a6b984f6636dc6680ba503757d1f349"
+    },
+    {
+      "path": "backend/jailtime-events/index.js",
+      "sha256": "69a380a8ffc800bd10a86a162c8dd0bdedef72b7c5e4150f69e21245bfa5aeec"
+    },
+    {
+      "path": "src/server/agentLifecycle.js",
+      "sha256": "c9b4c86082de5584095eb993aef38d8e1a0c88ecc415103705d2de64c4a777ce"
+    },
+    {
+      "path": "src/server/agentOrchestrator.js",
+      "sha256": "cca59c4794b827190232b8e564ce6bcd9931617df540940464a0fd77ae58eeb7"
+    },
+    {
+      "path": "src/server/agentExecutionController.js",
+      "sha256": "d3f2a7e0e50c7dcfcda54fe300685feb1029ef141d3ba356820c96dbce90a853"
+    },
+    {
+      "path": "src/server/mshix/index.js",
+      "sha256": "be69b335782f9b24bfbf75a40834f2e780633fb3cc439ce8524edece6610edbb"
+    },
+    {
+      "path": "src/server/mshix/mshix.js",
+      "sha256": "3ef8b0a2646f44def861b6749e159d332f5eab9d5dc40cdd7834830bbd2cf366"
+    },
+    {
+      "path": "src/server/mshix/mshixRouter.js",
+      "sha256": "a5a74c8c923eaa841e56b46f95ed6ed99fa46991d871c9a2ec8782ce6170b14d"
+    },
+    {
+      "path": "src/server/mshix/mshixOutbox.js",
+      "sha256": "6ecde0aacde39753324b0bfd4ca6bf913cb710bfa97334290a32445b38448f1a"
+    },
+    {
+      "path": "src/server/mshix/brainMemoryStore.js",
+      "sha256": "6dd43051e8f0b1d2f6b857ad1f25a87fecc00693783046f3d44007e8f3b6e54e"
+    },
+    {
+      "path": "src/server/mshix/brainKernel.js",
+      "sha256": "085226f1e906cd5cd9a52f69fc853ca8de4d318d7752196e0e997a971e765ce3"
+    },
+    {
+      "path": "server/pqs/core/eventModel.js",
+      "sha256": "482703e7e76dc686c22053f858b52358a68eaea179c9058669cbcd64012692be"
+    },
+    {
+      "path": "server/pqs/proof/matchProofSha512.js",
+      "sha256": "4e91e1ef01332889532f33cff32e59355a7f26c76a1fd4cf25e240b9bfe7683e"
+    },
+    {
+      "path": "server/pqs/security/antiAbuseRules.js",
+      "sha256": "a4161599553e0bb153cd50a2297cd6bda57233a08d81c1088dd061318a5aff78"
+    },
+    {
+      "path": "server/pqs/modes/carnival/simulation.js",
+      "sha256": "f9cb3b70ebe748ce0da8b39171dd179929ac2b53f5e1e6827232e5c66c096343"
+    },
+    {
+      "path": "server/pqs/adapters/ipAdapter.interface.js",
+      "sha256": "1a16dfdad79d67311a95d7f2e59e91d5415ba7c67d81f1df32f3b33ed99a3ec1"
+    },
+    {
+      "path": "server/pqs/adapters/mapleStoryWorldsAdapter.placeholder.js",
+      "sha256": "6a4f0e1d5c3afd5d2403066f43523b051c1249ea24c7bf6bdb46303c5ec090ff"
+    },
+    {
+      "path": "server/pqs/adapters/msuSdkAdapter.placeholder.js",
+      "sha256": "cb773b397167d197d07b5f94e5f16d52ca9c20bca258f47a1f2599a427212ea7"
+    },
+    {
+      "path": "server/pqs/adapters/vibeIpAdapter.placeholder.js",
+      "sha256": "95b39e0a2005af35e52619b2badda7c44659fc8fc098e29f7708a9fe3906fcda"
+    },
+    {
+      "path": "backend/api/featureStore.test.js",
+      "sha256": "c70ae8c8a17b3357b1157c83834ec2f52f04ea296cbbef330391d356b505189b"
+    },
+    {
+      "path": "test/agentExecutionController.test.js",
+      "sha256": "dfc134174761da0f8ba7901af48f34e42bae8e7386bfa7721cae89ddbe085174"
+    },
+    {
+      "path": "test/agentLifecycle.test.js",
+      "sha256": "95931ab3140260194756c0fd418f54559752fcfdbc8bbbe2c1db33d089732543"
+    },
+    {
+      "path": "test/agentOrchestrator.test.js",
+      "sha256": "01e5fcff7cfb9e9ef1190674d6df82939e4e6a4250b24d1412e29f2e95cf783b"
+    },
+    {
+      "path": "test/safetyGate1.test.js",
+      "sha256": "38c775a043670b7ca103468789dacc6077664708d032fdb9b60f8afa47ed90f3"
+    },
+    {
+      "path": "test/mshix.test.js",
+      "sha256": "5fcc4f2fbc368737e2d3023b688d3a7e9a9e99559d4da33be5c183852115feb9"
+    },
+    {
+      "path": "test/mshixOutbox.test.js",
+      "sha256": "c4c236dcd4405fea8cc78b8537148b39f0e68ded5dd08e0891fa59dc51caf145"
+    },
+    {
+      "path": "test/mshixBrainKernel.test.js",
+      "sha256": "127b9a6a8514606544e7761aca436ae44f172262e7f0904470327d5a49cb3ae2"
+    },
+    {
+      "path": "test/jailtimeEvents.test.js",
+      "sha256": "537ae4a577db064f9bac3ab7c9f06e89720c11689b75e34c9706cbb927b5c511"
+    },
+    {
+      "path": "test/pqs.test.js",
+      "sha256": "c3de408491cbb43e6aacab24f85a8729e591d649e8e60796ff35ee71d86d62a2"
+    }
+  ],
+  "packages": [
+    {
+      "name": "mocha",
+      "version": "11.3.0",
+      "path": "mocha"
+    },
+    {
+      "name": "browser-stdout",
+      "version": "1.3.1",
+      "path": "browser-stdout"
+    },
+    {
+      "name": "chokidar",
+      "version": "4.0.3",
+      "path": "mocha/node_modules/chokidar"
+    },
+    {
+      "name": "readdirp",
+      "version": "4.1.2",
+      "path": "mocha/node_modules/readdirp"
+    },
+    {
+      "name": "debug",
+      "version": "4.4.3",
+      "path": "debug"
+    },
+    {
+      "name": "ms",
+      "version": "2.1.3",
+      "path": "ms"
+    },
+    {
+      "name": "diff",
+      "version": "5.2.2",
+      "path": "diff"
+    },
+    {
+      "name": "escape-string-regexp",
+      "version": "4.0.0",
+      "path": "escape-string-regexp"
+    },
+    {
+      "name": "find-up",
+      "version": "5.0.0",
+      "path": "find-up"
+    },
+    {
+      "name": "locate-path",
+      "version": "6.0.0",
+      "path": "locate-path"
+    },
+    {
+      "name": "p-locate",
+      "version": "5.0.0",
+      "path": "p-locate"
+    },
+    {
+      "name": "p-limit",
+      "version": "3.1.0",
+      "path": "p-limit"
+    },
+    {
+      "name": "yocto-queue",
+      "version": "0.1.0",
+      "path": "yocto-queue"
+    },
+    {
+      "name": "path-exists",
+      "version": "4.0.0",
+      "path": "path-exists"
+    },
+    {
+      "name": "glob",
+      "version": "10.5.0",
+      "path": "mocha/node_modules/glob"
+    },
+    {
+      "name": "foreground-child",
+      "version": "3.3.1",
+      "path": "foreground-child"
+    },
+    {
+      "name": "cross-spawn",
+      "version": "7.0.6",
+      "path": "cross-spawn"
+    },
+    {
+      "name": "path-key",
+      "version": "3.1.1",
+      "path": "path-key"
+    },
+    {
+      "name": "shebang-command",
+      "version": "2.0.0",
+      "path": "shebang-command"
+    },
+    {
+      "name": "shebang-regex",
+      "version": "3.0.0",
+      "path": "shebang-regex"
+    },
+    {
+      "name": "which",
+      "version": "2.0.2",
+      "path": "which"
+    },
+    {
+      "name": "isexe",
+      "version": "2.0.0",
+      "path": "isexe"
+    },
+    {
+      "name": "signal-exit",
+      "version": "4.1.0",
+      "path": "foreground-child/node_modules/signal-exit"
+    },
+    {
+      "name": "jackspeak",
+      "version": "3.4.3",
+      "path": "jackspeak"
+    },
+    {
+      "name": "@isaacs/cliui",
+      "version": "8.0.2",
+      "path": "@isaacs/cliui"
+    },
+    {
+      "name": "string-width",
+      "version": "5.1.2",
+      "path": "@isaacs/cliui/node_modules/string-width"
+    },
+    {
+      "name": "eastasianwidth",
+      "version": "0.2.0",
+      "path": "eastasianwidth"
+    },
+    {
+      "name": "emoji-regex",
+      "version": "9.2.2",
+      "path": "@isaacs/cliui/node_modules/emoji-regex"
+    },
+    {
+      "name": "strip-ansi",
+      "version": "7.1.0",
+      "path": "@isaacs/cliui/node_modules/strip-ansi"
+    },
+    {
+      "name": "ansi-regex",
+      "version": "6.1.0",
+      "path": "@isaacs/cliui/node_modules/ansi-regex"
+    },
+    {
+      "name": "string-width",
+      "version": "4.2.3",
+      "path": "string-width-cjs"
+    },
+    {
+      "name": "emoji-regex",
+      "version": "8.0.0",
+      "path": "emoji-regex"
+    },
+    {
+      "name": "is-fullwidth-code-point",
+      "version": "3.0.0",
+      "path": "is-fullwidth-code-point"
+    },
+    {
+      "name": "strip-ansi",
+      "version": "6.0.1",
+      "path": "strip-ansi"
+    },
+    {
+      "name": "ansi-regex",
+      "version": "5.0.1",
+      "path": "ansi-regex"
+    },
+    {
+      "name": "strip-ansi",
+      "version": "6.0.1",
+      "path": "strip-ansi-cjs"
+    },
+    {
+      "name": "wrap-ansi",
+      "version": "8.1.0",
+      "path": "@isaacs/cliui/node_modules/wrap-ansi"
+    },
+    {
+      "name": "ansi-styles",
+      "version": "6.2.1",
+      "path": "@isaacs/cliui/node_modules/ansi-styles"
+    },
+    {
+      "name": "wrap-ansi",
+      "version": "7.0.0",
+      "path": "wrap-ansi-cjs"
+    },
+    {
+      "name": "ansi-styles",
+      "version": "4.3.0",
+      "path": "wrap-ansi-cjs/node_modules/ansi-styles"
+    },
+    {
+      "name": "color-convert",
+      "version": "2.0.1",
+      "path": "color-convert"
+    },
+    {
+      "name": "color-name",
+      "version": "1.1.4",
+      "path": "color-name"
+    },
+    {
+      "name": "string-width",
+      "version": "4.2.3",
+      "path": "string-width"
+    },
+    {
+      "name": "@pkgjs/parseargs",
+      "version": "0.11.0",
+      "path": "@pkgjs/parseargs"
+    },
+    {
+      "name": "minimatch",
+      "version": "9.0.9",
+      "path": "mocha/node_modules/glob/node_modules/minimatch"
+    },
+    {
+      "name": "brace-expansion",
+      "version": "2.1.4",
+      "path": "mocha/node_modules/brace-expansion"
+    },
+    {
+      "name": "balanced-match",
+      "version": "1.0.2",
+      "path": "balanced-match"
+    },
+    {
+      "name": "minipass",
+      "version": "7.1.2",
+      "path": "minipass"
+    },
+    {
+      "name": "package-json-from-dist",
+      "version": "1.0.1",
+      "path": "package-json-from-dist"
+    },
+    {
+      "name": "path-scurry",
+      "version": "1.11.1",
+      "path": "path-scurry"
+    },
+    {
+      "name": "lru-cache",
+      "version": "10.4.3",
+      "path": "path-scurry/node_modules/lru-cache"
+    },
+    {
+      "name": "he",
+      "version": "1.2.0",
+      "path": "he"
+    },
+    {
+      "name": "js-yaml",
+      "version": "4.3.1",
+      "path": "js-yaml"
+    },
+    {
+      "name": "argparse",
+      "version": "2.0.1",
+      "path": "argparse"
+    },
+    {
+      "name": "log-symbols",
+      "version": "4.1.0",
+      "path": "log-symbols"
+    },
+    {
+      "name": "chalk",
+      "version": "4.1.2",
+      "path": "chalk"
+    },
+    {
+      "name": "ansi-styles",
+      "version": "4.3.0",
+      "path": "chalk/node_modules/ansi-styles"
+    },
+    {
+      "name": "supports-color",
+      "version": "7.2.0",
+      "path": "supports-color"
+    },
+    {
+      "name": "has-flag",
+      "version": "4.0.0",
+      "path": "has-flag"
+    },
+    {
+      "name": "is-unicode-supported",
+      "version": "0.1.0",
+      "path": "is-unicode-supported"
+    },
+    {
+      "name": "minimatch",
+      "version": "5.1.9",
+      "path": "mocha/node_modules/minimatch"
+    },
+    {
+      "name": "picocolors",
+      "version": "1.1.1",
+      "path": "picocolors"
+    },
+    {
+      "name": "serialize-javascript",
+      "version": "7.1.0",
+      "path": "serialize-javascript"
+    },
+    {
+      "name": "strip-json-comments",
+      "version": "3.1.1",
+      "path": "strip-json-comments"
+    },
+    {
+      "name": "supports-color",
+      "version": "8.1.1",
+      "path": "mocha/node_modules/supports-color"
+    },
+    {
+      "name": "workerpool",
+      "version": "6.5.1",
+      "path": "workerpool"
+    },
+    {
+      "name": "yargs",
+      "version": "17.7.3",
+      "path": "yargs"
+    },
+    {
+      "name": "cliui",
+      "version": "8.0.1",
+      "path": "cliui"
+    },
+    {
+      "name": "wrap-ansi",
+      "version": "7.0.0",
+      "path": "wrap-ansi"
+    },
+    {
+      "name": "ansi-styles",
+      "version": "4.3.0",
+      "path": "wrap-ansi/node_modules/ansi-styles"
+    },
+    {
+      "name": "escalade",
+      "version": "3.2.0",
+      "path": "escalade"
+    },
+    {
+      "name": "get-caller-file",
+      "version": "2.0.5",
+      "path": "get-caller-file"
+    },
+    {
+      "name": "require-directory",
+      "version": "2.1.1",
+      "path": "require-directory"
+    },
+    {
+      "name": "y18n",
+      "version": "5.0.8",
+      "path": "y18n"
+    },
+    {
+      "name": "yargs-parser",
+      "version": "21.1.1",
+      "path": "yargs-parser"
+    },
+    {
+      "name": "yargs-unparser",
+      "version": "2.0.0",
+      "path": "yargs-unparser"
+    },
+    {
+      "name": "camelcase",
+      "version": "6.3.0",
+      "path": "camelcase"
+    },
+    {
+      "name": "decamelize",
+      "version": "4.0.0",
+      "path": "decamelize"
+    },
+    {
+      "name": "flat",
+      "version": "5.0.2",
+      "path": "flat"
+    },
+    {
+      "name": "is-plain-obj",
+      "version": "2.1.0",
+      "path": "is-plain-obj"
+    },
+    {
+      "name": "express",
+      "version": "4.22.2",
+      "path": "express"
+    },
+    {
+      "name": "accepts",
+      "version": "1.3.8",
+      "path": "accepts"
+    },
+    {
+      "name": "mime-types",
+      "version": "2.1.35",
+      "path": "mime-types"
+    },
+    {
+      "name": "mime-db",
+      "version": "1.52.0",
+      "path": "mime-db"
+    },
+    {
+      "name": "negotiator",
+      "version": "0.6.3",
+      "path": "negotiator"
+    },
+    {
+      "name": "array-flatten",
+      "version": "1.1.1",
+      "path": "array-flatten"
+    },
+    {
+      "name": "body-parser",
+      "version": "1.20.6",
+      "path": "body-parser"
+    },
+    {
+      "name": "bytes",
+      "version": "3.1.2",
+      "path": "bytes"
+    },
+    {
+      "name": "content-type",
+      "version": "1.0.5",
+      "path": "content-type"
+    },
+    {
+      "name": "debug",
+      "version": "2.6.9",
+      "path": "body-parser/node_modules/debug"
+    },
+    {
+      "name": "ms",
+      "version": "2.0.0",
+      "path": "body-parser/node_modules/ms"
+    },
+    {
+      "name": "depd",
+      "version": "2.0.0",
+      "path": "depd"
+    },
+    {
+      "name": "destroy",
+      "version": "1.2.0",
+      "path": "destroy"
+    },
+    {
+      "name": "http-errors",
+      "version": "2.0.1",
+      "path": "http-errors"
+    },
+    {
+      "name": "inherits",
+      "version": "2.0.4",
+      "path": "inherits"
+    },
+    {
+      "name": "setprototypeof",
+      "version": "1.2.0",
+      "path": "setprototypeof"
+    },
+    {
+      "name": "statuses",
+      "version": "2.0.2",
+      "path": "statuses"
+    },
+    {
+      "name": "toidentifier",
+      "version": "1.0.1",
+      "path": "toidentifier"
+    },
+    {
+      "name": "iconv-lite",
+      "version": "0.4.24",
+      "path": "iconv-lite"
+    },
+    {
+      "name": "safer-buffer",
+      "version": "2.1.2",
+      "path": "safer-buffer"
+    },
+    {
+      "name": "on-finished",
+      "version": "2.4.1",
+      "path": "on-finished"
+    },
+    {
+      "name": "ee-first",
+      "version": "1.1.1",
+      "path": "ee-first"
+    },
+    {
+      "name": "qs",
+      "version": "6.15.2",
+      "path": "qs"
+    },
+    {
+      "name": "side-channel",
+      "version": "1.1.0",
+      "path": "side-channel"
+    },
+    {
+      "name": "es-errors",
+      "version": "1.3.0",
+      "path": "es-errors"
+    },
+    {
+      "name": "object-inspect",
+      "version": "1.13.4",
+      "path": "object-inspect"
+    },
+    {
+      "name": "side-channel-list",
+      "version": "1.0.0",
+      "path": "side-channel-list"
+    },
+    {
+      "name": "side-channel-map",
+      "version": "1.0.1",
+      "path": "side-channel-map"
+    },
+    {
+      "name": "call-bound",
+      "version": "1.0.4",
+      "path": "call-bound"
+    },
+    {
+      "name": "call-bind-apply-helpers",
+      "version": "1.0.2",
+      "path": "call-bind-apply-helpers"
+    },
+    {
+      "name": "function-bind",
+      "version": "1.1.2",
+      "path": "function-bind"
+    },
+    {
+      "name": "get-intrinsic",
+      "version": "1.3.0",
+      "path": "get-intrinsic"
+    },
+    {
+      "name": "es-define-property",
+      "version": "1.0.1",
+      "path": "es-define-property"
+    },
+    {
+      "name": "es-object-atoms",
+      "version": "1.1.1",
+      "path": "es-object-atoms"
+    },
+    {
+      "name": "get-proto",
+      "version": "1.0.1",
+      "path": "get-proto"
+    },
+    {
+      "name": "dunder-proto",
+      "version": "1.0.1",
+      "path": "dunder-proto"
+    },
+    {
+      "name": "gopd",
+      "version": "1.2.0",
+      "path": "gopd"
+    },
+    {
+      "name": "has-symbols",
+      "version": "1.1.0",
+      "path": "has-symbols"
+    },
+    {
+      "name": "hasown",
+      "version": "2.0.4",
+      "path": "hasown"
+    },
+    {
+      "name": "math-intrinsics",
+      "version": "1.1.0",
+      "path": "math-intrinsics"
+    },
+    {
+      "name": "side-channel-weakmap",
+      "version": "1.0.2",
+      "path": "side-channel-weakmap"
+    },
+    {
+      "name": "raw-body",
+      "version": "2.5.3",
+      "path": "raw-body"
+    },
+    {
+      "name": "unpipe",
+      "version": "1.0.0",
+      "path": "unpipe"
+    },
+    {
+      "name": "type-is",
+      "version": "1.6.18",
+      "path": "type-is"
+    },
+    {
+      "name": "media-typer",
+      "version": "0.3.0",
+      "path": "media-typer"
+    },
+    {
+      "name": "content-disposition",
+      "version": "0.5.4",
+      "path": "content-disposition"
+    },
+    {
+      "name": "safe-buffer",
+      "version": "5.2.1",
+      "path": "safe-buffer"
+    },
+    {
+      "name": "cookie",
+      "version": "0.7.2",
+      "path": "cookie"
+    },
+    {
+      "name": "cookie-signature",
+      "version": "1.0.6",
+      "path": "cookie-signature"
+    },
+    {
+      "name": "debug",
+      "version": "2.6.9",
+      "path": "express/node_modules/debug"
+    },
+    {
+      "name": "ms",
+      "version": "2.0.0",
+      "path": "express/node_modules/ms"
+    },
+    {
+      "name": "encodeurl",
+      "version": "2.0.0",
+      "path": "encodeurl"
+    },
+    {
+      "name": "escape-html",
+      "version": "1.0.3",
+      "path": "escape-html"
+    },
+    {
+      "name": "etag",
+      "version": "1.8.1",
+      "path": "etag"
+    },
+    {
+      "name": "finalhandler",
+      "version": "1.3.2",
+      "path": "finalhandler"
+    },
+    {
+      "name": "debug",
+      "version": "2.6.9",
+      "path": "finalhandler/node_modules/debug"
+    },
+    {
+      "name": "ms",
+      "version": "2.0.0",
+      "path": "finalhandler/node_modules/ms"
+    },
+    {
+      "name": "parseurl",
+      "version": "1.3.3",
+      "path": "parseurl"
+    },
+    {
+      "name": "fresh",
+      "version": "0.5.2",
+      "path": "fresh"
+    },
+    {
+      "name": "merge-descriptors",
+      "version": "1.0.3",
+      "path": "merge-descriptors"
+    },
+    {
+      "name": "methods",
+      "version": "1.1.2",
+      "path": "methods"
+    },
+    {
+      "name": "path-to-regexp",
+      "version": "0.1.13",
+      "path": "path-to-regexp"
+    },
+    {
+      "name": "proxy-addr",
+      "version": "2.0.7",
+      "path": "proxy-addr"
+    },
+    {
+      "name": "forwarded",
+      "version": "0.2.0",
+      "path": "forwarded"
+    },
+    {
+      "name": "ipaddr.js",
+      "version": "1.9.1",
+      "path": "ipaddr.js"
+    },
+    {
+      "name": "range-parser",
+      "version": "1.2.1",
+      "path": "range-parser"
+    },
+    {
+      "name": "send",
+      "version": "0.19.2",
+      "path": "send"
+    },
+    {
+      "name": "debug",
+      "version": "2.6.9",
+      "path": "send/node_modules/debug"
+    },
+    {
+      "name": "ms",
+      "version": "2.0.0",
+      "path": "send/node_modules/debug/node_modules/ms"
+    },
+    {
+      "name": "mime",
+      "version": "1.6.0",
+      "path": "mime"
+    },
+    {
+      "name": "serve-static",
+      "version": "1.16.3",
+      "path": "serve-static"
+    },
+    {
+      "name": "utils-merge",
+      "version": "1.0.1",
+      "path": "utils-merge"
+    },
+    {
+      "name": "vary",
+      "version": "1.1.2",
+      "path": "vary"
+    }
+  ],
+  "dependencyBytes": 11215433,
+  "dependencyFileCount": 1559
+}

@@ -39,6 +39,8 @@ const jailTimeEvents = require('./jailtime-events');
 const proofOfActivity = require('./proof-of-activity');
 const shameHonorBoards = require('./shame-honor-boards');
 
+const app = express();
+
 // מודול ניהול הרשאות MCP
 const mcpPermissions = require('./mcp-permissions');
 // דוגמת שימוש: הוספת הרשאות למשתמש (לצורכי פיתוח)
@@ -64,7 +66,6 @@ let usersInJail = {};
 let jailStartTime = null;
 let jailEndTime = null;
 
-const app = express();
 app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || ['*'], optionsSuccessStatus: 200 }));
 app.use(express.json());
 app.use(helmet());

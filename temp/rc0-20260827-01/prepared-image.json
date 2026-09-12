@@ -1,0 +1,15 @@
+{
+  "image": "sha256:7f5b0b11a09823de04d3ae63f22782937dc5c66f004b0b6ab7675fce53834557",
+  "baseImage": "sha256:bb264c2c70cecddaf517e2b548fb6217cc030b0a338b4d0fc3edf4cad9fa0837",
+  "prepId": "f911f55f0c922f86cb0dbb54535dbc9009da8e92e5f05b07dc6b19d064c42d12",
+  "prepName": "ssa-rc0-package-20260827-01",
+  "neverStarted": true,
+  "noHostMounts": true,
+  "copyOnly": true,
+  "baseLayersVerified": true,
+  "baseLayerCount": 9,
+  "preparedLayerCount": 10,
+  "onlyInputDepsAndRunnerChanged": true,
+  "changedEntries": 1923,
+  "note": "Commit completed; its ID was verified after a CLI deprecation notice interrupted result parsing. Packaging container remained created with zero StartedAt and Pid=0."
+}

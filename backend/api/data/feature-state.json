@@ -1,0 +1,135 @@
+{
+  "events": [
+    {
+      "id": "event-carnival",
+      "title": "Carnival Arena",
+      "description": "Compete in the next SafeSoundArena activity cycle.",
+      "startTime": "2026-08-20T18:00:00.000Z",
+      "endTime": "2026-08-20T20:00:00.000Z",
+      "capacity": 100,
+      "type": "tournament",
+      "rewards": [
+        {
+          "amount": 100,
+          "type": "Pi"
+        }
+      ],
+      "emoji": "🏆",
+      "participantIds": [
+        "mshix-smoke-user",
+        "smoke-user-2",
+        "smoke-user-3"
+      ]
+    }
+  ],
+  "marketplace": [
+    {
+      "id": "starter-scroll",
+      "name": "Starter Scroll",
+      "description": "A safe entry scroll for new arena participants.",
+      "price": 10,
+      "emoji": "📜",
+      "seller": "SafeSoundArena",
+      "quantity": 25,
+      "rarity": "Common",
+      "type": "scroll"
+    },
+    {
+      "id": "guardian-badge",
+      "name": "Guardian Badge",
+      "description": "A cosmetic badge for verified community guardians.",
+      "price": 50,
+      "emoji": "🛡️",
+      "seller": "SafeSoundArena",
+      "quantity": 10,
+      "rarity": "Rare",
+      "type": "badge"
+    }
+  ],
+  "quests": [
+    {
+      "id": "welcome-to-arena",
+      "title": "Welcome to the Arena",
+      "description": "Complete your first SafeSoundArena activity.",
+      "reward": 25,
+      "difficulty": "Easy",
+      "progress": 0,
+      "status": "active",
+      "requirements": [
+        "Join one activity"
+      ],
+      "emoji": "🎯"
+    },
+    {
+      "id": "proof-of-activity",
+      "title": "Proof of Activity",
+      "description": "Build a consistent activity record.",
+      "reward": 100,
+      "difficulty": "Medium",
+      "progress": 0,
+      "status": "active",
+      "requirements": [
+        "Complete three activity cycles"
+      ],
+      "emoji": "✅"
+    }
+  ],
+  "guilds": [
+    {
+      "id": "guardian-circle",
+      "name": "Guardian Circle",
+      "description": "A community for safe and consistent participation.",
+      "emoji": "🛡️",
+      "leader": "SafeSoundArena",
+      "rank": "Founding",
+      "memberIds": [],
+      "messages": []
+    }
+  ],
+  "notifications": [
+    {
+      "id": "welcome-notification",
+      "type": "welcome",
+      "content": "Welcome to SafeSoundArena.",
+      "read": false,
+      "timestamp": "2026-08-19T00:00:00.000Z",
+      "emoji": "👋"
+    }
+  ],
+  "challenges": {
+    "daily": [
+      {
+        "id": "daily-first-step",
+        "type": "daily",
+        "title": "First Step",
+        "description": "Join one activity today.",
+        "progress": 0,
+        "goal": 1,
+        "claimed": false,
+        "emoji": "🚀",
+        "reward": {
+          "type": "XP",
+          "amount": 25,
+          "emoji": "✨"
+        }
+      }
+    ],
+    "weekly": [
+      {
+        "id": "weekly-consistency",
+        "type": "weekly",
+        "title": "Consistency",
+        "description": "Participate in three activities this week.",
+        "progress": 0,
+        "goal": 3,
+        "claimed": false,
+        "emoji": "🔥",
+        "reward": {
+          "type": "Pi",
+          "amount": 50,
+          "emoji": "π"
+        }
+      }
+    ]
+  }
+}

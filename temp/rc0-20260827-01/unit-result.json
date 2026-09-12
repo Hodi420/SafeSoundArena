@@ -1,0 +1,17 @@
+{
+  "revision": "e33cfd88d127c5e7cd1a7266295aa924b9935b3b",
+  "tests": 46,
+  "passes": 46,
+  "failures": 0,
+  "pending": 0,
+  "networkOrProcessAttempts": [],
+  "durationMs": 60,
+  "status": "PASSED_BOUNDED_UNIT_GATE",
+  "appServersStarted": false,
+  "publishedPorts": 0,
+  "note": "Unit/storage fixtures only; not HTTP/UI, Compose runtime, model, CI, or deployment validation.",
+  "id": "18bea405b0d6d59971069764b3fe3c04005748f3aef572de11bf3d707b5e4180",
+  "exited": true,
+  "exitCode": 0,
+  "hostDeadlineSeconds": 45
+}

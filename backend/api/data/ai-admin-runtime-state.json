@@ -1,0 +1,15 @@
+{
+  "version": "agent-runtime-state-v1",
+  "savedAt": "2026-09-02T16:18:00.070Z",
+  "lifecycle": {
+    "agents": []
+  },
+  "safety": {
+    "globalAiEnabled": true,
+    "updatedAt": "2026-09-02T16:18:00.069Z",
+    "updatedBy": {
+      "type": "system",
+      "id": "safety-controller"
+    }
+  }
+}

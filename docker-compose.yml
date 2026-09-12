@@ -3,16 +3,22 @@ version: '3.8'
 services:
   api-server:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     ports:
       - '4000:4000'
     environment:
+      - NODE_ENV=production
+      - PORT=4000
       - PI_API_KEY=${PI_API_KEY}
-    volumes:
-      - .:/app
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
     networks:
       - sa-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   frontend:
     build:
@@ -24,8 +30,6 @@ services:
       - NEXT_PUBLIC_API_URL=http://api-server:4000
     depends_on:
       - api-server
-    volumes:
-      - ./frontend:/app
     networks:
       - sa-network
 
@@ -45,9 +49,3 @@ networks:
 
 volumes:
   ipfs_data: {}
-
-healthcheck:
-  test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
-  interval: 10s
-  timeout: 5s
-  retries: 3
