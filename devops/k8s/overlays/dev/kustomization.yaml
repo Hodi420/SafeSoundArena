@@ -1,0 +1,54 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../base/deployment.yaml
+- ../../base/service.yaml
+- ../../base/configmap.yaml
+- ../../base/secrets.yaml
+- ../../base/hpa.yaml
+
+namespace: safesoundarena-dev
+
+# Development-specific patches
+patches:
+- target:
+    kind: Deployment
+    name: safesoundarena-api
+  patch: |-
+    - op: replace
+      path: /spec/replicas
+      value: 1
+    - op: replace
+      path: /spec/template/spec/containers/0/image
+      value: safesoundarena-api:dev
+    - op: replace
+      path: /spec/template/spec/containers/0/imagePullPolicy
+      value: Never
+    - op: replace
+      path: /spec/template/spec/containers/0/env/2/value
+      value: debug
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/requests/memory
+      value: 128Mi
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/limits/memory
+      value: 256Mi
+
+# Development replicas override
+replicas:
+- name: safesoundarena-api
+  count: 1
+
+# Development environment variables
+configMapGenerator:
+- name: safesoundarena-config
+  behavior: merge
+  literals:
+  - NODE_ENV=development
+  - LOG_LEVEL=debug
+
+# Image prefix for development (local registry)
+images:
+- name: safesoundarena-api
+  newTag: dev

@@ -1,0 +1,221 @@
+version: '3.8'
+
+services:
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: safesoundarena-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-devpassword}
+    networks:
+      - sa-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # ClickHouse Analytics Database
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: safesoundarena-clickhouse-dev
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    environment:
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD:-devpassword}
+    networks:
+      - sa-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8123/ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # API Server
+  api-server:
+    build:
+      context: .
+      dockerfile: devops/docker/Dockerfile.dev
+    container_name: safesoundarena-api-dev
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - PI_API_KEY=${PI_API_KEY:-dev_key}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-dev_key}
+      - ADMIN_TOKEN=${ADMIN_TOKEN:-dev_token}
+      - ALLOWED_ORIGINS=*
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-devpassword}
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD:-devpassword}
+      - DATABASE_URL=${DATABASE_URL:-mongodb://localhost:27017/safesoundarena}
+      - LOG_LEVEL=debug
+    depends_on:
+      redis:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - sa-network
+    command: npm run dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../devops/docker/Dockerfile.dev
+    container_name: safesoundarena-frontend-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+    depends_on:
+      - api-server
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - sa-network
+    command: npm run dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # IPFS Node
+  ipfs:
+    image: ipfs/go-ipfs:latest
+    container_name: safesoundarena-ipfs-dev
+    ports:
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - ipfs_data:/data/ipfs
+    networks:
+      - sa-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/api/v0/version"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Prometheus Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: safesoundarena-prometheus-dev
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./devops/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - sa-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Grafana Dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: safesoundarena-grafana-dev
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./devops/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - sa-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Jaeger Distributed Tracing
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: safesoundarena-jaeger-dev
+    ports:
+      - "16686:16686"
+      - "14250:14250"
+    networks:
+      - sa-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:14269"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # MailHog for Email Testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: safesoundarena-mailhog-dev
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - sa-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8025"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Ganache Local Blockchain
+  ganache:
+    image: trufflesuite/ganache-cli:latest
+    container_name: safesoundarena-ganache-dev
+    ports:
+      - "8545:8545"
+    command: >
+      --deterministic
+      --mnemonic "test test test test test test test test test test test junk"
+      --networkId 1337
+      --chainId 1337
+      --gasLimit 8000000
+      --accounts 10
+    networks:
+      - sa-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8545"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+networks:
+  sa-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+  clickhouse_data:
+  ipfs_data:
+  prometheus_data:
+  grafana_data:
