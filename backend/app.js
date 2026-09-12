@@ -1,27 +1,3 @@
-// --- MCP Permissions API ---
-// רשימת כל המשתמשים עם הרשאות
-app.get('/api/mcp/users', (req, res) => {
-  const mcpPermissions = require('./mcp-permissions');
-  res.json({ users: mcpPermissions.getAllUsers() });
-});
-
-// הוספת הרשאה למשתמש
-app.post('/api/mcp/permissions', (req, res) => {
-  const { userId, role } = req.body;
-  if (!userId || !role) return res.status(400).json({ error: 'userId and role required' });
-  const mcpPermissions = require('./mcp-permissions');
-  mcpPermissions.addPermission(userId, role);
-  res.json({ success: true, userId, role });
-});
-
-// הסרת הרשאה ממשתמש
-app.delete('/api/mcp/permissions', (req, res) => {
-  const { userId, role } = req.body;
-  if (!userId || !role) return res.status(400).json({ error: 'userId and role required' });
-  const mcpPermissions = require('./mcp-permissions');
-  mcpPermissions.removePermission(userId, role);
-  res.json({ success: true, userId, role });
-});
 // app.js - SafeSoundArena backend bootstrap
 // נקודת כניסה ראשית לשרת ולמודולים המרכזיים
 require('dotenv').config();
@@ -40,6 +16,28 @@ const proofOfActivity = require('./proof-of-activity');
 const shameHonorBoards = require('./shame-honor-boards');
 
 const app = express();
+
+// --- MCP Permissions API ---
+// רשימת כל המשתמשים עם הרשאות
+app.get('/api/mcp/users', (req, res) => {
+  res.json({ users: mcpPermissions.getAllUsers() });
+});
+
+// הוספת הרשאה למשתמש
+app.post('/api/mcp/permissions', (req, res) => {
+  const { userId, role } = req.body;
+  if (!userId || !role) return res.status(400).json({ error: 'userId and role required' });
+  mcpPermissions.addPermission(userId, role);
+  res.json({ success: true, userId, role });
+});
+
+// הסרת הרשאה ממשתמש
+app.delete('/api/mcp/permissions', (req, res) => {
+  const { userId, role } = req.body;
+  if (!userId || !role) return res.status(400).json({ error: 'userId and role required' });
+  mcpPermissions.removePermission(userId, role);
+  res.json({ success: true, userId, role });
+});
 
 // מודול ניהול הרשאות MCP
 const mcpPermissions = require('./mcp-permissions');

@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   api-server:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - '4000:4000'
+      - '127.0.0.1:4000:4000'
     environment:
       - NODE_ENV=production
       - PORT=4000
@@ -14,8 +12,23 @@ services:
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
     networks:
       - sa-network
+    restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 128
+    mem_limit: 512m
+    mem_reservation: 128m
+    cpus: 1.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "5"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:4000/api/health', res => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -25,23 +38,58 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - '3000:3000'
+      - '127.0.0.1:3000:3000'
     environment:
       - NEXT_PUBLIC_API_URL=http://api-server:4000
     depends_on:
-      - api-server
+      api-server:
+        condition: service_healthy
     networks:
       - sa-network
+    restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 256
+    mem_limit: 768m
+    mem_reservation: 256m
+    cpus: 1.5
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid,nodev
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "5"
 
   ipfs:
-    image: ipfs/go-ipfs:latest
+    image: ipfs/kubo:v0.28.0
     ports:
-      - '5001:5001'
-      - '8080:8080'
+      - '127.0.0.1:5001:5001'
+      - '127.0.0.1:8080:8080'
     volumes:
       - ipfs_data:/data/ipfs
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "--post-data=", "http://127.0.0.1:5001/api/v0/version"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - sa-network
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    mem_limit: 1g
+    mem_reservation: 256m
+    cpus: 1.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 20m
+        max-file: "5"
 
 networks:
   sa-network:
