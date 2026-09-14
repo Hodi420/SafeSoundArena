@@ -4,13 +4,11 @@ export default function MainBanner() {
   // Simple Pi connect handler for banner button
   function connectPi() {
     if (typeof window !== 'undefined' && window.Pi) {
-      window.Pi.authenticate([])
-        .then((auth: any) => {
-          alert('Connected as ' + (auth.user?.uid || auth.user?.username || 'unknown'));
-        })
-        .catch((err: any) => {
-          alert('Connection failed: ' + err);
-        });
+      window.Pi.authenticate([], (auth: any) => {
+        alert('Connected as ' + (auth.user?.uid || auth.user?.username || 'unknown'));
+      }, (err: any) => {
+        alert('Connection failed: ' + err);
+      });
     } else {
       alert('Pi Network SDK not found.');
     }

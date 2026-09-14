@@ -6,11 +6,8 @@ import Head from 'next/head';
 let socket: ReturnType<typeof io> | null = null;
 
 // Logging utility for security and connectivity events
-<<<<<<< HEAD
 const logEvent = (event: string, details?: Record<string, unknown>) => {
-=======
-const logEvent = (event: string, details?: any) => {
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+ 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line no-console
     console.log(`[JailRoom] ${event}`, details || '');
@@ -20,11 +17,8 @@ const logEvent = (event: string, details?: any) => {
 interface JailUser {
   username: string;
   avatar?: string;
-<<<<<<< HEAD
   profileData?: Record<string, unknown>;
-=======
-  profileData?: Record<string, any>;
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+ 
 }
 
 interface JailMessage {
@@ -444,12 +438,14 @@ export default function JailRoom() {
                         }
                         // Speaking indicator logic + volume meter
                         try {
-                          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                          const AudioContextConstructor = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+                          if (!AudioContextConstructor) return;
+                          const audioContext = new AudioContextConstructor();
                           const analyser = audioContext.createAnalyser();
                           const source = audioContext.createMediaStreamSource(remoteStream);
                           source.connect(analyser);
                           const dataArray = new Uint8Array(analyser.frequencyBinCount);
-                          function checkVolume() {
+                          const checkVolume = () => {
                             analyser.getByteFrequencyData(dataArray);
                             const volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
                             setUserVolumes(prev => ({ ...prev, [u]: Math.min(volume / 100, 1) }));
@@ -459,7 +455,7 @@ export default function JailRoom() {
                               setSpeakingUsers(prev => prev.filter(name => name !== u));
                             }
                             requestAnimationFrame(checkVolume);
-                          }
+                          };
                           checkVolume();
                         } catch (err) {
                           // Fallback: ignore speaking indicator if AudioContext fails
@@ -558,7 +554,7 @@ export default function JailRoom() {
                   // Use a random emoji for avatar if not present
                   const emojiList = ['🦁','🐼','🐸','🐵','🦊','🐯','🐻','🐨','🐶','🐱','🐰','🦄','🐮','🐷','🐔','🐙','🐢','🐧','🦉','🦋','🐝','🐞','🦖','🐲','🐳','🐬','🦓','🦒','🐘','🦥','🦦','🦨','🦔','🦩','🦚','🦜','🦢','🦩','🦚','🦜'];
                   // Deterministically pick emoji based on username hash
-                  let hash = 0; for (let c of user.username) hash += c.charCodeAt(0);
+                  let hash = 0; for (const c of user.username) hash += c.charCodeAt(0);
                   const avatar = user.avatar || emojiList[hash % emojiList.length];
                   // Grid position (5 columns)
                   const cols = 5;
@@ -651,15 +647,13 @@ export default function JailRoom() {
                           <div className="font-semibold text-xs text-gray-300 mb-1">{msg.user}</div>
                         )}
                         <div>{msg.text}</div>
-<<<<<<< HEAD
                       </div>
                     </motion.div>
                   );
                 })}
                 <div ref={messagesEndRef} />
-              </div>
-=======
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+              </div
+> 
 
               {/* Input */}
               <div className="p-3 border-t border-gray-700 bg-gray-800/50">

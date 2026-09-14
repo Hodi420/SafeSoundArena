@@ -19,25 +19,9 @@ export interface Event {
   emoji: '🎪' | '⚔️' | '🏆' | '🤝'; // Event type emoji
 }
 
-import { useQuery } from '@tanstack/react-query';
-
-export interface Event {
-  id: string;
-  title: string;
-  description: string;
-  startTime: Date;
-  endTime: Date;
-  capacity: number;
-  participants: number;
-  type: string;
-  status: string;
-  rewards: Array<{ amount: number; type: string }>;
-  emoji: string;
-}
-
-const mockEvents: Event[] = [
+const demoEvents: Event[] = [
   {
-    id: '1',
+    id: 'demo-event',
     title: 'Test Event',
     description: 'A fun test event',
     startTime: new Date(),
@@ -55,8 +39,12 @@ export const useEvents = () => {
   return useQuery<Event[]>({
     queryKey: ['events'],
     queryFn: async () => {
-      const { data } = await apiClient.get(API_ENDPOINTS.EVENTS.LIST);
-      return data;
+      try {
+        const { data } = await apiClient.get(API_ENDPOINTS.EVENTS.LIST);
+        return data as Event[];
+      } catch {
+        return demoEvents;
+      }
     },
   });
 };

@@ -7,16 +7,26 @@ import { usePiAuth } from '../hooks/usePiAuth';
 
 import UserPiKycGuard from '../components/UserPiKycGuard';
 
+interface BoardUser {
+  username: string;
+  type: string;
+  community_score: number;
+  badges?: string[];
+  ai_summary: string;
+}
+
+interface BoardSite {
+  site: string;
+  type: string;
+  community_score: number;
+  ai_summary: string;
+}
+
 export default function BoardsPage() {
-<<<<<<< HEAD
-  const [shame, setShame] = useState<Record<string, unknown>[]>([]);
-  const [fame, setFame] = useState<Record<string, unknown>[]>([]);
-  const [sites, setSites] = useState<Record<string, unknown>[]>([]);
-=======
-  const [shame, setShame] = useState<any[]>([]);
-  const [fame, setFame] = useState<any[]>([]);
-  const [sites, setSites] = useState<any[]>([]);
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+  const [shame, setShame] = useState<BoardUser[]>([]);
+  const [fame, setFame] = useState<BoardUser[]>([]);
+  const [sites, setSites] = useState<BoardSite[]>([]);
+ 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,17 +40,15 @@ export default function BoardsPage() {
           getBoard('fame'),
           getBoard('sites'),
         ]);
-        setShame(shameData);
-        setFame(fameData);
-        setSites(sitesData);
+        setShame(shameData as BoardUser[]);
+        setFame(fameData as BoardUser[]);
+        setSites(sitesData as BoardSite[]);
         setError(null);
-<<<<<<< HEAD
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : 'שגיאת טעינה');
-=======
-      } catch (e: any) {
-        setError(e.message || 'שגיאת טעינה');
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+        setShame([]);
+        setFame([]);
+        setSites([]);
       } finally {
         setLoading(false);
       }
@@ -49,11 +57,8 @@ export default function BoardsPage() {
   }, []);
 
   // Submit report to API
-<<<<<<< HEAD
-  async function handleReport(data: Record<string, unknown>) {
-=======
-  async function handleReport(data: any) {
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+  async function handleReport(data: { username: string; type: string; description: string; evidence: string[] }) {
+ 
     try {
       setLoading(true);
       await reportUser(data);
@@ -62,16 +67,12 @@ export default function BoardsPage() {
         getBoard('shame'),
         getBoard('fame'),
       ]);
-      setShame(shameData);
-      setFame(fameData);
+      setShame(shameData as BoardUser[]);
+      setFame(fameData as BoardUser[]);
       setError(null);
-<<<<<<< HEAD
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'שגיאת דיווח');
-=======
-    } catch (e: any) {
-      setError(e.message || 'שגיאת דיווח');
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+      setLoading(false);
     } finally {
       setLoading(false);
     }

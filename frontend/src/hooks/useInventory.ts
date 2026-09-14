@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../client';
-import { EMOJIS } from '../../../constants/emojis';
+import { EMOJIS } from '../constants/emojis';
 
 export interface InventoryItem {
   id: string;
@@ -37,9 +37,7 @@ export interface Recipe {
 }
 
 export const useInventory = () => {
-  import { InventoryItem } from '../../types/api';
-
-return useQuery<InventoryItem[]>({
+  return useQuery<InventoryItem[]>({
     queryKey: ['inventory'],
     queryFn: async (): Promise<InventoryItem[]> => {
       const { data } = await apiClient.get('/inventory');

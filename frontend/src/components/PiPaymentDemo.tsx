@@ -1,4 +1,6 @@
-// Removed: Demo Pi payment component. This file is intentionally left blank for production.
+import { useState } from 'react';
+
+export default function PiPaymentDemo() {
   const [amount, setAmount] = useState('1');
   const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
 

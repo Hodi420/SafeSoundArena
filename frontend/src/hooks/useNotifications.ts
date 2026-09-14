@@ -12,9 +12,7 @@ export interface Notification {
 }
 
 export const useNotifications = () => {
-  import { Notification } from '../../types/api';
-
-return useQuery<Notification[]>({
+  return useQuery<Notification[]>({
     queryKey: ['notifications'],
     queryFn: async (): Promise<Notification[]> => {
       const { data } = await apiClient.get(API_ENDPOINTS.NOTIFICATIONS.LIST);

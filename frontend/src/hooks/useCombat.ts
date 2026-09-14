@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../client';
-import { EMOJIS } from '../../../constants/emojis';
+import { EMOJIS } from '../constants/emojis';
 
 export interface Character {
   id: string;

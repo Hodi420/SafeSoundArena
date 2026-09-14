@@ -27,10 +27,16 @@ describe('BotOperator', () => {
 
   it('should not operate when inactive', () => {
     const bot = new BotOperator({ active: false });
-    let operated = false;
-    bot.operate = () => { operated = true; };
     bot.active = false;
-    bot.operate();
-    assert.strictEqual(operated, false);
+    const originalLog = console.log;
+    let logged = false;
+    console.log = () => { logged = true; };
+    return bot.operate().then(() => {
+      console.log = originalLog;
+      assert.strictEqual(logged, false);
+    }).catch((error) => {
+      console.log = originalLog;
+      throw error;
+    });
   });
 });

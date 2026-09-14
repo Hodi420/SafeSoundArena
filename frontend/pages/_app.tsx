@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { useThemeStore } from '../store/useThemeStore';
 import { useThemeSync } from '../src/hooks/useThemeSync';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ToastProvider } from '../src/components/ToastContext';
 import ExternalSDKs from '../src/lib/ExternalSDKs';
 // Only import devtools and DebugPanel in dev or sandbox
 const isDevOrSandbox = process.env.NODE_ENV !== 'production' || process.env.NEXT_PUBLIC_PI_SANDBOX === 'true';
@@ -26,9 +27,11 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className={`font-${font} theme-${uiStyle} animation-${animationSpeed}`}>
-        <Component {...pageProps} />
-      </div>
+      <ToastProvider>
+        <div className={`font-${font} theme-${uiStyle} animation-${animationSpeed}`}>
+          <Component {...pageProps} />
+        </div>
+      </ToastProvider>
     </QueryClientProvider>
   );
 };

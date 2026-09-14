@@ -1,4 +1,5 @@
 import { Html, Head, Main, NextScript } from 'next/document';
+import Script from 'next/script';
 
 export default function Document() {
   return (
@@ -11,7 +12,7 @@ export default function Document() {
             content="script-src 'self' 'unsafe-eval' 'unsafe-inline';"
           />
         )}
-        <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+        <Script src="https://sdk.minepi.com/pi-sdk.js" strategy="beforeInteractive" />
       </Head>
       <body>
         <Main />

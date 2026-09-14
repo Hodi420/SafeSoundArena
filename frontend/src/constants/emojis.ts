@@ -11,7 +11,7 @@ export const EMOJIS = {
     MINING: '⛏️',
     MAGIC: '✨',
   },
-  
+
   DIFFICULTY: {
     NOVICE: '🌱',
     EASY: '🔰',
@@ -135,7 +135,9 @@ export const EMOJIS = {
     CALENDAR: '📅',
     BUY: '🛒',
   },
-  // Top-level aliases for convenience and legacy usage
+} as const;
+
+Object.assign(EMOJIS, {
   TIME: EMOJIS.UI.TIME,
   LINK: EMOJIS.UI.LINK,
   MENU: EMOJIS.UI.MENU,
@@ -148,4 +150,4 @@ export const EMOJIS = {
   BUY: EMOJIS.UI.BUY,
   CALENDAR: EMOJIS.UI.CALENDAR,
   BLOCKCHAIN: EMOJIS.BLOCKCHAIN,
-} as const;
+});

@@ -28,7 +28,7 @@ export interface AIContext {
 export const useChat = () => {
   return useMutation({
     mutationFn: async (message: string) => {
-      const { data } = await apiClient.post<ChatMessage>(API_ENDPOINTS.AI.CHAT, { message });
+      const { data } = await apiClient.post(API_ENDPOINTS.AI.CHAT, { message });
       return data;
     },
   });

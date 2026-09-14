@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosHeaders } from 'axios';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -15,7 +15,7 @@ apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('auth_token');
     if (token) {
-      if (!config.headers) config.headers = {};
+      if (!config.headers) config.headers = new AxiosHeaders();
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;

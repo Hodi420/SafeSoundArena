@@ -1,10 +1,13 @@
-// Removed: Demo wallet component. This file is intentionally left blank for production.
-  // For demo: generate a fake wallet address (not secure!)
+import { useState } from 'react';
+
+import { IconButton } from './IconButton';
+import Toast from './Toast';
+
+export default function AppWalletDemo() {
   const [wallet] = useState<string>('PITEST_0x' + Math.random().toString(36).substring(2, 12).toUpperCase());
   const [copied, setCopied] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
-  // Copies wallet address to clipboard and shows feedback
   const handleCopy = () => {
     navigator.clipboard.writeText(wallet);
     setCopied(true);
@@ -16,7 +19,7 @@
     <div className="container">
       <h2>Demo Wallet Address</h2>
       <p>This is a sample wallet address for demonstration only. In production, connect to a real wallet provider.</p>
-      <div style={{background: '#eee', padding: 8, borderRadius: 4, fontFamily: 'monospace', userSelect: 'all'}}>{wallet}</div>
+      <div style={{ background: '#eee', padding: 8, borderRadius: 4, fontFamily: 'monospace', userSelect: 'all' }}>{wallet}</div>
       <IconButton
         ariaLabel={copied ? 'Wallet address copied!' : 'Copy wallet address'}
         title={copied ? 'Wallet address copied!' : 'Copy wallet address'}

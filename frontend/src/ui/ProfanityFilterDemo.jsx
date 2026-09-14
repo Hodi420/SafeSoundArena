@@ -1,4 +1,11 @@
-// Removed: Profanity filter demo component. This file is intentionally left blank for production.
+import React, { useState } from 'react';
+
+const filter = {
+  isProfane: (value) => /\b(fuck|shit)\b/i.test(value),
+  clean: (value) => value.replace(/\b(fuck|shit)\b/gi, '***'),
+};
+
+export default function ProfanityFilterDemo() {
   const [input, setInput] = useState('');
   const [clean, setClean] = useState('');
   const [isProfane, setIsProfane] = useState(false);

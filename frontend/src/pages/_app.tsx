@@ -2,7 +2,6 @@ import '../index.css';
 import type { AppProps } from 'next/app';
 import { AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/router';
-<<<<<<< HEAD
 import { useEffect } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -10,14 +9,13 @@ import theme from '../theme';
 import { PageTransition } from '../components/PageTransition';
 import { RouteChangeLoader } from '../components/RouteChangeLoader';
 import { RouteChangeProgress } from '../components/RouteChangeProgress';
+import { ToastProvider } from '../components/ToastContext';
 import { initGA, trackPageView } from '../lib/analytics';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const disableTransition = (Component as { disableTransition?: boolean }).disableTransition;
   const pageTransitionProps = (Component as { pageTransitionProps?: object }).pageTransitionProps || {};
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { ToastProvider } = require('../components/ToastContext');
   const isJailTime = router.pathname === '/jail-time';
 
   // Google Analytics: Initialize once and track page views
@@ -30,19 +28,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       router.events.off('routeChangeComplete', handleRouteChange);
     };
   }, [router.events]);
-
-=======
-import { PageTransition } from '../components/PageTransition';
-import { RouteChangeLoader } from '../components/RouteChangeLoader';
-import { RouteChangeProgress } from '../components/RouteChangeProgress';
-
-function MyApp({ Component, pageProps }: AppProps) {
-  const router = useRouter();
-  const disableTransition = (Component as any).disableTransition;
-  const pageTransitionProps = (Component as any).pageTransitionProps || {};
-  const { ToastProvider } = require('../components/ToastContext');
-  const isJailTime = router.pathname === '/jail-time';
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+ 
   const content = (
     <>
       <RouteChangeProgress />
@@ -58,20 +44,16 @@ function MyApp({ Component, pageProps }: AppProps) {
       </AnimatePresence>
     </>
   );
-<<<<<<< HEAD
-  return isJailTime ? content : (
+  const wrappedContent = (
+    <ToastProvider>{content}</ToastProvider>
+  );
+
+  return isJailTime ? wrappedContent : (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <ToastProvider>{content}</ToastProvider>
+      {wrappedContent}
     </ThemeProvider>
   );
 }
-
-
-=======
-  return isJailTime ? content : <ToastProvider>{content}</ToastProvider>;
-
-}
-
->>>>>>> 9841034 (Initial full project commit: user/admin dashboards, tasks, notifications, MongoDB, and statistics features)
+ 
 export default MyApp;

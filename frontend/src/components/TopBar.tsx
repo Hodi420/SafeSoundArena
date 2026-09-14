@@ -4,6 +4,18 @@ import { IconButton } from './IconButton';
 
 const NAV_LABELS = ['Dashboard', 'Bots', 'Marketplace', 'Settings'];
 
+interface TopBarProps {
+  active?: string;
+  onNav?: (label: string) => void;
+  onProfile?: () => void;
+  onThemeToggle?: () => void;
+  onNotifications?: () => void;
+  onSearch?: (query: string) => void;
+  notificationCount?: number;
+  avatarUrl?: string;
+  isDark?: boolean;
+}
+
 export function TopBar({
   active = 'Dashboard',
   onNav = () => {},
@@ -14,7 +26,7 @@ export function TopBar({
   notificationCount = 0,
   avatarUrl = '',
   isDark = false,
-}) {
+}: TopBarProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [search, setSearch] = useState('');
 
