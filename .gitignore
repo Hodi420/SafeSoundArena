@@ -40,6 +40,8 @@ dist/
 coverage/
 backend/mcp-permissions.json
 .cache/
+# Local annual-token ledger; never commit account state or moderation evidence.
+data/arena-credit/
 # System
 .DS_Store
 Thumbs.db
