@@ -1,0 +1,25 @@
+name: Annual token policy
+
+on:
+  push:
+    branches: [main, 'codex/annual-token-jailtime-policy']
+    paths: ['blockchain/**', 'backend/jailtime-events/**', '.github/workflows/annual-token-policy.yml']
+  pull_request:
+    paths: ['blockchain/**', 'backend/jailtime-events/**', '.github/workflows/annual-token-policy.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  policy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm run arena:check
+      - run: npm run test:arena

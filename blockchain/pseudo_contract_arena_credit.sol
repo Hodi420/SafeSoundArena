@@ -1,5 +1,6 @@
-// Arena Credit (ARC) – Smart Contract Template for Pi Network (Pseudo Solidity)
-// This contract is ready for future deployment on Pi Network or any EVM-compatible chain
+// LEGACY illustration: this file does not implement annual series, wallet ACLs,
+// or Jailtime holds. It is not a deployment artifact for the annual policy.
+// The maintained off-chain reference is arenaCreditService.js / ANNUAL_POLICY.md.
 
 pragma solidity ^0.8.0;
 

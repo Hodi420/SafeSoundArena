@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "version": "annual-roman-jailtime-v1",
+  "mode": "simulation",
+  "mainnetEnabled": false,
+  "externalAssetsEnabled": false,
+  "rolloverEnabled": false,
+  "owner": "admin",
+  "timezone": "Asia/Jerusalem",
+  "annualSupplyCapAtomic": "100000000",
+  "atomicUnitsPerAs": "100",
+  "denominationsAtomic": {
+    "as": "100",
+    "sestertius": "400",
+    "denarius": "1600",
+    "aureus": "40000"
+  },
+  "allowPersonalTransfers": false,
+  "jailtimePercentages": [10, 25, 50, 75, 100],
+  "maxJailtimeMs": 2592000000,
+  "settlementCutoffMs": 86400000
+}

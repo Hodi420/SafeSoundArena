@@ -8,6 +8,8 @@
   ],
   "scripts": {
     "test": "mocha --exit",
+    "test:arena": "node --test blockchain/test/*.test.js",
+    "arena:check": "node blockchain/check-policy.js",
     "dev": "cd frontend && npm run dev"
   },
   "devDependencies": {

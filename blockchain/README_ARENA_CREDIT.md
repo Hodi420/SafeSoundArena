@@ -1,5 +1,11 @@
 # Arena Credit (ARC) – Decentralized Token System (Off-chain Simulation)
 
+> The maintained implementation is now the annual-series simulation documented in
+> [ANNUAL_POLICY.md](ANNUAL_POLICY.md). The historical tokenomics and pseudo-contract
+> below are background, not an active deployment specification. Importing the
+> service no longer allocates balances. Amounts are atomic-unit strings, callers
+> and annual series must be explicit, and real Pi/EVM transfers remain disabled.
+
 ## Whitepaper (תקציר)
 Arena Credit (ARC) הוא מטבע דיגיטלי מבוזר, שנועד לשמש כאמצעי תשלום ותגמול באפליקציית SafeSoundArena. ARC יתממשק בעתיד עם רשת Pi Network ויאפשר מעבר חלק בין מטבע PI לבין הקרדיט הפנימי של המערכת.
 

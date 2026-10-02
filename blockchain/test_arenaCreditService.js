@@ -1,41 +1,23 @@
-// בדיקות/סימולציה לפונקציות החדשות של ArenaCreditService
-const arena = require('./arenaCreditService');
+'use strict';
 
-(async () => {
-  // הדפסת יתרות ראשוניות
-  console.log('--- יתרות ראשוניות ---');
-  console.log(await arena.getHolders());
-
-  // ביצוע העברה עם עמלה
-  console.log('\n--- העברה עם עמלה ---');
-  await arena.transfer('community', 'alice', 1000);
-  console.log('יתרת alice:', await arena.getBalance('alice'));
-  console.log('יתרת burn:', await arena.getBurnedAmount());
-
-  // הקפאת חשבון
-  await arena.freezeAccount('alice', 'admin');
-  console.log('\n--- הקפאת alice ---');
-  try {
-    await arena.transfer('alice', 'bob', 10);
-  } catch (e) {
-    console.log('שגיאה צפויה (alice מוקפאת):', e.message);
-  }
-
-  // שחרור חשבון
-  await arena.unfreezeAccount('alice', 'admin');
-  console.log('\n--- שחרור alice ---');
-  await arena.transfer('alice', 'bob', 10);
-  console.log('יתרת bob:', await arena.getBalance('bob'));
-
-  // הוספת אדמין והסרה
-  await arena.addAdmin('superman', 'admin', 'regular');
-  await arena.removeAdmin('superman', 'admin');
-
-  // הדפסת כל הלוגים
-  console.log('\n--- לוג טרנזקציות ---');
-  console.log(await arena.getTransactions());
-
-  // הצגת יתרת burn address
-  console.log('\n--- burn address:', arena.BURN_ADDRESS, '---');
-  console.log('סה"כ שרוף:', await arena.getBurnedAmount());
-})();
+// Reproducible smoke example only. No real balances or network calls.
+const assert = require('node:assert/strict');
+const { ArenaCreditService } = require('./arenaCreditService');
+const now = Date.parse('2027-06-01T10:00:00Z');
+const arena = new ArenaCreditService({ clock: () => now });
+arena.createAccount({ id: 'alice', kind: 'personal' }, 'alice');
+arena.createAccount({ id: 'shop', kind: 'business' }, 'merchant');
+arena.approveBusiness('shop', true, 'admin');
+arena.createAnnualSeries({ year: 2027 }, 'admin');
+arena.mint('alice', '100000', 'admin', { seriesId: 'ARC-2027' });
+arena.reserve({ reservationId: 'order-1', from: 'alice', to: 'shop', seriesId: 'ARC-2027',
+  amountAtomic: '20000', endsAt: now + 3600000 }, 'alice');
+arena.applyJailtime({ caseId: 'case-1', accountId: 'alice', subject: 'alice', seriesId: 'ARC-2027',
+  percent: 25, endsAt: now + 86400000, reason: 'Reviewed simulation decision', evidenceRef: 'proof:demo' }, 'admin');
+const before = arena.getBalanceSummary('alice', 'ARC-2027');
+assert.equal(before.availableAtomic, '60000');
+arena.withdraw('alice', '60000', 'alice', { seriesId: 'ARC-2027', requestId: 'demo-withdrawal' });
+assert.throws(() => arena.withdraw('alice', '1', 'alice', { seriesId: 'ARC-2027' }), /unlocked balance/);
+console.log(JSON.stringify({ mode: 'simulation', beforeWithdrawal: before,
+  afterWithdrawal: arena.getBalanceSummary('alice', 'ARC-2027'),
+  annualStats: arena.getAnnualStats('ARC-2027'), verified: true }, null, 2));

@@ -1,6 +1,5 @@
-// Jail Time Events - Core module skeleton
-// TODO: Implement Jail Time (conference/event system) logic
+'use strict';
 
-module.exports = {
-  // Example: createEvent, listEvents, joinEvent
-};
+// Wallet moderation is separate from attendance in the scheduled Jail room.
+// The host supplies trusted identity and approved-decision adapters.
+module.exports = require('./walletController');
